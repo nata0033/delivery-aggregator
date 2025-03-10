@@ -1,23 +1,90 @@
 <!DOCTYPE html>
-<html>
+<html xmlns:th="http://www.thymeLeaf.org">
     <head>
         <meta charset="utf-8">
         <title>Главная</title>
+        <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+        <style>
+            body {
+                background: url(https://wallpapers.com/images/high/cardboard-background-v6qc5jtg1yrr9gcd.webp) no-repeat;
+                background-size: 100%; /* Современные браузеры */
+            }
+            .locationSuggest{
+                background-color: white;
+                position: absolute;
+                z-index: 1;
+            }
+        </style>
     </head>
+    <header class="p-3 bg-dark text-white">
+        <div class="container">
+            <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
+                <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
+                    <li><a href="#" class="nav-link px-2 text-white">Главная</a></li>
+                    <li><a href="#" class="nav-link px-2 text-white">Личный кабинет</a></li>
+                </ul>
+                <div class="text-end">
+                    <button type="button" class="btn btn-outline-light me-2">Регистрация</button>
+                    <button type="button" class="btn btn-light">Вход</button>
+                </div>
+            </div>
+        </div>
+    </header>
     <body>
-
-    <form action="/" method="POST">
-        <label>Город отправления</label>
-        <input type="text" name="from_location"  required>
-        <br>
-        <label>Город получения</label>
-        <input type="text" name="to_location"  required>
-        <br>
-        <label>Вес (гр)</label>
-        <input type="number" name="weight"  required>
-        <br>
-        <input type="submit" value="Найти">
-    </form>
-
+    <div class="container-fluid" style="padding-bottom: 100px">
+        <div class="row justify-content-center ">
+            <div class="col-md-auto" style="padding-top: 10%">
+                <h1 style="color: #343a40">Поиск дешевых сервисов доставки</h1>
+                <form action="/" method="POST" autocomplete="off">
+                    <div class="form-row">
+                        <div class="form-group col-md-5">
+                            <input type="text" name="fromLocation" class="form-control" id="fromLocationInput" placeholder="Город отправления" required>
+                            <div class="locationSuggest" id="fromLocationSuggest"></div>
+                        </div>
+                        <div class="form-group col-md-5">
+                            <input type="text" name="toLocation" class="form-control" id="toLocationInput" placeholder="Город получения" required>
+                            <div class="locationSuggest" id="toLocationSuggest"></div>
+                        </div>
+                        <div class="form-group col-md-2">
+                            <button type="submit" class="btn btn-light">Найти</button>
+                        </div>
+                    </div>
+                    <div class="form-row" style="padding-top: 30px">
+                        <div class="form-group col-md-2">
+                            <button type="button" class="btn btn-light" id="addPackageButton">Добавить груз</button>
+                        </div>
+                        <div class="form-group col-md-2">
+                            <button type="button" class="btn btn-light" id="removePackageButton">Убрать груз</button>
+                        </div>
+                    </div>
+                    <div class="form-row" id="package">
+                        <div class="form-group col-md-2">
+                            <label>
+                                <input type="number" name="packages.weight" class="form-control" placeholder="Вес" required>
+                            </label>
+                        </div>
+                        <div class="form-group col-md-2">
+                            <label>
+                                <input type="number" name="packages.length" class="form-control" placeholder="Длина">
+                            </label>
+                        </div>
+                        <div class="form-group col-md-2">
+                            <label>
+                                <input type="number" name="packages.width" class="form-control" placeholder="Ширина">
+                            </label>
+                        </div>
+                        <div class="form-group col-md-2">
+                            <label>
+                                <input type="number" name="packages.height" class="form-control" placeholder="Высота">
+                            </label>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-light">Найти</button>
+                </form>
+            </div>
+        </div>
+    </div>
     </body>
+    <script src="" th:src="@{js/index.js}"></script>
+<!--    <script src="../static/js/index.js"></script>-->
 </html>

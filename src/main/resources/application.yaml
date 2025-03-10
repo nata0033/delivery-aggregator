@@ -1,0 +1,6 @@
+spring:
+  application:
+    name: delivery-aggregator
+  cdek:
+    client-id:
+    client-secret:

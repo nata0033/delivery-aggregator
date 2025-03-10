@@ -1,14 +1,15 @@
 package com.example.delivery_aggregator.controller;
 
+import com.example.delivery_aggregator.entity.response.DeliveryParams;
 import com.example.delivery_aggregator.service.CdekService;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.configurationprocessor.json.JSONException;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
+
 
 @Controller
 @Data
@@ -18,16 +19,31 @@ public class AggregatorController {
     private final CdekService cdekService;
 
     @GetMapping()
-    public String findTarif(Model model) throws JsonProcessingException, JSONException {
+    public String index(){
         return "index";
     }
 
+//    @PostMapping()
+//    public ResponseEntity<String> findTariffs(@RequestParam("from_location") String fromLocation,
+//                                            @RequestParam("to_location") String toLocation,
+//                                            @RequestParam("weight") List<Integer> weight,
+//                                            @RequestParam("length") List<Integer> length,
+//                                            @RequestParam("width") List<Integer> width,
+//                                            @RequestParam("height") List<Integer> height){
+//        Integer fromLocationCode = cdekService.getCitiesCode(fromLocation);
+//        Integer toLocationCode = cdekService.getCitiesCode(toLocation);
+//        return cdekService.tariffList(fromLocationCode, toLocationCode, weight, length, width, height);
+//    }
+
     @PostMapping()
-    public ResponseEntity<String> index(@RequestParam("from_location") String fromLocation,
-                                        @RequestParam("to_location") String toLocation,
-                                        @RequestParam("weight") Integer weight) throws JsonProcessingException, JSONException {
-        Integer fromLocationCode = cdekService.suggestCities(fromLocation);
-        Integer toLocationCode = cdekService.suggestCities(toLocation);
-        return cdekService.tariffList(fromLocationCode, toLocationCode, weight);
+    public String findTariffs(@ModelAttribute DeliveryParams deliveryParams, Model model) {
+        System.out.println(deliveryParams);
+        return "index";
     }
+
+    @GetMapping("/test")
+    public String test(Model model){
+        return "test";
+    }
+
 }
