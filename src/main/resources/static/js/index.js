@@ -3,32 +3,32 @@ addPackageButton = document.getElementById('addPackageButton')
 addPackageButton.addEventListener('click', () => {
     console.log('inside the newPackage function')
     addedPackageDiv = document.getElementById('package')
+
+    var quantityOfCargo = document.querySelectorAll('#package').length
     newDiv = `
         <div class="form-row" id="package">
             <div class="form-group col-md-2">
                 <label>
-                    <input type="number" name="weight[]" class="form-control" placeholder="Вес" required>
+                    <input type="number" name="packages[` + quantityOfCargo + `].weight" class="form-control" placeholder="Вес" required>
                 </label>
             </div>
             <div class="form-group col-md-2">
                 <label>
-                    <input type="number" name="length[]" class="form-control" placeholder="Длина">
+                    <input type="number" name="packages[` + quantityOfCargo + `].length" class="form-control" placeholder="Длина">
                 </label>
             </div>
             <div class="form-group col-md-2">
                 <label>
-                    <input type="number" name="width[]" class="form-control" placeholder="Ширина">
+                    <input type="number" name="packages[` + quantityOfCargo + `].width" class="form-control" placeholder="Ширина">
                 </label>
             </div>
             <div class="form-group col-md-2">
                 <label>
-                    <input type="number" name="height[]" class="form-control" placeholder="Высота">
+                    <input type="number" name="packages[` + quantityOfCargo + `].height" class="form-control" placeholder="Высота">
                 </label>
             </div>
         </div>
     `
-
-    quantityOfCargo = document.querySelectorAll('#package').length
     addedPackageDiv.insertAdjacentHTML("beforeBegin", newDiv)
 })
 
@@ -37,8 +37,8 @@ removePackageButton = document.getElementById('removePackageButton')
 removePackageButton.addEventListener('click', () => {
     console.log('inside the removePackage function')
     removedPackageDiv = document.getElementById('package')
-    quantityOfCargo = document.querySelectorAll('#package').length
-    if (quantityOfCargo > 1){
+
+    if (document.querySelectorAll('#package').length > 1){
         removedPackageDiv.remove()
     }
 })

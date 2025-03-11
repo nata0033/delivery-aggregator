@@ -1,8 +1,9 @@
 package com.example.delivery_aggregator.service;
 
-import com.example.delivery_aggregator.entity.request.OAuthTokenInfo;
-import com.example.delivery_aggregator.entity.request.SuggestCity;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.example.delivery_aggregator.dto.FormDeliveryParams;
+import com.example.delivery_aggregator.dto.cdek.*;
+import com.example.delivery_aggregator.mappers.CdekMapper;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
@@ -11,12 +12,15 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.*;
 
+
+@RequiredArgsConstructor
 @Service
 public class CdekService {
 
     private final String URL = "https://api.edu.cdek.ru";
 
-    ObjectMapper objectMapper = new ObjectMapper();
+
+    private final CdekMapper cdekMapper;
 
     @Autowired
     private RestTemplate restTemplate;
@@ -27,8 +31,8 @@ public class CdekService {
         final String CLIENT_ID = "wqGwiQx0gg8mLtiEKsUinjVSICCjtTEP";
         final String CLIENT_SECRET = "RmAmgvSgSl1yirlz9QupbzOJVqhCxcP5";
 
-        OAuthTokenInfo response = restTemplate.postForEntity(REQUEST_URL, null, OAuthTokenInfo.class, GRAND_TYPE, CLIENT_ID, CLIENT_SECRET).getBody();
-        return response.getAccess_token();
+        OAuthTokenResponse response = restTemplate.postForEntity(REQUEST_URL, null, OAuthTokenResponse.class, GRAND_TYPE, CLIENT_ID, CLIENT_SECRET).getBody();
+        return response.getAccessToken();
     }
 
     public  HttpHeaders getHttpHeaders(String accessToken){
@@ -39,42 +43,38 @@ public class CdekService {
         return headers;
     }
 
-    public Integer getCitiesCode(String name) {
+    public SuggestCityResponse getCitiesCode(String name) {
         final String REQUEST_URL = URL + "/v2/location/suggest/cities?name={name}&country_code=RU";
         final String ACCESS_TOKEN = getOAuthToken();
 
         HttpHeaders headers = getHttpHeaders(ACCESS_TOKEN);
 
-        ParameterizedTypeReference<List<SuggestCity>> ParamRef = new ParameterizedTypeReference<>() {};
-        ResponseEntity<List<SuggestCity>> response = restTemplate.exchange(REQUEST_URL, HttpMethod.GET, new HttpEntity<>(headers), ParamRef, name);
+        ParameterizedTypeReference<List<SuggestCityResponse>> responseType = new ParameterizedTypeReference<>() {};
+        ResponseEntity<List<SuggestCityResponse>> response = restTemplate.exchange(REQUEST_URL, HttpMethod.GET, new HttpEntity<>(headers), responseType, name);
 
-        return response.getBody().getFirst().getCode();
+        return response.getBody().getFirst();
     }
 
-    public ResponseEntity<String> tariffList(Integer fromLocationCode, Integer toLocationCode,
-                                             List<Integer> weight, List<Integer> length, List<Integer> width, List<Integer> height) {
+
+    public ResponseEntity<TariffCodesResponse> tariffList(FormDeliveryParams deliveryParams) {
         final String REQUEST_URL = URL + "/v2/calculator/tarifflist";
         final String ACCESS_TOKEN = getOAuthToken();
 
         HttpHeaders headers = getHttpHeaders(ACCESS_TOKEN);
 
-        Map<String, Object> fromLocation = new HashMap<>();
-        fromLocation.put("code", fromLocationCode);
+        SuggestCityResponse suggestFromCityResponse = getCitiesCode(deliveryParams.getFromLocation());
+        SuggestCityResponse suggestToCityResponse = getCitiesCode(deliveryParams.getToLocation());
 
-        Map<String, Object> toLocation = new HashMap<>();
-        toLocation.put("code", toLocationCode);
+        Location fromLocation = cdekMapper.suggestCityResponseToLocation(suggestFromCityResponse);
+        Location toLocation = cdekMapper.suggestCityResponseToLocation(suggestToCityResponse);
 
-        Map<String, Object> pack = new HashMap<>();
-        pack.put("weight", weight);
-        List<Map<String, Object>> packages= new ArrayList<>();
-        packages.add(pack);
+        CalculatorTariffRequest calculatorTariffRequest = new CalculatorTariffRequest();
+        calculatorTariffRequest.setFromLocation(fromLocation);
+        calculatorTariffRequest.setToLocation(toLocation);
+        calculatorTariffRequest.setPackages(deliveryParams.getPackages());
 
-        Map<String, Object> body = new HashMap<>();
-        body.put("from_location", fromLocation);
-        body.put("to_location", toLocation);
-        body.put("packages", packages);
-
-        HttpEntity<Map<String, Object>> requestData = new HttpEntity<>(body, headers);
-        return restTemplate.postForEntity(REQUEST_URL, requestData, String.class);
+        HttpEntity<CalculatorTariffRequest> requestData = new HttpEntity<>(calculatorTariffRequest, headers);
+        ResponseEntity<TariffCodesResponse> tariffCodes = restTemplate.exchange(REQUEST_URL, HttpMethod.POST, requestData, TariffCodesResponse.class);
+        return tariffCodes;
     }
 }

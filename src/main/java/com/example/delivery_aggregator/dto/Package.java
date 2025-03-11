@@ -1,4 +1,4 @@
-package com.example.delivery_aggregator.entity.response;
+package com.example.delivery_aggregator.dto;
 
 import lombok.Data;
 

@@ -1,17 +1,21 @@
-package com.example.delivery_aggregator.entity.request;
+package com.example.delivery_aggregator.dto.cdek;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 @Data
-public class OAuthTokenInfo {
+public class OAuthTokenResponse {
     //JWT-токен
-    private String access_token;
+    @JsonProperty("access_token")
+    private String accessToken;
 
     //Тип токена. Всегда принимает значение bearer
-    private String token_type;
+    @JsonProperty("token_type")
+    private String tokenType;
 
     //Срок действия токена (по умолчанию 3600 секунд)
-    private String expires_in;
+    @JsonProperty("expires_in")
+    private String expiresIn;
 
     //Область действия токена (доступ к объектам и операциям над ними)
     private String scope;
