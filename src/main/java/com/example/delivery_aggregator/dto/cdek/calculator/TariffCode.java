@@ -1,4 +1,4 @@
-package com.example.delivery_aggregator.dto.cdek;
+package com.example.delivery_aggregator.dto.cdek.calculator;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;

@@ -1,4 +1,4 @@
-package com.example.delivery_aggregator.dto.cdek;
+package com.example.delivery_aggregator.dto.cdek.calculator;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
@@ -6,7 +6,7 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class CalculatorTariffRequest {
+public class CdekCalculatorRequest {
     private String date;
     private Integer type;
     @JsonProperty("additional_order_types")
@@ -17,5 +17,5 @@ public class CalculatorTariffRequest {
     private Location fromLocation;
     @JsonProperty("to_location")
     private Location toLocation;
-    private List<com.example.delivery_aggregator.dto.Package> packages;
+    private List<Package> packages;
 }

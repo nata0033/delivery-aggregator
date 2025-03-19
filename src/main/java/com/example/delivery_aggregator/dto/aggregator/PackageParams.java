@@ -1,9 +1,9 @@
-package com.example.delivery_aggregator.dto;
+package com.example.delivery_aggregator.dto.aggregator;
 
 import lombok.Data;
 
 @Data
-public class Package {
+public class PackageParams {
     private Integer weight;
     private Integer length;
     private Integer width;

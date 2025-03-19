@@ -1,3 +1,10 @@
+//Установка даты на завтрашнее число
+document.addEventListener('DOMContentLoaded', function() {
+    const dateInput = document.getElementById("shipmentDateInput");
+    const today = new Date();
+    dateInput.valueAsDate = today;
+});
+
 //Добавление полей для ввода груза
 addPackageButton = document.getElementById('addPackageButton')
 addPackageButton.addEventListener('click', () => {
@@ -8,24 +15,16 @@ addPackageButton.addEventListener('click', () => {
     newDiv = `
         <div class="form-row" id="package">
             <div class="form-group col-md-2">
-                <label>
-                    <input type="number" name="packages[` + quantityOfCargo + `].weight" class="form-control" placeholder="Вес" required>
-                </label>
+                <input type="number" name="packages[` + quantityOfCargo + `].packageParams.weight" class="form-control" id="packageWeight" placeholder="Вес(гр)" min="1" required>
             </div>
             <div class="form-group col-md-2">
-                <label>
-                    <input type="number" name="packages[` + quantityOfCargo + `].length" class="form-control" placeholder="Длина">
-                </label>
+                <input type="number" name="packages[` + quantityOfCargo + `].packageParams.length" class="form-control" id="packagrLength" placeholder="Длина(см)" min="1" required>
             </div>
             <div class="form-group col-md-2">
-                <label>
-                    <input type="number" name="packages[` + quantityOfCargo + `].width" class="form-control" placeholder="Ширина">
-                </label>
+                <input type="number" name="packages[` + quantityOfCargo + `].packageParams.width" class="form-control" id="packageWidth" placeholder="Ширина(см)" min="1" required>
             </div>
             <div class="form-group col-md-2">
-                <label>
-                    <input type="number" name="packages[` + quantityOfCargo + `].height" class="form-control" placeholder="Высота">
-                </label>
+                <input type="number" name="packages[` + quantityOfCargo + `].packageParams.height" class="form-control" id="packageHeight" placeholder="Высота(см)" min="1" required>
             </div>
         </div>
     `
@@ -42,23 +41,6 @@ removePackageButton.addEventListener('click', () => {
         removedPackageDiv.remove()
     }
 })
-
-//Полу работающий ридер джисона
-//function readTextFile(file, callback) {
-//    var rawFile = new XMLHttpRequest()
-//    rawFile.overrideMimeType("application/json")
-//    rawFile.open("GET", file, true)
-//    rawFile.onreadystatechange = function() {
-//        if (rawFile.readyState === 4 && rawFile.status == "200") {
-//            callback(rawFile.responseText)
-//        }
-//    }
-//    rawFile.send(null)
-//}
-//readTextFile("/delivery-aggregator/src/main/resources/static/json/russian-cities.json", function(text){
-//    data = JSON.parse(text)
-//})
-//"https://gist.github.com/gorborukov/0722a93c35dfba96337b.js"
 
 let cities = [
                { "name": "Москва", "subject": "Москва" },
@@ -107,12 +89,13 @@ let cities = [
              ]
 
 //Получение изменений в поле ввода города отправки
-fromLocationInput = document.getElementById('fromLocationInput')
-fromLocationInput.addEventListener('input', function() {
-    const fromLocationInputValue = this.value.toLowerCase()
+fromLocationStateInput = document.getElementById('fromLocationStateInput')
+fromLocationCityInput = document.getElementById('fromLocationCityInput')
+fromLocationCityInput.addEventListener('input', function() {
+    const fromLocationCityInputValue = this.value.toLowerCase()
 
     const fromLocationFilteredCities = cities.filter(city =>
-        city.name.toLowerCase().startsWith(fromLocationInputValue)
+        city.name.toLowerCase().startsWith(fromLocationCityInputValue)
     )
     displayFromLocationSuggestions(fromLocationFilteredCities)
 })
@@ -131,7 +114,8 @@ function displayFromLocationSuggestions(cities) {
 
 //Обработка нажатия на город из подсказки для города отправки
         fromLocationSuggestCitiesButton.addEventListener('click', function() {
-        fromLocationInput.value = city.name
+        fromLocationStateInput.value = city.subject.split(" ")[0]
+        fromLocationCityInput.value = city.name
         fromLocationSuggest.innerHTML = ''
         })
         fromLocationSuggest.appendChild(fromLocationSuggestCitiesButton)
@@ -139,11 +123,12 @@ function displayFromLocationSuggestions(cities) {
 }
 
 //Получение изменений в поле ввода города получения
-toLocationInput = document.getElementById('toLocationInput')
-toLocationInput.addEventListener('input', function() {
-    const toLocationInputValue = this.value.toLowerCase()
+toLocationStateInput = document.getElementById('toLocationStateInput')
+toLocationCityInput = document.getElementById('toLocationCityInput')
+toLocationCityInput.addEventListener('input', function() {
+    const toLocationCityInputValue = this.value.toLowerCase()
     const toLocationFilteredCities = cities.filter(city =>
-        city.name.toLowerCase().startsWith(toLocationInputValue)
+        city.name.toLowerCase().startsWith(toLocationCityInputValue)
     )
     displayToLocationSuggestions(toLocationFilteredCities)
 })
@@ -162,7 +147,8 @@ function displayToLocationSuggestions(cities) {
 
 //Обработка нажатия на город из подсказки для города получения
         toLocationSuggestCitiesButton.addEventListener('click', function() {
-        toLocationInput.value = city.name
+        toLocationStateInput.value = city.subject.split(" ")[0]
+        toLocationCityInput.value = city.name
         toLocationSuggest.innerHTML = ''
         })
         toLocationSuggest.appendChild(toLocationSuggestCitiesButton)
