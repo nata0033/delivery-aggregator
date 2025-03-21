@@ -154,3 +154,44 @@ function displayToLocationSuggestions(cities) {
         toLocationSuggest.appendChild(toLocationSuggestCitiesButton)
     })
 }
+
+submitButton1 = document.getElementById("submitButton1")
+submitButton1.addEventListener('click', addJson)
+submitButton2 = document.getElementById("submitButton2")
+submitButton2.addEventListener('click', addJson)
+
+//Добавление данных из формы в виде json в cookie
+function addJson(){
+    const fromLocationState = document.getElementById("fromLocationStateInput").value;
+    const fromLocationCity = document.getElementById("fromLocationCityInput").value;
+    const toLocationState = document.getElementById("toLocationStateInput").value;
+    const toLocationCity = document.getElementById("toLocationCityInput").value;
+
+    const deliveryDataJson = {
+        fromLocation: {
+            state: fromLocationState,
+            city: fromLocationCity
+        },
+        toLocation: {
+            state: toLocationState,
+            city: toLocationCity
+        },
+        packages: [],
+        tariff: {}
+    };
+    const packageInputs = document.querySelectorAll('[name^="packages"]');
+    packageInputs.forEach(input => {
+        const packageName = input.name.match(/\[(\d+)\]/)[1];
+        const packageIndex = parseInt(packageName);
+
+        if (!deliveryDataJson.packages[packageIndex]) {
+            deliveryDataJson.packages[packageIndex] = {
+                packageParams: {}
+            };
+        }
+
+        const paramName = input.name.split('.').pop(); // Извлекаем имя параметра (weight, length, width, height)
+        deliveryDataJson.packages[packageIndex].packageParams[paramName] = parseInt(input.value);
+    });
+    document.cookie = 'delivery_data' + '=' +  encodeURIComponent(JSON.stringify(deliveryDataJson))
+};

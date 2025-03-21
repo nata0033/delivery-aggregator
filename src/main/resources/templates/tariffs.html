@@ -68,7 +68,7 @@
             <h5 th:text="${tariffsPageData.toLocation.city}"></h5>
         </div>
         <div class="col deliveryData" style="text-align: top;">
-            <h5 th:text="${tariffsPageData.fromLocation.shipmentDate}"></h5>
+            <h5 th:text="${tariffsPageData.fromLocation.date}"></h5>
         </div>
         <div class="col deliveryData" style="text-align: left;">
             <h5 th:text="${tariffsPageData.packageQuantity + ', ' + tariffsPageData.packageWeight + 'гр' }"></h5>
@@ -92,7 +92,7 @@
                 <!--Способы доставки-->
                 <h5>Выбор способа доставки</h5>
                 <div class="form-check">
-                    <input class="form-check-input" type="radio" name="delivery-method" id="door-to-door">
+                    <input class="form-check-input" type="radio" name="delivery-method" id="door-to-door" checked>
                     <label class="form-check-label" for="door-to-door">
                         Дверь — Дверь
                     </label>
@@ -156,12 +156,12 @@
             <div class="row" style="padding-top: 55px;">
                 <div class="col-md-12">
                     <div th:each="tariff : ${tariffsPageData.tariffs}" class="tariff-card" style="background-color: white;">
-                        <div class="tariff-card-header" th:text="${tariffsPageData.serviceName}"></div>
+                        <div class="tariff-card-header" th:text="${tariffsPageData.service.name}"></div>
                         <div class="tariff-card-body">
                             <div class="container">
                                 <div class="row">
                                     <div class="col-md-3" style="align-content: center;">
-                                        <img th:src="${tariffsPageData.serviceLogo}" width="120"  src="" alt="Логотип сервиса"/>
+                                        <img th:src="${tariffsPageData.service.logo}" width="120"  src="" alt="Логотип сервиса"/>
                                     </div>
                                     <div class="col-md-3">
                                         <p><strong>Мин. дней:</strong></p>
@@ -181,21 +181,21 @@
                         </div>
                         <div class="tariff-card-footer">
                             <form action="/order" method="POST">
-                                <!-- Для Location fromLocation -->
-                                <input type="hidden" name="fromLocation.state" th:value="${tariffsPageData.fromLocation.state}">
-                                <input type="hidden" name="fromLocation.city" th:value="${tariffsPageData.fromLocation.city}">
+<!--                                &lt;!&ndash; Для Location fromLocation &ndash;&gt;-->
+<!--                                <input type="hidden" name="fromLocation.state" th:value="${tariffsPageData.fromLocation.state}">-->
+<!--                                <input type="hidden" name="fromLocation.city" th:value="${tariffsPageData.fromLocation.city}">-->
 
-                                <!-- Для Location toLocation -->
-                                <input type="hidden" name="toLocation.state" th:value="${tariffsPageData.toLocation.state}">
-                                <input type="hidden" name="toLocation.city" th:value="${tariffsPageData.toLocation.city}">
+<!--                                &lt;!&ndash; Для Location toLocation &ndash;&gt;-->
+<!--                                <input type="hidden" name="toLocation.state" th:value="${tariffsPageData.toLocation.state}">-->
+<!--                                <input type="hidden" name="toLocation.city" th:value="${tariffsPageData.toLocation.city}">-->
 
                                 <!-- Для Tariff tariff -->
-                                <input type="hidden" name="tariff.code" th:value="${tariff.code}">
-                                <input type="hidden" name="tariff.name" th:value="${tariff.name}">
-                                <input type="hidden" name="tariff.minTime" th:value="${tariff.minTime}">
-                                <input type="hidden" name="tariff.maxTime" th:value="${tariff.maxTime}">
-                                <input type="hidden" name="tariff.price" th:value="${tariff.price}">
-                                <button type="submit" class="btn btn-primary">Выбрать тариф</button>
+                                <input type="hidden" name="code" th:value="${tariff.code}" id="tariffCodeInput">
+                                <input type="hidden" name="name" th:value="${tariff.name}" id="tariffNameInput">
+                                <input type="hidden" name="minTime" th:value="${tariff.minTime}" id="tariffMinTimeInput">
+                                <input type="hidden" name="maxTime" th:value="${tariff.maxTime}" id="tariffMaxTimeInput">
+                                <input type="hidden" name="price" th:value="${tariff.price}" id="tariffPriceInput">
+                                <button type="submit" class="btn btn-primary" id="submitButton">Выбрать тариф</button>
                             </form>
                         </div>
                     </div>

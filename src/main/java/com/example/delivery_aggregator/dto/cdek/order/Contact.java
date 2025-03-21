@@ -6,7 +6,7 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class Recipient {
+public class Contact {
     private String company;
     private String name;
     @JsonProperty("contragent_type")
@@ -23,5 +23,5 @@ public class Recipient {
     @JsonProperty("passport_date_of_birth")
     private String passportDateOfBirth;
     private String email;
-    private List<Object> phones;
+    private List<Phone> phones;
 }

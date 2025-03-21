@@ -1,17 +1,20 @@
 package com.example.delivery_aggregator.mappers;
 
-import com.example.delivery_aggregator.dto.aggregator.IndexPageData;
-import com.example.delivery_aggregator.dto.aggregator.Tariff;
-import com.example.delivery_aggregator.dto.aggregator.TariffsPageData;
+import com.example.delivery_aggregator.dto.aggregator.*;
 import com.example.delivery_aggregator.dto.cdek.*;
 import com.example.delivery_aggregator.dto.cdek.calculator.Package;
 import com.example.delivery_aggregator.dto.cdek.calculator.CdekCalculatorResponse;
 import com.example.delivery_aggregator.dto.cdek.calculator.Location;
 import com.example.delivery_aggregator.dto.cdek.calculator.TariffCode;
+import com.example.delivery_aggregator.dto.cdek.order.CdekOrderRequest;
+import com.example.delivery_aggregator.dto.cdek.order.Phone;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
 import org.mapstruct.Named;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public interface CdekMapper {
@@ -40,8 +43,20 @@ public interface CdekMapper {
     @Mapping(target = "packageQuantity", expression = "java((int) deliveryParams.getPackages().stream().count())")
     @Mapping(target = "packageWeight",  expression = "java(deliveryParams.getPackages().stream().mapToInt(p -> p.getPackageParams().getWeight()).sum())")
     TariffsPageData cdekCalculatorResponseToTariffsPageData(CdekCalculatorResponse cdekCalculatorResponse, IndexPageData deliveryParams);
+/*
+    @Mapping(target = "tariffCode", source = "tariff.code")
+    @Mapping(target = "sender.name", expression = "java(orderPageData.sender.toString())")
+    @Mapping(target = "sender.phones", source = "sender", qualifiedByName = "phoneToPhoneList")
+    @Mapping(target = "recipient.name", expression = "java(orderPageData.recipient.toString())")
+    @Mapping(target = "recipient.phones", source = "recipient", qualifiedByName = "phoneToPhoneList")
+    CdekOrderRequest orderPageDaratoCdekOrderRequest(OrderPageData orderPageData);
 
-//    default void tets(){
-//        IndexPageData deliveryParams;
-//    }
+    @Named("phoneToPhoneList")
+    default List<Phone> phoneToPhoneList(User user){
+        List<Phone> phones = new ArrayList<>();
+        Phone phone = new Phone();
+        phone.setNumber(user.getPhone());
+        phones.add(phone);
+        return phones;
+    }*/
 }

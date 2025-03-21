@@ -54,82 +54,75 @@
                     <div class="row g-3">
                         <div class="col-sm-4">
                             <label for="lastName" class="form-label">Фамилия<span class="text-muted"></span></label>
-                            <input type="text" class="form-control" id="lastName" required>
-                            <div class="invalid-feedback">
-                                Действительная фамилия обязательна.
-                            </div>
+                            <input type="text" name="sender.lastName" class="form-control" id="lastName" required>
                         </div>
                         <div class="col-sm-4">
                             <label for="firstName" class="form-label">Имя<span class="text-muted"></span></label>
-                            <input type="text" class="form-control" id="firstName" required>
+                            <input type="text" name="sender.firstName" class="form-control" id="firstName" required>
                         </div>
                         <div class="col-sm-4">
                             <label for="fatherName" class="form-label">Отчество<span class="text-muted"></span></label>
-                            <input type="text" class="form-control" id="fatherName" required>
+                            <input type="text" name="sender.fatherName" class="form-control" id="fatherName" required>
                         </div>
                         <div class="col-4">
                             <label for="email" class="form-label">Почта<span class="text-muted"></span></label>
-                            <input type="email" class="form-control" id="email" placeholder="you@example.com">
+                            <input type="email" name="sender.email" class="form-control" id="email" placeholder="you@example.com">
                         </div>
                         <div class="col-4">
-                            <label for="password" class="form-label">Пароль<span class="text-muted"></span></label>
-                            <input type="password" class="form-control" id="password">
-                        </div>
-                        <div class="col-4">
-                            <label for="repeatPassword" class="form-label">Повторите пароль<span class="text-muted"></span></label>
-                            <input type="password" class="form-control" id="repeatPassword">
+                            <label for="phoneNumber" class="form-label">Телефон<span class="text-muted"></span></label>
+                            <input type="text" name="sender.phone" class="form-control" id="phoneNumber">
                         </div>
 
                         <h5>Адрес отправления</h5>
                         <div class="col-md-4">
                             <label for="fromLocationState" class="form-label">Область</label>
-                            <input type="text" class="form-control" id="fromLocationState" th:value="${orderPageData.fromLocation.state}" required/>
+                            <input type="text" name="fromLocation.state" class="form-control" id="fromLocationState" th:value="${orderPageData.fromLocation.state}" required/>
                         </div>
                         <div class="col-md-4">
                             <label for="fromLocationCity" class="form-label">Город</label>
-                            <input type="text" class="form-control" id="fromLocationCity" th:value="${orderPageData.fromLocation.city}" required/>
+                            <input type="text" name="fromLocation.city" class="form-control" id="fromLocationCity" th:value="${orderPageData.fromLocation.city}" required/>
                         </div>
                         <div class="col-md-2">
                             <label for="fromLocationStatePostalCode" class="form-label">Индекс</label>
-                            <input type="text" class="form-control" id="fromLocationStatePostalCode" required>
+                            <input type="text" name="fromLocation.postalCode" class="form-control" id="fromLocationStatePostalCode" required>
                         </div>
                         <div class="col-8">
                             <label for="fromLocationStreet" class="form-label">Улица</label>
-                            <input type="text" class="form-control" id="fromLocationStreet" required>
+                            <input type="text" name="fromLocation.street" class="form-control" id="fromLocationStreet" required>
                         </div>
                         <div class="col-2">
                             <label for="fromLocationHouse" class="form-label">Дом</label>
-                            <input type="number" class="form-control" id="fromLocationHouse" required>
+                            <input type="number" name="fromLocation.house" class="form-control" id="fromLocationHouse" required>
                         </div>
                         <div class="col-2">
                             <label for="fromLocationApartment" class="form-label">Квартира</label>
-                            <input type="number" class="form-control" id="fromLocationApartment" placeholder="" required>
+                            <input type="number" name="fromLocation.apartment" class="form-control" id="fromLocationApartment" placeholder="" required>
                         </div>
 
                         <h5>Адрес получения</h5>
                         <div class="col-md-4">
                             <label for="toLocationState" class="form-label">Область</label>
-                            <input type="text" class="form-control" id="toLocationState"  th:value="${orderPageData.toLocation.state}" required/>
+                            <input type="text" name="toLocation.state" class="form-control" id="toLocationState"  th:value="${orderPageData.toLocation.state}" required/>
                         </div>
                         <div class="col-md-4">
                             <label for="toLocationCity" class="form-label">Город</label>
-                            <input type="text" class="form-control" id="toLocationCity" th:value="${orderPageData.toLocation.city}" required/>
+                            <input type="text" name="toLocation.city" class="form-control" id="toLocationCity" th:value="${orderPageData.toLocation.city}" required/>
                         </div>
                         <div class="col-md-2">
                             <label for="toLocationPostalCode" class="form-label">Индекс</label>
-                            <input type="text" class="form-control" id="toLocationPostalCode" required>
+                            <input type="text" name="toLocation.postalCode" class="form-control" id="toLocationPostalCode" required>
                         </div>
                         <div class="col-8">
                             <label for="toLocationStreet" class="form-label">Улица</label>
-                            <input type="text" class="form-control" id="toLocationStreet" required>
+                            <input type="text" name="toLocation.street" class="form-control" id="toLocationStreet" required>
                         </div>
                         <div class="col-2">
                             <label for="toLocationHouse" class="form-label">Дом</label>
-                            <input type="number" class="form-control" id="toLocationHouse" required>
+                            <input type="number" name="toLocation.house" class="form-control" id="toLocationHouse" required>
                         </div>
                         <div class="col-2">
                             <label for="toLocationApartment" class="form-label">Квартира</label>
-                            <input type="number" class="form-control" id="toLocationApartment" placeholder="" required>
+                            <input type="number" name="toLocation.apartment" class="form-control" id="toLocationApartment" placeholder="" required>
                         </div>
                     </div>
 
@@ -137,21 +130,23 @@
                     <div class="row gy-3">
                         <div class="col-md-6">
                             <label for="cc-number" class="form-label">Номер карты</label>
-                            <input type="text" class="form-control" id="cc-number" placeholder="" required>
+                            <input type="text" name="card.number" class="form-control" id="cc-number" placeholder="" >
                         </div>
                         <div class="col-md-6">
                             <label for="cc-name" class="form-label">Имя на карте</label>
-                            <input type="text" class="form-control" id="cc-name" placeholder="" required>
+                            <input type="text" name="card.name" class="form-control" id="cc-name" placeholder="">
                         </div>
                         <div class="col-md-3">
                             <label for="cc-expiration" class="form-label">Срок действия</label>
-                            <input type="text" class="form-control" id="cc-expiration" placeholder="" required>
+                            <input type="text" name="card.expiration" class="form-control" id="cc-expiration" placeholder="">
                         </div>
                         <div class="col-md-3">
                             <label for="cc-cvv" class="form-label">CVV</label>
-                            <input type="text" class="form-control" id="cc-cvv" placeholder="" required>
+                            <input type="text" name="card.cvv" class="form-control" id="cc-cvv" placeholder="">
                         </div>
                     </div>
+                    <input type="hidden" name="tariff.code" th:value="${+orderPageData.tariff.code}">
+                    <input type="hidden" name="tariff.price" th:value="${+orderPageData.tariff.price}">
                     <button class="w-100 btn btn-primary btn-lg" type="submit" style="margin-top:30px">Оформить</button>
                 </form>
             </div>

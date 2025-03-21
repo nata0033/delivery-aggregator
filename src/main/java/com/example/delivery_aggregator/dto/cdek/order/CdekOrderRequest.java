@@ -30,10 +30,10 @@ public class CdekOrderRequest {
     @JsonProperty("delivery_recipient_cost")
     private DeliveryRecipientCost deliveryRecipientCost;
     @JsonProperty("delivery_recipient_cost_adv")
-    private List<Object> deliveryRecipientCostAdv;
-    private Sender sender;
+    private List<DeliveryCostThreshold> deliveryRecipientCostAdv;
+    private Contact sender;
     private Seller seller;
-    private Recipient recipient;
+    private Contact recipient;
     @JsonProperty("from_location")
     private Location fromLocation;
     @JsonProperty("to_location")

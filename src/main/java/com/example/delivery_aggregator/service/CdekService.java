@@ -5,10 +5,7 @@ import com.example.delivery_aggregator.dto.cdek.*;
 import com.example.delivery_aggregator.dto.cdek.calculator.CdekCalculatorRequest;
 import com.example.delivery_aggregator.dto.cdek.calculator.CdekCalculatorResponse;
 import com.example.delivery_aggregator.mappers.CdekMapper;
-import lombok.Data;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -83,7 +80,8 @@ public class CdekService {
 
         HttpHeaders headers = getHttpHeaders();
 
-        ResponseEntity<CdekPostcodesResponse> response = restTemplate.exchange(REQUEST_URL, HttpMethod.GET, new HttpEntity<>(headers), CdekPostcodesResponse.class, code);
+        ResponseEntity<CdekPostcodesResponse> response = restTemplate.exchange(REQUEST_URL, HttpMethod.POST, new HttpEntity<>(headers), CdekPostcodesResponse.class, code);
         return response.getBody().getPostalCodes().getFirst();
     }
+
 }

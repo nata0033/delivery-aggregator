@@ -31,7 +31,7 @@ public interface DellinMapper {
     Address locationToAdress(Location location);
 
     @Named("locationToDerivalArrival")
-    @Mapping(target = "produceDate", source = "shipmentDate")
+    @Mapping(target = "produceDate", source = "date")
     @Mapping(target = "variant", ignore = true, defaultValue = "auto")
     @Mapping(target = "address", ignore = true, qualifiedByName = "locationToAdress")
     @Mapping(target = "time",  ignore = true, qualifiedByName = "time")
