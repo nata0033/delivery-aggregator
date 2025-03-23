@@ -1,6 +1,20 @@
 spring:
   application:
     name: delivery-aggregator
+  datasource:
+    url: jdbc:postgresql://localhost:5432/postgres?currentSchema=delivery_aggregator
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+  liquibase:
+    enabled: true
+    change-log: classpath:db_changelog/db.changelog-master.xml
+    url: jdbc:postgresql://localhost:5432/postgres?currentSchema=delivery_aggregator
+    user: postgres
+    password: postgres
+  jpa:
+    hibernate:
+      ddl-auto: none
   cdek:
-    client-id:
-    client-secret:
+    client-id: wqGwiQx0gg8mLtiEKsUinjVSICCjtTEP
+    client-secret: RmAmgvSgSl1yirlz9QupbzOJVqhCxcP5

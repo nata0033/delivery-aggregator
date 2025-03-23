@@ -16,7 +16,7 @@ submitButton1.addEventListener('click', () => {
         maxTime: tariffMaxTime,
         price: tariffPrice
     };
-    deliveryDataJson.tariff.push(tariffDataJson);
+    deliveryDataJson['tariff'] = tariffDataJson
     document.cookie = 'delivery_data' + '=' +  encodeURIComponent(JSON.stringify(deliveryDataJson))
 });
 

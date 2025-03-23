@@ -10,6 +10,7 @@ public class Location {
     private String state;
     private String city;
     private String street;
+    private String house;
     private String apartment;
     private String postalCode;
     private String date;

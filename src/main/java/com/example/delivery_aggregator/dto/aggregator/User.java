@@ -4,7 +4,7 @@ import lombok.Data;
 import lombok.ToString;
 
 @Data
-@ToString(exclude = {"email", "phone"})
+
 public class User {
     private String firstName;
     private String lastName;

@@ -1,17 +1,26 @@
 package com.example.delivery_aggregator.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
+import lombok.Data;
 
+import java.util.List;
 import java.util.UUID;
 
 @Entity
+@Data
 public class User {
     @Id
+    @GeneratedValue
     private UUID id;
-    private String firstName;
-    private String lastName;
-    private String fatherName;
-    private String email;
+
+    private String login;
     private String password;
+
+    @OneToMany(mappedBy = "user")
+    private List<Order> orders;
+
+    @OneToMany(mappedBy = "user")
+    private List<Contact> contacts;
+
+    // Getters and Setters
 }

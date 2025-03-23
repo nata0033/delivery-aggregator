@@ -2,43 +2,16 @@
 <html xmlns:th="http://www.thymeLeaf.org">
 <head>
     <meta charset="utf-8">
-    <title>Главная</title>
+    <title>Регистрация/Авторизация</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
-            background: url(https://sun9-48.userapi.com/impg/7XiLr5zhFYp1XBiEzFiIINO1bT0VH9xWz9Crsw/XhY4r8E4hfU.jpg?size=1098x822&quality=95&sign=b47957ae51108cf913789a6cdc9084d0&type=album) no-repeat;
-            background-size: 100%;
-
+            background: url(https://s1.1zoom.me/b5050/506/360850-svetik_1920x1080.jpg) no-repeat;
+            background-size:100%
         }
-        .form-signin {
-            width: 100%;
-            max-width: 330px;
-            padding: 15px;
-            margin: 0 auto;
-        }
-            .form-signin .checkbox {
-                font-weight: 400;
-        }
-        .form-signin .form-control {
-            position: relative;
-            box-sizing: border-box;
-            height: auto;
-            padding: 10px;
-            font-size: 16px;
-        }
-        .form-signin .form-control:focus {
-            z-index: 2;
-        }
-        .form-signin input[type="email"] {
-            margin-bottom: -1px;
-            border-bottom-right-radius: 0;
-            border-bottom-left-radius: 0;
-        }
-        .form-signin input[type="password"] {
-            margin-bottom: 10px;
-            border-top-left-radius: 0;
-            border-top-right-radius: 0;
+        .bg-google {
+            background: url(https://www.google.ru/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png) no repeat;
         }
     </style>
 </head>
@@ -56,13 +29,31 @@
         </div>
     </div>
 </header>
-<body class="text-center">
-<form class="form-signin" style="margin-top:10%">
-    <h1 style="color: #343a40">Вход</h1>
-    <label for="inputEmail" class="sr-only">Почта</label>
-    <input type="email" id="inputEmail" class="form-control" placeholder="Почта" required autofocus>
-    <label for="inputPassword" class="sr-only">Пароль</label>
-    <input type="password" id="inputPassword" class="form-control" placeholder="Пароль" required>
-    <button class="btn btn-lg btn-primary btn-block" type="submit">Войти</button>
-</form>
+<body>
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-md-auto" style="margin-top: 5%; padding:72px; background-color:white; border-radius:.25rem;">
+            <h1 style="color: #343a40">Вход/Регистрация</h1>
+            <form action="/login" method="POST" >
+                <div class="form-group">
+                    <label for="emailInput">Почта</label>
+                    <input type="email" name="email" class="form-control" id="emailInput" placeholder="you@example.com">
+                </div>
+                <div class="form-group">
+                    <label for="passwordInput">Пароль</label>
+                    <input type="password" name="password" class="form-control" id="passwordInput">
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary">Вход/Регистрация</button>
+                </div>
+                <div class="form-group">
+                    <button type="button" class="btn btn-light">Войти с помощью Google</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 </body>
+<!--<script src="" th:src="@{js/login.js}"></script>-->
+    <script src="../static/js/login.js"></script>
+</html>

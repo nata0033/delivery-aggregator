@@ -12,5 +12,5 @@ public class OrderPageData {
  private Location toLocation;
  private Tariff tariff;
  private Card card;
- private List<Package> packages;
+ private String comment;
 }

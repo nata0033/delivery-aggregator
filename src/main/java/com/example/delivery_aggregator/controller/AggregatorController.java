@@ -2,14 +2,11 @@ package com.example.delivery_aggregator.controller;
 
 import com.example.delivery_aggregator.dto.aggregator.*;
 import com.example.delivery_aggregator.dto.cdek.calculator.CdekCalculatorResponse;
-import com.example.delivery_aggregator.dto.cdek.order.CdekOrderRequest;
+import com.example.delivery_aggregator.mappers.AggregatorMapper;
 import com.example.delivery_aggregator.mappers.CdekMapper;
 import com.example.delivery_aggregator.service.*;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
-import jakarta.validation.Valid;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -18,8 +15,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
-import java.util.stream.Collectors;
-
 
 @Controller
 @Data
@@ -38,18 +33,22 @@ public class AggregatorController {
 
     private final CdekMapper cdekMapper;
 
+    private final AggregatorMapper aggregatorMapper;
+
+    private ObjectMapper objectMapper = new ObjectMapper();
+
     @GetMapping()
     public String index(){
         return "index";
     }
 
     @GetMapping("/login")
-    public String login(){
+    public String loginPage(){
         return "login";
     }
 
     @GetMapping("/account")
-    public String account(){
+    public String accountPage(){
         return "account";
     }
 
@@ -62,25 +61,36 @@ public class AggregatorController {
         tariffsPageData.getService().setName("CDEK");
         tariffsPageData.getService().setLogo("https://upload.wikimedia.org/wikipedia/commons/thumb/f/f8/CDEK_logo.svg/145px-CDEK_logo.svg.png");
         tariffsPageData.setTariffs(tariffsPageData.getTariffs().stream().filter(t-> Objects.equals(t.getName(), "Посылка дверь-дверь")).sorted(Comparator.comparing(Tariff::getPrice)).toList());
+
         model.addAttribute(tariffsPageData);
         return "tariffs";
     }
 
-    @PostMapping("/order")
-    public String getOrder(@Valid @ModelAttribute Tariff tariff, @CookieValue(value = "delivery_data", required = false) String deliveryDataJsonString, HttpServletRequest request, Model model){
+    @GetMapping("/order")
+    public String orderPage(@CookieValue(value = "delivery_data", required = false) String deliveryDataJsonString, Model model) throws JsonProcessingException {
 //        orderPageData.getFromLocation().setPostalCode(cdekService.getPostalCodes(orderPageData.getFromLocation().getCity()));
 //        orderPageData.getToLocation().setPostalCode(cdekService.getPostalCodes(orderPageData.getToLocation().getCity()));
+        DeliveryData deliveryData = objectMapper.readValue(deliveryDataJsonString, DeliveryData.class);
 
-        OrderPageData orderPageData = new OrderPageData();
+        OrderPageData orderPageData = aggregatorMapper.deliveryDataToOrderPageData(deliveryData);
+        orderPageData.setSender(new User());
+        orderPageData.setRecipient(new User());
         model.addAttribute(orderPageData);
         return "order";
     }
 
-    @PostMapping("/create_order")
-    public String order(@ModelAttribute OrderPageData orderPageData, HttpServletRequest request, HttpServletResponse response) {
-        CdekOrderRequest cdekOrderRequest = new CdekOrderRequest();
-        cdekOrderRequest.setType(2);
-        cdekOrderRequest.getDeliveryRecipientCost().setValue((float) 0);
+    @PostMapping("/order")
+    //public String createOrder(@ModelAttribute OrderPageData orderPageData, @CookieValue(value = "delivery_data", required = false) String deliveryDataJsonString) throws JsonProcessingException {
+    public ResponseEntity<?> createOrder (@ModelAttribute OrderPageData orderPageData, @CookieValue(value = "delivery_data", required = false) String deliveryDataJsonString) throws JsonProcessingException {
+        DeliveryData deliveryData = objectMapper.readValue(deliveryDataJsonString, DeliveryData.class);
+        ResponseEntity<?> response = cdekService.createOrder(orderPageData, deliveryData);
+        //return "account";
+        return response;
+    }
+
+    @PostMapping("/login")
+    public String login(@ModelAttribute LoginPageData loginPageData){
         return "account";
     }
 }
+//9c91a5a9-a71f-4882-b963-10a9dbeccd51

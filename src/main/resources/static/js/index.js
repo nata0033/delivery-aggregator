@@ -110,7 +110,7 @@ function displayFromLocationSuggestions(cities) {
         const fromLocationSuggestCitiesButton = document.createElement('button')
         fromLocationSuggestCitiesButton.textContent = city.name + ', ' + city.subject
         fromLocationSuggestCitiesButton.id = "fromLocationSuggestCitiesButton"
-        fromLocationSuggestCitiesButton.className = "btn btn-light"
+        fromLocationSuggestCitiesButton.className = "w-100 btn btn-light"
 
 //Обработка нажатия на город из подсказки для города отправки
         fromLocationSuggestCitiesButton.addEventListener('click', function() {
@@ -143,7 +143,7 @@ function displayToLocationSuggestions(cities) {
         const toLocationSuggestCitiesButton = document.createElement('button')
         toLocationSuggestCitiesButton.textContent = city.name + ', ' + city.subject
         toLocationSuggestCitiesButton.id = "toLocationSuggestCitiesButton"
-        toLocationSuggestCitiesButton.className = "btn btn-light"
+        toLocationSuggestCitiesButton.className = "w-100 btn btn-light"
 
 //Обработка нажатия на город из подсказки для города получения
         toLocationSuggestCitiesButton.addEventListener('click', function() {

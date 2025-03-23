@@ -7,8 +7,8 @@
         <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
         <style>
             body {
-                background: url(https://wallpapers.com/images/high/cardboard-background-v6qc5jtg1yrr9gcd.webp) no-repeat;
-                background-size: 100%;
+                background: url(https://img.geliophoto.com/orenburg/04_orenburg.jpg) no-repeat;
+                background-size:100%
             }
             .locationSuggest{
                 background-color: white;
@@ -32,16 +32,16 @@
         </div>
     </header>
     <body>
-    <div class="container-fluid" style="">
-        <div class="row justify-content-center ">
-            <div class="col-md-auto" style="padding-top: 10%;">
+    <div class="container-fluid">
+        <div class="row justify-content-center">
+            <div class="col-md-auto" style="margin-top: 5%; padding:72px; background-color:white; border-radius:.25rem;">
                 <h1 style="color: #343a40">Поиск дешевых сервисов доставки</h1>
                 <form action="/tariffs" method="POST" autocomplete="off" class="marked">
                     <div class="form-row">
                         <div class="form-group col-md-5">
                             <input type="hidden" name="fromLocation.state" class="form-control" id="fromLocationStateInput"  required>
                             <input type="text" name="fromLocation.city" class="form-control" id="fromLocationCityInput" placeholder="Город отправления" required>
-                            <div class="locationSuggest overflow-y-auto" id="fromLocationSuggest" style="max-height:570px; overflow-x:hidden"></div>
+                            <div class="locationSuggest overflow-y-auto" id="fromLocationSuggest" style="max-height:570px; overflow-x:hidden;"></div>
                             <div class="form-row" style="padding-top: 30px">
 <!--                                <div class="form-group col-md-5">-->
 <!--                                    <input type="text" name="fromLocation.street" class="form-control" placeholder="Улица">-->
@@ -77,18 +77,17 @@
 <!--                            </div>-->
                         </div>
                         <div class="form-group col-md-2">
-                            <button type="submit" class="btn btn-light" id="submitButton1">Найти</button>
+                            <button type="submit" class="btn btn-primary" id="submitButton1">Найти</button>
                         </div>
                     </div>
                     <div class="form-row" style="padding-top: 30px">
                         <div class="form-group col-md-2">
-                            <button type="button" class="btn btn-light" id="addPackageButton">Добавить груз</button>
+                            <button type="button" class="btn btn-primary" id="addPackageButton">Добавить груз</button>
                         </div>
                         <div class="form-group col-md-2">
-                            <button type="button" class="btn btn-light" id="removePackageButton">Убрать груз</button>
+                            <button type="button" class="btn btn-primary" id="removePackageButton">Убрать груз</button>
                         </div>
                     </div>
-                    <div class="overflow-y-auto" style="max-height:290px; margin-bottom:15px; overflow-x:hidden">
                         <div class="form-row" id="package">
                             <div class="form-group col-md-2">
                                 <input type="number" name="packages[0].packageParams.weight" class="form-control" id="packageWeight" placeholder="Вес(гр)" min="1" required>
@@ -103,8 +102,7 @@
                                 <input type="number" name="packages[0].packageParams.height" class="form-control" id="packageHeight" placeholder="Высота(см)" min="1" required>
                             </div>
                         </div>
-                    </div>
-                    <button type="submit" class="btn btn-light" id="submitButton2">Найти</button>
+                    <button type="submit" class="btn btn-primary" id="submitButton2">Найти</button>
                 </form>
             </div>
         </div>

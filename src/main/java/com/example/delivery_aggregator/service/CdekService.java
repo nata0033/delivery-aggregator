@@ -1,9 +1,15 @@
 package com.example.delivery_aggregator.service;
 
+import com.example.delivery_aggregator.dto.aggregator.DeliveryData;
 import com.example.delivery_aggregator.dto.aggregator.IndexPageData;
+import com.example.delivery_aggregator.dto.aggregator.OrderPageData;
 import com.example.delivery_aggregator.dto.cdek.*;
 import com.example.delivery_aggregator.dto.cdek.calculator.CdekCalculatorRequest;
 import com.example.delivery_aggregator.dto.cdek.calculator.CdekCalculatorResponse;
+import com.example.delivery_aggregator.dto.cdek.order.CdekOrderRequest;
+import com.example.delivery_aggregator.dto.cdek.order.CdekOrderResponse;
+import com.example.delivery_aggregator.dto.cdek.order.DeliveryRecipientCost;
+import com.example.delivery_aggregator.dto.cdek.order.Package;
 import com.example.delivery_aggregator.mappers.CdekMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.ParameterizedTypeReference;
@@ -12,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.*;
+import java.util.stream.IntStream;
 
 
 @RequiredArgsConstructor
@@ -67,7 +74,7 @@ public class CdekService {
         CdekCalculatorRequest cdekCalculatorTariffRequest = new CdekCalculatorRequest();
         cdekCalculatorTariffRequest.setFromLocation(cdekMapper.suggestCityResponseToLocation(suggestFromCityResponse));
         cdekCalculatorTariffRequest.setToLocation(cdekMapper.suggestCityResponseToLocation(suggestToCityResponse));
-        cdekCalculatorTariffRequest.setPackages(deliveryParams.getPackages().stream().map(cdekMapper::aggrPackageToCdekPackage).toList());
+        cdekCalculatorTariffRequest.setPackages(deliveryParams.getPackages().stream().map(cdekMapper::aggregatorPackageToCalculatorCdekPackage).toList());
 
         HttpEntity<CdekCalculatorRequest> requestData = new HttpEntity<>(cdekCalculatorTariffRequest, headers);
         return restTemplate.exchange(REQUEST_URL, HttpMethod.POST, requestData, CdekCalculatorResponse.class);
@@ -84,4 +91,26 @@ public class CdekService {
         return response.getBody().getPostalCodes().getFirst();
     }
 
+    public ResponseEntity<CdekOrderResponse> createOrder(OrderPageData orderPageData, DeliveryData deliveryData){
+        final String REQUEST_URL = URL + "/v2/orders";
+
+        HttpHeaders headers = getHttpHeaders();
+
+        CdekOrderRequest cdekOrderRequest = cdekMapper.orderPageDataAndDeliveryDataToCdekOrderRequest(orderPageData,deliveryData);
+        cdekOrderRequest.setType(2);
+        cdekOrderRequest.setDeliveryRecipientCost(new DeliveryRecipientCost());
+        cdekOrderRequest.getDeliveryRecipientCost().setValue((float) 0);
+        cdekOrderRequest.getSender().setCompany("Агрегатор");
+        HttpEntity<CdekOrderRequest> requestData = new HttpEntity<>(cdekOrderRequest, headers);
+        cdekOrderRequest.setPackages(
+                IntStream.range(0, deliveryData.getPackages().size())
+                        .mapToObj(i -> {
+                            Package p = cdekMapper.aggregatorPackageToOrderCdekPackage(deliveryData.getPackages().get(i), orderPageData);
+                            p.setNumber(String.valueOf(i));
+                            return p;
+                        }).toList()
+        );
+
+        return restTemplate.exchange(REQUEST_URL, HttpMethod.POST, requestData, CdekOrderResponse.class);
+    }
 }
