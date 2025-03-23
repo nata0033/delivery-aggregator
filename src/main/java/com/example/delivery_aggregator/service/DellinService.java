@@ -49,7 +49,7 @@ public class DellinService {
 //        delivery.setDerival(derival);
 //        delivery.setArrival(arrival);
 //
-//        dellinCalculatorTariffRequest.setAppkey("8EE8CB3E-587A-4EA5-8065-C076269D3F96");
+//        dellinCalculatorTariffRequest.setAppkey("");
 //        dellinCalculatorTariffRequest.setDelivery(delivery);
 //        dellinCalculatorTariffRequest.setCargo(cargo);
 

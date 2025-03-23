@@ -21,7 +21,7 @@ public class YandexService {
 
     public HttpHeaders getHttpHeaders(){
         HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth("y2_AgAAAAD04omrAAAPeAAAAAACRpC94Qk6Z5rUTgOcTgYFECJllXYKFx8");
+        headers.setBearerAuth("");
         headers.set("Accept-Language","ru");
         return headers;
     }
