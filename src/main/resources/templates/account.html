@@ -21,11 +21,153 @@
                 <li><a th:href="@{/account}" class="nav-link px-2 text-white">Личный кабинет</a></li>
             </ul>
             <div class="text-end">
-                <a th:href="@{/login}" class="btn btn-outline-light me-2">Регистрация</a>
-                <a th:href="@{/login}" class="btn btn-light">Вход</a>
+                <a th:if="${userLogin == 'anonymous'}" th:href="@{/registration}" class="btn btn-outline-light me-2">Регистрация</a>
+                <a th:if="${userLogin == 'anonymous'}" th:href="@{/login}" class="btn btn-light">Вход</a>
+                <a th:if="${userLogin != 'anonymous'}" th:href="@{/logout}" class="btn btn-light">Выход</a>
             </div>
         </div>
     </div>
 </header>
 <body>
+<div class="container mb-4 main-container" style="padding:72px; background-color:white; border-radius:.25rem;">
+    <div class="row">
+        <div class="col-lg-4 pb-5">
+            <div class="author-card pb -3" >
+                <div class="author-card-profile">
+                    <div class="author-card-avatar"><img src="https://i.pinimg.com/736x/b5/84/e9/b584e98eb68663f9bacb7e8cb2bb7e12.jpg" width="315" height="315" style="border-radius:.25rem;" alt="Фото профиля" >
+                    </div>
+                    <div class="author-card-details">
+                        <h5 class="author-card-name text-lg">Фамилия Имя Отчество</h5>
+                        <p class="author-card-position">email@email.com</p>
+                        <p class="author-card-position">+78006005040</p>
+                    </div>
+                </div>
+            </div>
+            <div class="wizard" style="margin-top: 15px">
+                <nav class="list-group list-group-flush">
+                    <a class="list-group-item active" href="">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <i class="fa fa-shopping-bag mr-1 text-muted"></i>
+                                <div class="d-inline-block font-weight-medium text-uppercase">Доставки</div>
+                            </div><span class="badge badge-secondary">Количество доставок</span>
+                        </div>
+                    </a>
+                    <a class="list-group-item" href="" target="__blank">
+                        <i class="fa fa-user text-muted"></i>Настройки профиля
+                    </a>
+                    <a class="list-group-item" href="">
+                        <i class="fa fa-map-marker text-muted"></i>Адреса
+                    </a>
+                    <a class="list-group-item" href="">
+                        <i class="fa fa-map-marker text-muted"></i>Получатели
+                    </a>
+                </nav>
+            </div>
+        </div>
+        <!-- Orders Table-->
+        <div class="col-lg-8 pb-5">
+            <div class="d-flex justify-content-end pb-3">
+                <div class="form-inline">
+                    <label class="text-muted mr-3" for="order-sort">Статус</label>
+                    <select class="form-control" id="order-sort">
+                        <option>В процессе</option>
+                        <option>Исполненные</option>
+                    </select>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead>
+                    <tr>
+                        <th>Заказ №</th>
+                        <th>Дата заказа</th>
+                        <th>Статус</th>
+                        <th>Цена</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td><a class="navi-link" href="" data-toggle="modal">78A643CD409</a></td>
+                        <td>August 08, 2017</td>
+                        <td><span class="badge badge-danger m-0">Canceled</span></td>
+                        <td><span>$760.50</span></td>
+                    </tr>
+                    <tr>
+                        <td><a class="navi-link" href="" data-toggle="modal">34VB5540K83</a></td>
+                        <td>July 21, 2017</td>
+                        <td><span class="badge badge-info m-0">In Progress</span></td>
+                        <td>$315.20</td>
+                    </tr>
+                    <tr>
+                        <td><a class="navi-link" href="" data-toggle="modal">112P45A90V2</a></td>
+                        <td>June 15, 2017</td>
+                        <td><span class="badge badge-warning m-0">Delayed</span></td>
+                        <td>$1,264.00</td>
+                    </tr>
+                    <tr>
+                        <td><a class="navi-link" href="" data-toggle="modal">28BA67U0981</a></td>
+                        <td>May 19, 2017</td>
+                        <td><span class="badge badge-success m-0">Delivered</span></td>
+                        <td>$198.35</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="col-lg-12 pb-5">
+                <div class="d-flex justify-content-end pb-3">
+                    <div class="card-body">
+                        <form action="" method="POST">
+                            <div class="row mb-3">
+                                <div class="col-sm-3">
+                                    <h6 class="mb-0">Full Name</h6>
+                                </div>
+                                <div class="col-sm-9 text-secondary">
+                                    <input type="text" class="form-control" value="John Doe">
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-sm-3">
+                                    <h6 class="mb-0">Email</h6>
+                                </div>
+                                <div class="col-sm-9 text-secondary">
+                                    <input type="text" class="form-control" value="john@example.com">
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-sm-3">
+                                    <h6 class="mb-0">Phone</h6>
+                                </div>
+                                <div class="col-sm-9 text-secondary">
+                                    <input type="text" class="form-control" value="(239) 816-9029">
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-sm-3">
+                                    <h6 class="mb-0">Mobile</h6>
+                                </div>
+                                <div class="col-sm-9 text-secondary">
+                                    <input type="text" class="form-control" value="(320) 380-4539">
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-sm-3">
+                                    <h6 class="mb-0">Address</h6>
+                                </div>
+                                <div class="col-sm-9 text-secondary">
+                                    <input type="text" class="form-control" value="Bay Area, San Francisco, CA">
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-3"></div>
+                                <div class="col-sm-9 text-secondary">
+                                    <input type="button" class="btn btn-primary px-4" value="Save Changes">
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+        </div>
+    </div>
+</div>
 </body>

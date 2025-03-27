@@ -8,6 +8,7 @@ import java.util.UUID;
 
 @Entity
 @Data
+@Table(schema = "delivery_aggregator", name = "user")
 public class User {
     @Id
     @GeneratedValue

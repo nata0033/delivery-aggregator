@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeLeaf.org">
+<head>
+    <meta charset="utf-8">
+    <title>Регистрация</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: url() no-repeat;
+            background-size:100%
+        }
+    </style>
+</head>
+<header class="p-3 bg-dark text-white">
+    <div class="container">
+        <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
+            <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
+                <li><a th:href="@{/}" class="nav-link px-2 text-white">Главная</a></li>
+                <li><a th:href="@{/account}" class="nav-link px-2 text-white">Личный кабинет</a></li>
+            </ul>
+            <div class="text-end">
+                <a th:if="${userLogin == 'anonymous'}" th:href="@{/registration}" class="btn btn-outline-light me-2">Регистрация</a>
+                <a th:if="${userLogin == 'anonymous'}" th:href="@{/login}" class="btn btn-light">Вход</a>
+                <a th:if="${userLogin != 'anonymous'}" th:href="@{/logout}" class="btn btn-light">Выход</a>
+            </div>
+        </div>
+    </div>
+</header>
+<body>
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-md-auto" style="margin-top: 5%; padding:72px; background-color:white; border-radius:.25rem;">
+            <h1 style="color: #343a40; margin-right:200px">Регистрация</h1>
+            <form th:action="@{/registration}" method="POST" >
+                <div class="form-group">
+                    <div class="row g-3">
+                        <div class="col-sm-4">
+                            <label for="lastNameInput">Фамилия</label>
+                            <input type="text" name="lastName" class="form-control" id="lastNameInput">
+                        </div>
+                        <div class="col-sm-4">
+                            <label for="firstNameInput">Имя</label>
+                            <input type="text" name="firstName" class="form-control" id="firstNameInput">
+                        </div>
+                        <div class="col-sm-4">
+                            <label for="fatherNameInput">Отчество</label>
+                            <input type="text" name="fatherName" class="form-control" id="fatherNameInput">
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="row g-3">
+                        <div class="col-sm-4">
+                            <label for="phoneInput">Телефон</label>
+                            <input type="text" name="phone" class="form-control" id="phoneInput" placeholder="+78006005040">
+                        </div>
+                        <div class="col-sm-4">
+                            <label for="emailInput">Почта</label>
+                            <input type="email" name="email" class="form-control" id="emailInput" placeholder="you@example.com">
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="row g-3" style="margin-top:5px">
+                        <div class="col-sm-4">
+                            <label for="passwordInput">Пароль</label>
+                            <input type="password" name="password" class="form-control" id="passwordInput">
+                        </div>
+                        <div class="col-sm-4">
+                            <label for="repeatPasswordInput">Повторите пароль</label>
+                            <input type="password" class="form-control" id="repeatPasswordInput">
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary">Зарегистрироваться</button>
+                </div>
+                <a th:href="@{/login}" class="nav-link px-2">Войти</a>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+<script src="../static/js/registration.js"></script>
+</html>

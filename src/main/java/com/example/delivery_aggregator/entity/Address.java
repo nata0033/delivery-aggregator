@@ -7,6 +7,7 @@ import java.util.UUID;
 
 @Entity
 @Data
+@Table(name = "address")
 public class Address {
     @Id
     @GeneratedValue

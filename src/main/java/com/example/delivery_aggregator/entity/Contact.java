@@ -8,6 +8,7 @@ import java.util.UUID;
 
 @Entity
 @Data
+@Table(name = "contact")
 public class Contact {
     @Id
     @GeneratedValue
@@ -18,6 +19,7 @@ public class Contact {
     private String fatherName;
     private String email;
     private String phone;
+    private String pic;
 
     @ManyToOne
     @JoinColumn(name = "user_id")

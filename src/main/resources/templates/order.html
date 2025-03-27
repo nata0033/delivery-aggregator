@@ -8,7 +8,7 @@
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <style>
     body{
-        background: url() no-repeat;
+        background: url(https://cs9.pikabu.ru/post_img/big/2016/10/14/8/1476449288194647767.jpg) no-repeat;
         background-size: 100%;
     }
     </style>
@@ -21,8 +21,9 @@
                 <li><a th:href="@{/account}" class="nav-link px-2 text-white">Личный кабинет</a></li>
             </ul>
             <div class="text-end">
-                <a th:href="@{/login}" class="btn btn-outline-light me-2">Регистрация</a>
-                <a th:href="@{/login}" class="btn btn-light">Вход</a>
+                <a th:if="${userLogin == 'anonymous'}" th:href="@{/registration}" class="btn btn-outline-light me-2">Регистрация</a>
+                <a th:if="${userLogin == 'anonymous'}" th:href="@{/login}" class="btn btn-light">Вход</a>
+                <a th:if="${userLogin != 'anonymous'}" th:href="@{/logout}" class="btn btn-light">Выход</a>
             </div>
         </div>
     </div>
@@ -53,9 +54,9 @@
             </div>
             <div class="col-md-7 col-lg-8">
                 <h4 class="mb-3" style="margin-left:10px">Оформление заказа</h4>
-                <form action="/order" method="POST" class="needs-validation" novalidate>
+                <form th:action="@{/order}" method="POST" class="needs-validation" novalidate>
                     <div class="row g-3" style="margin-left:5px">
-                         <h5 class="mb-3" >Отправитель</h5>
+                        <h5 class="mb-3" >Отправитель</h5>
                         <div class="col-sm-4">
                             <label for="senderLastName" class="form-label">Фамилия<span class="text-muted"></span></label>
                             <input type="text" name="sender.lastName" class="form-control" id="senderLastName" th:value="${orderPageData.sender.lastName}" required>

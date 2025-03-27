@@ -25,8 +25,9 @@
                     <li><a th:href="@{/account}" class="nav-link px-2 text-white">Личный кабинет</a></li>
                 </ul>
                 <div class="text-end">
-                    <a th:href="@{/login}" class="btn btn-outline-light me-2">Регистрация</a>
-                    <a th:href="@{/login}" class="btn btn-light">Вход</a>
+                    <a th:if="${userLogin == 'anonymous'}" th:href="@{/registration}" class="btn btn-outline-light me-2">Регистрация</a>
+                    <a th:if="${userLogin == 'anonymous'}" th:href="@{/login}" class="btn btn-light">Вход</a>
+                    <a th:if="${userLogin != 'anonymous'}" th:href="@{/logout}" class="btn btn-light">Выход</a>
                 </div>
             </div>
         </div>
@@ -36,7 +37,7 @@
         <div class="row justify-content-center">
             <div class="col-md-auto" style="margin-top: 5%; padding:72px; background-color:white; border-radius:.25rem;">
                 <h1 style="color: #343a40">Поиск дешевых сервисов доставки</h1>
-                <form action="/tariffs" method="POST" autocomplete="off" class="marked">
+                <form th:action="@{/tariffs}" method="POST" autocomplete="off" class="marked">
                     <div class="form-row">
                         <div class="form-group col-md-5">
                             <input type="hidden" name="fromLocation.state" class="form-control" id="fromLocationStateInput"  required>
@@ -109,5 +110,4 @@
     </div>
     </body>
     <script src="" th:src="@{js/index.js}"></script>
-<!--    <script src="../static/js/index.js"></script>-->
 </html>

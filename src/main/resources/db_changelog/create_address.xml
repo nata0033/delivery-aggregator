@@ -12,7 +12,7 @@
             </not>
         </preConditions>
         <createTable tableName="address">
-            <column name="id" type="UUID">
+            <column name="id" type="UUID" defaultValueComputed="gen_random_uuid()">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="country" type="VARCHAR(255)"/>

@@ -12,8 +12,8 @@
             </not>
         </preConditions>
         <createTable tableName="order">
-            <column name="id" type="UUID">
-                <constraints primaryKey="true" nullable="false"/>
+            <column name="id" type="UUID" defaultValueComputed="gen_random_uuid()">
+                <constraints primaryKey="true" nullable="false" />
             </column>
             <column name="service_name" type="VARCHAR(255)"/>
             <column name="service_logo" type="VARCHAR(255)"/>
