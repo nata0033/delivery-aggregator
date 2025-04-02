@@ -1,5 +1,6 @@
 package com.example.delivery_aggregator.dto.pages;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import lombok.ToString;
 
@@ -13,5 +14,6 @@ public class LocationDto {
     private String house;
     private String apartment;
     private String postalCode;
+    @JsonFormat(pattern = "dd-MM-yyyy")
     private String date;
 }

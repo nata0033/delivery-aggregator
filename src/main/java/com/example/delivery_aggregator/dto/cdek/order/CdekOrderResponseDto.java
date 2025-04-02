@@ -8,7 +8,7 @@ import java.util.List;
 @Data
 public class CdekOrderResponseDto {
     private CdekOrderEntityDto entity;
-    private List<Request> requests;
+    private List<RequestDto> requests;
     @JsonProperty("related_entities")
     private List<CdekOrderRelatedEntityDto> relatedEntities;
 }

@@ -1,4 +1,4 @@
-package com.example.delivery_aggregator.service;
+package com.example.delivery_aggregator.service.db;
 
 import com.example.delivery_aggregator.dto.pages.RegistrationPageDataDto;
 import com.example.delivery_aggregator.entity.User;
@@ -21,11 +21,6 @@ public class UserService implements UserDetailsService {
 
     private BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
 
-    public User createUser(RegistrationPageDataDto registrationPageDataDto){
-        User user = aggregatorMapper.registrationPageToUser(registrationPageDataDto);
-        return userRepository.save(user);
-    }
-
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = userRepository.findByLogin(username).orElseThrow();
@@ -35,5 +30,13 @@ public class UserService implements UserDetailsService {
                 .build();
     }
 
+    public User getUserByLogin(String login){
+        return userRepository.findByLogin(login).orElseThrow();
+    }
+
+    public User createUser(RegistrationPageDataDto registrationPageDataDto){
+        User user = aggregatorMapper.registrationPageToUser(registrationPageDataDto);
+        return userRepository.save(user);
+    }
 
 }

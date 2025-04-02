@@ -12,17 +12,17 @@ import org.springframework.web.client.RestTemplate;
 @RequiredArgsConstructor
 @Service
 public class DellinService {
-
-    private final String URL = "https://api.dellin.ru";
-
-    private final RestTemplate restTemplate;
-
-    private final DellinMapper dellinMapper;
-
-    public ResponseEntity<DellinCalculatorResponse> getTariffs(IndexPageDataDto formDeliveryParams) {
-        final String REQUEST_URL = URL + "/v2/calculator.json";
-
-        DellinCalculatorRequest dellinCalculatorTariffRequest = dellinMapper.dellinCalculatorRequest(formDeliveryParams);
+//
+//    private final String URL = "https://api.dellin.ru";
+//
+//    private final RestTemplate restTemplate;
+//
+//    private final DellinMapper dellinMapper;
+//
+//    public ResponseEntity<DellinCalculatorResponse> getTariffs(IndexPageDataDto formDeliveryParams) {
+//        final String REQUEST_URL = URL + "/v2/calculator.json";
+//
+//        DellinCalculatorRequest dellinCalculatorTariffRequest = dellinMapper.dellinCalculatorRequest(formDeliveryParams);
 //        Delivery delivery = new Delivery();
 //        Cargo cargo = dellinMapper.deliveryParamsToCargo(formDeliveryParams);
 //        DeliveryType deliveryType = new DeliveryType();
@@ -52,7 +52,7 @@ public class DellinService {
 //        dellinCalculatorTariffRequest.setAppkey("");
 //        dellinCalculatorTariffRequest.setDelivery(delivery);
 //        dellinCalculatorTariffRequest.setCargo(cargo);
-
-        return restTemplate.postForEntity(REQUEST_URL, dellinCalculatorTariffRequest, DellinCalculatorResponse.class);
-    }
+//
+//        return restTemplate.postForEntity(REQUEST_URL, dellinCalculatorTariffRequest, DellinCalculatorResponse.class);
+//    }
 }

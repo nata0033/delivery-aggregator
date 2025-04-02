@@ -8,7 +8,7 @@ import java.util.UUID;
 
 @Entity
 @Data
-@Table(name = "contact")
+@Table(schema = "delivery_aggregator", name = "contact")
 public class Contact {
     @Id
     @GeneratedValue
@@ -18,8 +18,9 @@ public class Contact {
     private String lastName;
     private String fatherName;
     private String email;
+
+    @Column(length = 20)
     private String phone;
-    private String pic;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
@@ -28,5 +29,6 @@ public class Contact {
     @OneToMany(mappedBy = "contact")
     private List<Address> addresses;
 
-    // Getters and Setters
+    @OneToMany(mappedBy = "contact")
+    private List<Order> receivedOrders;
 }

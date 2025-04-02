@@ -15,16 +15,16 @@ addPackageButton.addEventListener('click', () => {
     newDiv = `
         <div class="form-row" id="package">
             <div class="form-group col-md-2">
-                <input type="number" name="packages[` + quantityOfCargo + `].packageParams.weight" class="form-control" id="packageWeight" placeholder="Вес(гр)" min="1" required>
+                <input type="number" name="packages[` + quantityOfCargo + `].weight" class="form-control" id="packageWeight" placeholder="Вес(гр)" min="1" required>
             </div>
             <div class="form-group col-md-2">
-                <input type="number" name="packages[` + quantityOfCargo + `].packageParams.length" class="form-control" id="packagrLength" placeholder="Длина(см)" min="1" required>
+                <input type="number" name="packages[` + quantityOfCargo + `].length" class="form-control" id="packagrLength" placeholder="Длина(см)" min="1" required>
             </div>
             <div class="form-group col-md-2">
-                <input type="number" name="packages[` + quantityOfCargo + `].packageParams.width" class="form-control" id="packageWidth" placeholder="Ширина(см)" min="1" required>
+                <input type="number" name="packages[` + quantityOfCargo + `].width" class="form-control" id="packageWidth" placeholder="Ширина(см)" min="1" required>
             </div>
             <div class="form-group col-md-2">
-                <input type="number" name="packages[` + quantityOfCargo + `].packageParams.height" class="form-control" id="packageHeight" placeholder="Высота(см)" min="1" required>
+                <input type="number" name="packages[` + quantityOfCargo + `].height" class="form-control" id="packageHeight" placeholder="Высота(см)" min="1" required>
             </div>
         </div>
     `
@@ -186,12 +186,11 @@ function addJson(){
 
         if (!deliveryDataJson.packages[packageIndex]) {
             deliveryDataJson.packages[packageIndex] = {
-                packageParams: {}
             };
         }
 
         const paramName = input.name.split('.').pop(); // Извлекаем имя параметра (weight, length, width, height)
-        deliveryDataJson.packages[packageIndex].packageParams[paramName] = parseInt(input.value);
+        deliveryDataJson.packages[packageIndex][paramName] = parseInt(input.value);
     });
     document.cookie = 'delivery_data' + '=' +  encodeURIComponent(JSON.stringify(deliveryDataJson))
 };

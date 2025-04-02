@@ -4,5 +4,8 @@ import lombok.Data;
 
 @Data
 public class PackageDto {
-    PackageParamsDto packageParams;
+    private Integer weight;
+    private Integer length;
+    private Integer width;
+    private Integer height;
 }

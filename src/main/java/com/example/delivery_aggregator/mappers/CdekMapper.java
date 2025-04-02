@@ -3,10 +3,15 @@ package com.example.delivery_aggregator.mappers;
 import com.example.delivery_aggregator.dto.cdek.calculator.CdekCalculatorPackageDto;
 import com.example.delivery_aggregator.dto.cdek.calculator.CdekCalculatorTariffCodeDto;
 import com.example.delivery_aggregator.dto.cdek.order.*;
+import com.example.delivery_aggregator.dto.db.ContactDto;
 import com.example.delivery_aggregator.dto.pages.*;
 import com.example.delivery_aggregator.dto.cdek.*;
 import com.example.delivery_aggregator.dto.cdek.calculator.CdekCalculatorResponseDto;
 import com.example.delivery_aggregator.dto.cdek.calculator.CdekCalculatorLocationDto;
+import com.example.delivery_aggregator.entity.Contact;
+import com.example.delivery_aggregator.entity.DeliveryService;
+import com.example.delivery_aggregator.entity.Order;
+import com.example.delivery_aggregator.entity.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
@@ -15,16 +20,17 @@ import org.mapstruct.Named;
 import java.util.ArrayList;
 import java.util.List;
 
-@Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
+@Mapper(componentModel = MappingConstants.ComponentModel.SPRING,
+uses = AggregatorMapper.class)
 public interface CdekMapper {
 
     //Калькулятор
     CdekCalculatorLocationDto suggestCityResponseToLocation(CdekSuggestCityResponseDto suggestCityResponse);
 
-    @Mapping(target = "length", source = "packageParams.length")
-    @Mapping(target = "height", source = "packageParams.height")
-    @Mapping(target = "width", source = "packageParams.width")
-    @Mapping(target = "weight", source = "packageParams.weight")
+    @Mapping(target = "length", source = "pack.length")
+    @Mapping(target = "height", source = "pack.height")
+    @Mapping(target = "width", source = "pack.width")
+    @Mapping(target = "weight", source = "pack.weight")
     CdekCalculatorPackageDto aggregatorPackageToCalculatorCdekPackage(PackageDto pack);
 
     //Тарифы
@@ -37,11 +43,11 @@ public interface CdekMapper {
     TariffDto tariffCodeToTariff(CdekCalculatorTariffCodeDto tariffCode);
 
     @Mapping(target = "tariffs", source = "cdekCalculatorResponse.tariffCodes", qualifiedByName = "cdekCalculatorResponseToTariffsPageData")
-    @Mapping(target = "fromLocation", source = "deliveryParams.fromLocation")
-    @Mapping(target = "toLocation", source = "deliveryParams.toLocation")
-    @Mapping(target = "packageQuantity", expression = "java((int) deliveryParams.getPackages().stream().count())")
-    @Mapping(target = "packageWeight",  expression = "java(deliveryParams.getPackages().stream().mapToInt(p -> p.getPackageParams().getWeight()).sum())")
-    TariffsPageData cdekCalculatorResponseToTariffsPageData(CdekCalculatorResponseDto cdekCalculatorResponse, IndexPageDataDto deliveryParams);
+    @Mapping(target = "fromLocation", source = "indexPageDataDto.fromLocation")
+    @Mapping(target = "toLocation", source = "indexPageDataDto.toLocation")
+    @Mapping(target = "packageQuantity", expression = "java((int) indexPageDataDto.getPackages().stream().count())")
+    @Mapping(target = "packageWeight",  expression = "java(indexPageDataDto.getPackages().stream().mapToInt(p -> p.getWeight()).sum())")
+    TariffsPageData cdekCalculatorResponseToTariffsPageData(CdekCalculatorResponseDto cdekCalculatorResponse, IndexPageDataDto indexPageDataDto);
 
     //Заказ
     @Mapping(target = "tariffCode", source = "deliveryData.tariff.code")
@@ -49,7 +55,7 @@ public interface CdekMapper {
     @Mapping(target = "recipient", source = "orderPageData.recipient", qualifiedByName = "userToContact")
     @Mapping(target = "fromLocation", source = "orderPageData.fromLocation", qualifiedByName = "locationToOrderCdekLocation")
     @Mapping(target = "toLocation", source = "orderPageData.toLocation", qualifiedByName = "locationToOrderCdekLocation")
-    RequestDto orderPageDataAndDeliveryDataToCdekOrderRequest(OrderPageDataDto orderPageData, DeliveryDataDto deliveryData);
+    CdekOrderRequestDto orderPageDataAndDeliveryDataToCdekOrderRequest(OrderPageDataDto orderPageData, DeliveryDataDto deliveryData);
 
     @Named("userToContact")
     @Mapping(target = "name", expression = "java(user.getFirstName() + ' ' + user.getLastName() + ' ' + user.getFatherName())")
@@ -70,10 +76,11 @@ public interface CdekMapper {
     @Mapping(target = "address", expression = "java(location.getStreet() + ' ' + location.getHouse() + ' ' + location.getApartment())")
     CdekOrderLocationDto locationToOrderCdekLocation(LocationDto location);
 
-    @Mapping(target = "length", source = "pack.packageParams.length")
-    @Mapping(target = "height", source = "pack.packageParams.height")
-    @Mapping(target = "width", source = "pack.packageParams.width")
-    @Mapping(target = "weight", source = "pack.packageParams.weight")
+    @Mapping(target = "length", source = "pack.length")
+    @Mapping(target = "height", source = "pack.height")
+    @Mapping(target = "width", source = "pack.width")
+    @Mapping(target = "weight", source = "pack.weight")
     @Mapping(target = "comment", source = "orderPageData.comment")
     CdekOrderPackageDto aggregatorPackageToOrderCdekPackage(PackageDto pack, OrderPageDataDto orderPageData);
+
 }

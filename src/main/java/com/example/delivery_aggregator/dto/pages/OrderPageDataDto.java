@@ -1,5 +1,6 @@
 package com.example.delivery_aggregator.dto.pages;
 
+import com.example.delivery_aggregator.dto.db.ContactDto;
 import lombok.Data;
 
 @Data

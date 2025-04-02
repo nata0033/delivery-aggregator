@@ -16,12 +16,12 @@ public interface YandexMapper {
     @Mapping(target = "address", expression = "java(location.toString())")
     PricingDestinationNode locationToPricingDestinationNode(LocationDto location);
 
-    @Mapping(target = "dx", source = "length")
-    @Mapping(target = "dy", source = "height")
-    @Mapping(target = "dz", source = "width")
-    @Mapping(target = "weightGross", source = "weight")
-    PlacePhysicalDimensions packageParamsToPlacePhysicalDimensions(PackageParamsDto pack);
+//    @Mapping(target = "dx", source = "length")
+//    @Mapping(target = "dy", source = "height")
+//    @Mapping(target = "dz", source = "width")
+//    @Mapping(target = "weightGross", source = "weight")
+//    PlacePhysicalDimensions packageParamsToPlacePhysicalDimensions(PackageParamsDto pack);
 
-    @Mapping(target = "physicalDims", source = "packageParams")
-    PricingResourcePlace packageToPricingResourcePlace(PackageDto pack);
+//    @Mapping(target = "physicalDims", source = "packageParams")
+//    PricingResourcePlace packageToPricingResourcePlace(PackageDto pack);
 }

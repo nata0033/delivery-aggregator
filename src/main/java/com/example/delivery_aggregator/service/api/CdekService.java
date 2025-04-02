@@ -1,14 +1,12 @@
 package com.example.delivery_aggregator.service.api;
 
+import com.example.delivery_aggregator.dto.cdek.order.*;
 import com.example.delivery_aggregator.dto.pages.DeliveryDataDto;
 import com.example.delivery_aggregator.dto.pages.IndexPageDataDto;
 import com.example.delivery_aggregator.dto.pages.OrderPageDataDto;
 import com.example.delivery_aggregator.dto.cdek.*;
 import com.example.delivery_aggregator.dto.cdek.calculator.CdekCalculatorRequestDto;
 import com.example.delivery_aggregator.dto.cdek.calculator.CdekCalculatorResponseDto;
-import com.example.delivery_aggregator.dto.cdek.order.CdekOrderResponseDto;
-import com.example.delivery_aggregator.dto.cdek.order.CdekOrderDeliveryRecipientCostDto;
-import com.example.delivery_aggregator.dto.cdek.order.CdekOrderPackageDto;
 import com.example.delivery_aggregator.mappers.CdekMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.ParameterizedTypeReference;
@@ -62,18 +60,18 @@ public class CdekService {
         return response.getBody().getFirst();
     }
 
-    public ResponseEntity<CdekCalculatorResponseDto> getTariffs(IndexPageDataDto deliveryParams) {
+    public ResponseEntity<CdekCalculatorResponseDto> getTariffs(IndexPageDataDto indexPageDataDto) {
         final String REQUEST_URL = URL + "/v2/calculator/tarifflist";
 
         HttpHeaders headers = getHttpHeaders();
 
-        CdekSuggestCityResponseDto suggestFromCityResponse = getCitiesCode(deliveryParams.getFromLocation().getCity());
-        CdekSuggestCityResponseDto suggestToCityResponse = getCitiesCode(deliveryParams.getToLocation().getCity());
+        CdekSuggestCityResponseDto suggestFromCityResponse = getCitiesCode(indexPageDataDto.getFromLocation().getCity());
+        CdekSuggestCityResponseDto suggestToCityResponse = getCitiesCode(indexPageDataDto.getToLocation().getCity());
 
         CdekCalculatorRequestDto cdekCalculatorTariffRequest = new CdekCalculatorRequestDto();
         cdekCalculatorTariffRequest.setFromLocation(cdekMapper.suggestCityResponseToLocation(suggestFromCityResponse));
         cdekCalculatorTariffRequest.setToLocation(cdekMapper.suggestCityResponseToLocation(suggestToCityResponse));
-        cdekCalculatorTariffRequest.setPackages(deliveryParams.getPackages().stream().map(cdekMapper::aggregatorPackageToCalculatorCdekPackage).toList());
+        cdekCalculatorTariffRequest.setPackages(indexPageDataDto.getPackages().stream().map(cdekMapper::aggregatorPackageToCalculatorCdekPackage).toList());
 
         HttpEntity<CdekCalculatorRequestDto> requestData = new HttpEntity<>(cdekCalculatorTariffRequest, headers);
         return restTemplate.exchange(REQUEST_URL, HttpMethod.POST, requestData, CdekCalculatorResponseDto.class);
@@ -95,12 +93,12 @@ public class CdekService {
 
         HttpHeaders headers = getHttpHeaders();
 
-        RequestDto cdekOrderRequest = cdekMapper.orderPageDataAndDeliveryDataToCdekOrderRequest(orderPageData,deliveryData);
+        CdekOrderRequestDto cdekOrderRequest = cdekMapper.orderPageDataAndDeliveryDataToCdekOrderRequest(orderPageData,deliveryData);
         cdekOrderRequest.setType(2);
         cdekOrderRequest.setDeliveryRecipientCost(new CdekOrderDeliveryRecipientCostDto());
         cdekOrderRequest.getDeliveryRecipientCost().setValue((float) 0);
         cdekOrderRequest.getSender().setCompany("Агрегатор");
-        HttpEntity<RequestDto> requestData = new HttpEntity<>(cdekOrderRequest, headers);
+        HttpEntity<CdekOrderRequestDto> requestData = new HttpEntity<>(cdekOrderRequest, headers);
         cdekOrderRequest.setPackages(
                 IntStream.range(0, deliveryData.getPackages().size())
                         .mapToObj(i -> {

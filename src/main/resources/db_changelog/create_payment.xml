@@ -5,31 +5,32 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
          http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
 
-    <changeSet id="create_contact_table" author="postgres">
+    <changeSet id="create_payment_table" author="postgres">
         <preConditions onFail="MARK_RAN">
             <not>
-                <tableExists tableName="contact"/>
+                <tableExists tableName="payment"/>
             </not>
         </preConditions>
-        <createTable tableName="contact">
+        <createTable tableName="payment">
             <column name="id" type="UUID" defaultValueComputed="gen_random_uuid()">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
-            <column name="user_id" type="UUID">
+            <column name="order_id" type="UUID">
                 <constraints nullable="false"/>
             </column>
-            <column name="first_name" type="VARCHAR(255)"/>
-            <column name="last_name" type="VARCHAR(255)"/>
-            <column name="father_name" type="VARCHAR(255)"/>
-            <column name="email" type="VARCHAR(255)"/>
-            <column name="phone" type="VARCHAR(20)"/>
+            <column name="external_payment_id" type="VARCHAR(255)"/>
+            <column name="amount" type="FLOAT"/>
+            <column name="currency" type="VARCHAR(3)" defaultValue="RUB"/>
+            <column name="status" type="VARCHAR(50)"/>
             <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
         </createTable>
-        <addForeignKeyConstraint baseTableName="contact" baseColumnNames="user_id"
-                                 constraintName="fk_contact_user"
-                                 referencedTableName="user" referencedColumnNames="id"
+
+        <addForeignKeyConstraint baseTableName="payment" baseColumnNames="order_id"
+                                 constraintName="fk_payment_order"
+                                 referencedTableName="order" referencedColumnNames="id"
                                  onDelete="CASCADE"/>
     </changeSet>
 </databaseChangeLog>
+

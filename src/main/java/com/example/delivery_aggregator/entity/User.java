@@ -2,7 +2,9 @@ package com.example.delivery_aggregator.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import org.hibernate.annotations.CreationTimestamp;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -14,14 +16,19 @@ public class User {
     @GeneratedValue
     private UUID id;
 
+    @Column(nullable = false, unique = true)
     private String login;
+
+    @Column(nullable = false)
     private String password;
 
-    @OneToMany(mappedBy = "user")
-    private List<Order> orders;
+    @CreationTimestamp
+    @Column(nullable = false, updatable = false)
+    private LocalDateTime createdAt;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Order> sentOrders;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Contact> contacts;
-
-    // Getters and Setters
 }

@@ -6,6 +6,9 @@
 
     <include file="create_user.xml" relativeToChangelogFile="true"/>
     <include file="create_contact.xml" relativeToChangelogFile="true"/>
+    <include file="create_delivery_service.xml" relativeToChangelogFile="true"/>
     <include file="create_order.xml" relativeToChangelogFile="true"/>
+    <include file="create_package.xml" relativeToChangelogFile="true"/>
     <include file="create_address.xml" relativeToChangelogFile="true"/>
+    <include file="create_payment.xml" relativeToChangelogFile="true"/>
 </databaseChangeLog>

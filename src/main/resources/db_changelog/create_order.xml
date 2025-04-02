@@ -5,7 +5,7 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
          http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
 
-    <changeSet id="1" author="your_name">
+    <changeSet id="create_order_table" author="postgres">
         <preConditions onFail="MARK_RAN">
             <not>
                 <tableExists tableName="order"/>
@@ -13,17 +13,49 @@
         </preConditions>
         <createTable tableName="order">
             <column name="id" type="UUID" defaultValueComputed="gen_random_uuid()">
-                <constraints primaryKey="true" nullable="false" />
+                <constraints primaryKey="true" nullable="false"/>
             </column>
-            <column name="service_name" type="VARCHAR(255)"/>
-            <column name="service_logo" type="VARCHAR(255)"/>
-            <column name="number" type="VARCHAR(255)"/>
-            <column name="status" type="VARCHAR(255)"/>
-            <column name="user_id" type="UUID"/>
+            <column name="user_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="delivery_service_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="service_order_number" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="from_location" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="to_location" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="recipient_contact_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="VARCHAR(50)" defaultValue="ACCEPTED">
+                <constraints nullable="false"/>
+            </column>
+            <column name="price" type="FLOAT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
         </createTable>
 
         <addForeignKeyConstraint baseTableName="order" baseColumnNames="user_id"
                                  constraintName="fk_order_user"
-                                 referencedTableName="user" referencedColumnNames="id"/>
+                                 referencedTableName="user" referencedColumnNames="id"
+                                 onDelete="CASCADE"/>
+
+        <addForeignKeyConstraint baseTableName="order" baseColumnNames="delivery_service_id"
+                                 constraintName="fk_order_delivery_service"
+                                 referencedTableName="delivery_service" referencedColumnNames="id"/>
+
+        <addForeignKeyConstraint baseTableName="order" baseColumnNames="recipient_contact_id"
+                                 constraintName="fk_order_recipient_contact"
+                                 referencedTableName="contact" referencedColumnNames="id"
+                                 onDelete="SET NULL"/>
     </changeSet>
 </databaseChangeLog>

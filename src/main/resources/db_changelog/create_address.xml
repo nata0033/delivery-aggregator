@@ -5,7 +5,7 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
          http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
 
-    <changeSet id="1" author="your_name">
+    <changeSet id="create_address_table" author="postgres">
         <preConditions onFail="MARK_RAN">
             <not>
                 <tableExists tableName="address"/>
@@ -15,16 +15,20 @@
             <column name="id" type="UUID" defaultValueComputed="gen_random_uuid()">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
-            <column name="country" type="VARCHAR(255)"/>
+            <column name="contact_id" type="UUID"/>
+            <column name="country" type="VARCHAR(255)" defaultValue="Россия">
+                <constraints nullable="false"/>
+            </column>
             <column name="state" type="VARCHAR(255)"/>
             <column name="city" type="VARCHAR(255)"/>
-            <column name="house" type="VARCHAR(255)"/>
-            <column name="apartment" type="VARCHAR(255)"/>
-            <column name="contact_id" type="UUID"/>
+            <column name="house" type="VARCHAR(20)"/>
+            <column name="apartment" type="VARCHAR(20)"/>
+            <column name="postal_code" type="VARCHAR(20)"/>
         </createTable>
 
         <addForeignKeyConstraint baseTableName="address" baseColumnNames="contact_id"
                                  constraintName="fk_address_contact"
-                                 referencedTableName="contact" referencedColumnNames="id"/>
+                                 referencedTableName="contact" referencedColumnNames="id"
+                                 onDelete="SET NULL"/>
     </changeSet>
 </databaseChangeLog>

@@ -181,7 +181,7 @@
                             </div>
                         </div>
                         <div class="tariff-card-footer">
-                            <form th:action="@{/order}" method="GET">
+                            <form th:action="@{/order}" method="POST">
                                 <input type="hidden" name="code" th:value="${tariff.code}" id="tariffCodeInput">
                                 <input type="hidden" name="name" th:value="${tariff.name}" id="tariffNameInput">
                                 <input type="hidden" name="minTime" th:value="${tariff.minTime}" id="tariffMinTimeInput">

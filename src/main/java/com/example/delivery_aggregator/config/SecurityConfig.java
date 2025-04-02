@@ -1,5 +1,5 @@
 package com.example.delivery_aggregator.config;
-import com.example.delivery_aggregator.service.UserService;
+import com.example.delivery_aggregator.service.db.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -38,7 +38,6 @@ public class SecurityConfig {
             )
             .authorizeHttpRequests(auth -> auth
                     .requestMatchers("/", "/tariffs", "/login", "/registration", "/error", "/js/**").permitAll()
-                    //.requestMatchers("login", "/js/**").permitAll()
                     .anyRequest().authenticated()
             ).build();
     }

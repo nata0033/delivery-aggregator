@@ -1,16 +1,15 @@
-package com.example.delivery_aggregator.dto.pages;
+package com.example.delivery_aggregator.dto.db;
 
 import lombok.Data;
 
-import java.util.List;
+import java.util.UUID;
 
 @Data
-public class UserDto {
+public class ContactDto {
+    private UUID id;
     private String firstName;
     private String lastName;
     private String fatherName;
     private String email;
     private String phone;
-    private String pic;
-    private List<LocationDto> addresses;
 }
