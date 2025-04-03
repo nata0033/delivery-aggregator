@@ -12,4 +12,5 @@ public class ContactDto {
     private String fatherName;
     private String email;
     private String phone;
+    private String pic;
 }

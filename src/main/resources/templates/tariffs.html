@@ -60,7 +60,7 @@
 <div class="container" style="background-color:white; margin-top:15px; height: 72px; border-radius:.25rem;">
     <div class="row">
         <div class="col deliveryData" style="text-align: center;">
-            <h5 th:text="${tariffsPageData.fromLocation.date}"></h5>
+            <h5 id="dateCell" th:text="${tariffsPageData.fromLocation.date}"></h5>
         </div>
         <div class="col deliveryData" style="text-align: right;">
             <h5 th:text="${tariffsPageData.fromLocation.city}"></h5>
@@ -80,7 +80,6 @@
     <div class="row form-container">
         <div class="col-md-4">
             <div class="d-flex justify-content-between align-items-center mb-3">
-                <!--Сортировка -->
                 <div>
                     <select id="sort-options" class="form-select">
                         <option value="price">По стоимости</option>
@@ -88,9 +87,7 @@
                     </select>
                 </div>
             </div>
-            <!--Фильтры -->
             <div class="card p-3" style="min-height: 278px">
-                <!--Способы доставки-->
                 <h5>Выбор способа доставки</h5>
                 <div class="form-check">
                     <input class="form-check-input" type="radio" name="delivery-method" id="door-to-door" checked>
@@ -136,7 +133,6 @@
 <!--                            Страхование-->
 <!--                        </label>-->
 <!--                    </div>-->
-                <!--Курьерские службы-->
                 <h5>Курьерские службы</h5>
                 <div class="form-check">
                     <input class="form-check-input" type="checkbox" name="delivery-method" id="allServices" checked>
@@ -152,7 +148,6 @@
                 </div>
             </div>
         </div>
-        <!--Тарифы-->
         <div class="col-md-8 overflow-auto" style="max-height:695px;">
             <div class="row" style="padding-top: 55px;">
                 <div class="col-md-12">

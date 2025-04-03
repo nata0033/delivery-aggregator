@@ -2,24 +2,26 @@ package com.example.delivery_aggregator.controller;
 
 import com.example.delivery_aggregator.dto.cdek.order.CdekOrderResponseDto;
 import com.example.delivery_aggregator.dto.db.ContactDto;
-import com.example.delivery_aggregator.dto.db.OrderDto;
 import com.example.delivery_aggregator.dto.pages.*;
 import com.example.delivery_aggregator.dto.cdek.calculator.CdekCalculatorResponseDto;
 import com.example.delivery_aggregator.entity.Contact;
-import com.example.delivery_aggregator.entity.DeliveryService;
 import com.example.delivery_aggregator.entity.User;
 import com.example.delivery_aggregator.mappers.AggregatorMapper;
 import com.example.delivery_aggregator.mappers.CdekMapper;
 import com.example.delivery_aggregator.service.api.*;
 import com.example.delivery_aggregator.service.db.ContactService;
-import com.example.delivery_aggregator.service.db.DeliveryServiceService;
 import com.example.delivery_aggregator.service.db.OrderService;
 import com.example.delivery_aggregator.service.db.UserService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -47,9 +49,6 @@ public class AggregatorController {
 
     private ObjectMapper objectMapper = new ObjectMapper();
 
-//    @GetMapping("/error")
-//    public String errorPage(){return "error";}
-
     @GetMapping()
     public String index(Principal principal, Model model){
         String userLogin = (principal != null) ? principal.getName() : "anonymous";
@@ -72,12 +71,24 @@ public class AggregatorController {
     }
 
     @PostMapping("/registration")
-    public String createUser(@ModelAttribute RegistrationPageDataDto registrationPageDto, Principal principal, Model model){
-        String userLogin = (principal != null) ? principal.getName() : "anonymous";
-        model.addAttribute("userLogin", userLogin);
+    public String createUser(@ModelAttribute RegistrationPageDataDto registrationPageDto, HttpServletRequest request, Model model){
+        Contact contact = contactService.create(registrationPageDto);
 
-        contactService.create(registrationPageDto);
-        return "login";
+        UserDetails user = userService.loadUserByUsername(contact.getUser().getLogin());
+        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                user.getUsername(),
+                registrationPageDto.getPassword(),
+                user.getAuthorities()
+        );
+
+        SecurityContextHolder.getContext().setAuthentication(authToken);
+
+        request.getSession().setAttribute(
+                HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
+                SecurityContextHolder.getContext()
+        );
+
+        return "redirect:/account";
     }
 
     @PostMapping("/tariffs")
@@ -149,14 +160,14 @@ public class AggregatorController {
         User user = userService.getUserByLogin(userLogin);
         Contact contact = contactService.findByEmail(userLogin);
 
-        model.addAttribute("accountPageData", createAccountPageDataDto(user, contact));
-        model.addAttribute("ordersDataJsonString", objectMapper.writeValueAsString(createAccountPageDataDto(user, contact).getOrders()));
+        AccountPageDataDto accountPageData = createAccountPageDataDto(user, contact);
+        model.addAttribute("accountPageData", accountPageData);
+        model.addAttribute("ordersDataJsonString", objectMapper.writeValueAsString(accountPageData.getOrders()));
         return "account";
     }
 
     @PostMapping("/account/changeUser")
-    public String changeContact(@ModelAttribute  ContactDto contactDto, Principal principal, Model model){
+    public String changeUserData(@ModelAttribute  ContactDto contactDto, Principal principal, Model model){
         return "account";
     }
 }
-//9c91a5a9-a71f-4882-b963-10a9dbeccd51

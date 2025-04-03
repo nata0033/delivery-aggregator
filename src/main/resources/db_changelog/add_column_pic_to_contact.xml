@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="add_pic_to_contacts" author="postgres">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="contact"/>
+            <not>
+                <columnExists tableName="contact" columnName="pic"/>
+            </not>
+        </preConditions>
+
+        <addColumn tableName="contact">
+            <column name="pic" type="TEXT" defaultValue="https://i.pinimg.com/736x/97/55/6b/97556b3f5865b4dc1c3aece334c0eeac.jpg">
+                <constraints nullable="true"/>
+            </column>
+        </addColumn>
+
+        <!-- Опционально: обновление существующих записей -->
+        <sql>
+            UPDATE contact SET pic = 'https://i.pinimg.com/736x/97/55/6b/97556b3f5865b4dc1c3aece334c0eeac.jpg'
+            WHERE pic IS NULL;
+        </sql>
+    </changeSet>
+</databaseChangeLog>

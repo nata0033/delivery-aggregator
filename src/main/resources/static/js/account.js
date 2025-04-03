@@ -62,40 +62,102 @@ document.addEventListener('DOMContentLoaded', function() {
     activateMenu('deliveries', 'deliveries');
 });
 
-function formatDate(dateString) {
-    if (!dateString) return '—';
-
-    try {
-        const date = new Date(dateString);
-        if (isNaN(date.getTime())) return dateString; // Если дата некорректна
-
-        const day = String(date.getDate()).padStart(2, '0');
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const year = date.getFullYear();
-
-        return `${day}-${month}-${year}`;
-    } catch (e) {
-        console.error('Error formatting date:', e);
-        return dateString;
-    }
-}
-
-//Подробная добавление заказа
+//Подробная информация о заказе и сортировки
 document.addEventListener('DOMContentLoaded', function() {
-    //Получение данных с бека
+    // Получение данных с бэка
     const ordersData = {
         orders: JSON.parse(document.getElementById('orders-data').textContent)
     };
 
     const ordersBody = document.getElementById('orders-body');
+    const sortableHeaders = document.querySelectorAll('th[data-sort]');
 
+    let currentSort = {
+        field: 'date',
+        direction: 1 // 1 - по возрастанию, -1 - по убыванию
+    };
+
+    // Функция для форматирования даты
+    function formatDate(isoDate) {
+        if (!isoDate) return '—';
+        try {
+            const date = new Date(isoDate);
+            if (isNaN(date.getTime())) return isoDate;
+
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = date.getFullYear();
+
+            return `${day}-${month}-${year}`;
+        } catch (e) {
+            console.error('Ошибка форматирования даты:', e);
+            return isoDate;
+        }
+    }
+
+    // Функция сортировки
+    function sortOrders(field) {
+        // Если сортируем по тому же полю, меняем направление
+        if (field === currentSort.field) {
+            currentSort.direction *= -1;
+        } else {
+            currentSort.field = field;
+            currentSort.direction = 1;
+        }
+
+        // Особый случай для статуса
+        if (field === 'status') {
+            const statusOrder = {
+                'ACCEPTED': currentSort.direction === 1 ? 1 : 2,
+                'CANCELED': currentSort.direction === 1 ? 2 : 1,
+                'DELIVERED': currentSort.direction === 1 ? 3 : 3
+            };
+
+            ordersData.orders.sort((a, b) => {
+                return statusOrder[a.status] - statusOrder[b.status] || a.number.localeCompare(b.number);
+            });
+        } else {
+            // Стандартная сортировка
+            ordersData.orders.sort((a, b) => {
+                const aValue = a[field];
+                const bValue = b[field];
+
+                if (aValue < bValue) return -1 * currentSort.direction;
+                if (aValue > bValue) return 1 * currentSort.direction;
+                return 0;
+            });
+        }
+
+        // Обновляем индикаторы сортировки
+        updateSortIndicators();
+        renderOrders();
+    }
+
+    // Обновление индикаторов сортировки
+    function updateSortIndicators() {
+        sortableHeaders.forEach(header => {
+            const sortField = header.dataset.sort;
+            header.querySelector('.sort-indicator')?.remove();
+
+            if (sortField === currentSort.field) {
+                const indicator = document.createElement('span');
+                indicator.className = 'sort-indicator ml-1';
+                indicator.textContent = currentSort.direction === 1 ? '▼' : '▲';
+                header.appendChild(indicator);
+            }
+        });
+    }
+
+    // Отрисовка таблицы
     function renderOrders() {
         ordersBody.innerHTML = '';
 
         ordersData.orders.forEach(order => {
+            // Основная строка заказа
             const mainRow = document.createElement('tr');
             mainRow.dataset.orderNumber = order.number;
 
+            // Номер заказа
             const numberCell = document.createElement('td');
             const numberLink = document.createElement('a');
             numberLink.className = 'navi-link';
@@ -109,10 +171,12 @@ document.addEventListener('DOMContentLoaded', function() {
             numberCell.appendChild(numberLink);
             mainRow.appendChild(numberCell);
 
+            // Дата заказа
             const dateCell = document.createElement('td');
             dateCell.textContent = formatDate(order.date);
             mainRow.appendChild(dateCell);
 
+            // Статус заказа
             const statusCell = document.createElement('td');
             const statusBadge = document.createElement('span');
             statusBadge.className = 'badge m-0 ';
@@ -140,13 +204,14 @@ document.addEventListener('DOMContentLoaded', function() {
             statusCell.appendChild(statusBadge);
             mainRow.appendChild(statusCell);
 
+            // Цена заказа
             const priceCell = document.createElement('td');
             priceCell.textContent = order.price + '₽';
             mainRow.appendChild(priceCell);
 
             ordersBody.appendChild(mainRow);
 
-//Детали заказа
+            // Детали заказа
             const detailsRow = document.createElement('tr');
             detailsRow.className = 'order-details';
             detailsRow.dataset.orderNumber = order.number;
@@ -157,7 +222,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             const serviceNameInfo = document.createElement('div');
             serviceNameInfo.className = 'mb-2';
-            serviceNameInfo.innerHTML = `<strong>Сервис доставки:</strong> ${order.serviceName}`;
+            serviceNameInfo.innerHTML = `<strong>Сервис доставки:</strong> ${order.serviceName || 'Не указан'}`;
             detailsCell.appendChild(serviceNameInfo);
 
             const recipientInfo = document.createElement('div');
@@ -165,8 +230,18 @@ document.addEventListener('DOMContentLoaded', function() {
             recipientInfo.innerHTML = `<strong>Получатель:</strong> ${order.recipient.lastName} ${order.recipient.firstName} ${order.recipient.fatherName}, ${order.recipient.phone}`;
             detailsCell.appendChild(recipientInfo);
 
+            const fromLocationInfo = document.createElement('div');
+            fromLocationInfo.className = 'mb-2';
+            fromLocationInfo.innerHTML = `<strong>Откуда:</strong> ${order.fromLocation}`;
+            detailsCell.appendChild(fromLocationInfo);
+
+            const toLocationInfo = document.createElement('div');
+            toLocationInfo.className = 'mb-2';
+            toLocationInfo.innerHTML = `<strong>Куда:</strong> ${order.toLocation}`;
+            detailsCell.appendChild(toLocationInfo);
+
             const packagesInfo = document.createElement('div');
-            const totalWeight = order.packages.reduce((sum, pkg) => sum + pkg.weight, 0);
+            const totalWeight = order.packages.reduce((sum, pkg) => sum + (pkg.weight || 0), 0);
             packagesInfo.innerHTML = `<strong>Грузы:</strong> ${order.packages.length} шт., Общий вес: ${totalWeight} кг`;
             detailsCell.appendChild(packagesInfo);
 
@@ -175,7 +250,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Toggle order details visibility
     function toggleOrderDetails(orderNumber) {
         const detailsRow = document.querySelector(`tr.order-details[data-order-number="${orderNumber}"]`);
         if (detailsRow) {
@@ -183,13 +257,21 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Initial render
-    renderOrders();
+    // Назначаем обработчики кликов на заголовки
+    sortableHeaders.forEach(header => {
+        header.style.cursor = 'pointer';
+        header.addEventListener('click', () => {
+            sortOrders(header.dataset.sort);
+        });
+    });
 
-    // Sort functionality (placeholder)
-    document.getElementById('order-sort').addEventListener('change', function() {
-        // Implement sorting logic here based on selected option
+    // Инициализация - сортировка по дате (по возрастанию)
+    sortOrders('date');
+
+    // Обработчик для селекта сортировки (если нужно сохранить)
+    document.getElementById('order-sort')?.addEventListener('change', function() {
         console.log('Sorting by:', this.value);
+        // Можно добавить дополнительную логику сортировки здесь
         renderOrders();
     });
 });

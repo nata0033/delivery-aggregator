@@ -19,6 +19,9 @@ public class Contact {
     private String fatherName;
     private String email;
 
+    @Column(columnDefinition = "TEXT DEFAULT 'https://i.pinimg.com/736x/97/55/6b/97556b3f5865b4dc1c3aece334c0eeac.jpg'")
+    private String pic = "https://i.pinimg.com/736x/97/55/6b/97556b3f5865b4dc1c3aece334c0eeac.jpg";
+
     @Column(length = 20)
     private String phone;
 
@@ -31,4 +34,11 @@ public class Contact {
 
     @OneToMany(mappedBy = "contact")
     private List<Order> receivedOrders;
+
+    @PrePersist
+    public void prePersist() {
+        if (pic == null) {
+            pic = "https://i.pinimg.com/736x/97/55/6b/97556b3f5865b4dc1c3aece334c0eeac.jpg";
+        }
+    }
 }

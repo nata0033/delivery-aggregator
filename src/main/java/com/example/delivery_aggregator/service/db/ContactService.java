@@ -34,16 +34,16 @@ public class ContactService {
     }
 
     public Contact findByEmail(String email){
-        return contactRepository.findByEmail(email).orElseThrow();
+        return contactRepository.findByEmail(email).orElse(null);
     }
 
-    public Contact findByPhone(String phone){return contactRepository.findByPhone(phone).orElseThrow();}
+    public Contact findByPhone(String phone){return contactRepository.findByPhone(phone).orElse(null);}
 
-    public void create(RegistrationPageDataDto registrationPageDataDto){
+    public Contact create(RegistrationPageDataDto registrationPageDataDto){
         User user = userService.createUser(registrationPageDataDto);
         Contact contact = aggregatorMapper.registrationPageToContact(registrationPageDataDto);
         contact.setUser(user);
-        contactRepository.save(contact);
+        return contactRepository.save(contact);
     }
 
     public Contact create(OrderPageDataDto orderPageDataDto, User user){

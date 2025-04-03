@@ -69,6 +69,8 @@ public interface AggregatorMapper {
     @Mapping(target = "number", source = "serviceOrderNumber")
     @Mapping(target = "date", source = "createdAt")
     @Mapping(target = "recipient", source = "contact")
+    @Mapping(target = "fromLocation", source = "fromLocation")
+    @Mapping(target = "toLocation", source = "toLocation")
     OrderDto OrderToOrderDto(Order order);
 
     List<OrderDto> OrdersToOrdersDto(List<Order> order);

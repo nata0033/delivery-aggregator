@@ -23,7 +23,7 @@ public class UserService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepository.findByLogin(username).orElseThrow();
+        User user = userRepository.findByLogin(username).orElse(null);
         return org.springframework.security.core.userdetails.User.builder()
                 .username(user.getLogin())
                 .password("{noop}" + user.getPassword())
@@ -31,7 +31,7 @@ public class UserService implements UserDetailsService {
     }
 
     public User getUserByLogin(String login){
-        return userRepository.findByLogin(login).orElseThrow();
+        return userRepository.findByLogin(login).orElse(null);
     }
 
     public User createUser(RegistrationPageDataDto registrationPageDataDto){
