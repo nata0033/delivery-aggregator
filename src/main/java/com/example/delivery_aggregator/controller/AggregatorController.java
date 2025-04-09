@@ -1,14 +1,14 @@
 package com.example.delivery_aggregator.controller;
 
-import com.example.delivery_aggregator.dto.cdek.order.CdekOrderResponseDto;
+import com.example.delivery_aggregator.dto.external_api.cdek.order.CdekOrderResponseDto;
 import com.example.delivery_aggregator.dto.db.ContactDto;
 import com.example.delivery_aggregator.dto.pages.*;
-import com.example.delivery_aggregator.dto.cdek.calculator.CdekCalculatorResponseDto;
+import com.example.delivery_aggregator.dto.external_api.cdek.calculator.CdekCalculatorResponseDto;
 import com.example.delivery_aggregator.entity.Contact;
 import com.example.delivery_aggregator.entity.User;
 import com.example.delivery_aggregator.mappers.AggregatorMapper;
 import com.example.delivery_aggregator.mappers.CdekMapper;
-import com.example.delivery_aggregator.service.api.*;
+import com.example.delivery_aggregator.service.external_api.*;
 import com.example.delivery_aggregator.service.db.ContactService;
 import com.example.delivery_aggregator.service.db.OrderService;
 import com.example.delivery_aggregator.service.db.UserService;
@@ -34,6 +34,13 @@ import java.util.*;
 @Data
 @RequiredArgsConstructor
 public class AggregatorController {
+
+    private final VerificationController verificationController;
+
+    @GetMapping("/test")
+    public String test(){
+        return "index";
+    }
 
     private final CdekService cdekService;
 

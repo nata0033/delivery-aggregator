@@ -1,13 +1,13 @@
 package com.example.delivery_aggregator.mappers;
 
-import com.example.delivery_aggregator.dto.cdek.calculator.CdekCalculatorPackageDto;
-import com.example.delivery_aggregator.dto.cdek.calculator.CdekCalculatorTariffCodeDto;
-import com.example.delivery_aggregator.dto.cdek.order.*;
+import com.example.delivery_aggregator.dto.external_api.cdek.CdekSuggestCityResponseDto;
+import com.example.delivery_aggregator.dto.external_api.cdek.calculator.CdekCalculatorPackageDto;
+import com.example.delivery_aggregator.dto.external_api.cdek.calculator.CdekCalculatorTariffCodeDto;
 import com.example.delivery_aggregator.dto.db.ContactDto;
+import com.example.delivery_aggregator.dto.external_api.cdek.order.*;
 import com.example.delivery_aggregator.dto.pages.*;
-import com.example.delivery_aggregator.dto.cdek.*;
-import com.example.delivery_aggregator.dto.cdek.calculator.CdekCalculatorResponseDto;
-import com.example.delivery_aggregator.dto.cdek.calculator.CdekCalculatorLocationDto;
+import com.example.delivery_aggregator.dto.external_api.cdek.calculator.CdekCalculatorResponseDto;
+import com.example.delivery_aggregator.dto.external_api.cdek.calculator.CdekCalculatorLocationDto;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;

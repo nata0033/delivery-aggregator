@@ -10,6 +10,32 @@
             background: url(https://s1.1zoom.me/b5050/506/360850-svetik_1920x1080.jpg) no-repeat;
             background-size:100%
         }
+        #loginErrorContainer {
+            width: 100%;
+            margin-top: 15px;
+        }
+
+        .alert-warning {
+            color: #856404;
+            background-color: #fff3cd;
+            border: 1px solid #ffeeba;
+            border-radius: 4px;
+            padding: 10px;
+            margin-bottom: 10px;
+            white-space: pre-line;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
     </style>
 </head>
 <header class="p-3 bg-dark text-white">
@@ -32,17 +58,17 @@
     <div class="row justify-content-center">
         <div class="col-md-auto" style="margin-top: 5%; padding:72px; background-color:white; border-radius:.25rem;">
             <h1 style="color: #343a40; margin-right:200px">Вход</h1>
-            <form th:action="@{/login}" method="POST" >
+            <form th:action="@{/login}" novalidate="novalidate" method="POST" >
                 <div class="form-group">
-                    <label for="emailInput">Почта</label>
-                    <input type="email" name="username" class="form-control" id="emailInput" placeholder="you@example.com">
+                    <label for="loginInput">Почта</label>
+                    <input type="email" name="username" class="form-control" id="loginInput" placeholder="example@example.example" required>
                 </div>
                 <div class="form-group">
                     <label for="passwordInput">Пароль</label>
-                    <input type="password" name="password" class="form-control" id="passwordInput">
+                    <input type="password" name="password" class="form-control" id="passwordInput" required>
                 </div>
                 <div class="form-group">
-                    <button type="submit" class="btn btn-primary">Вход</button>
+                    <button type="submit" class="btn btn-primary" id="loginButton">Вход</button>
                 </div>
                 <a th:href="@{/registration}" class="nav-link px-2">Зарегистрироваться</a>
             </form>

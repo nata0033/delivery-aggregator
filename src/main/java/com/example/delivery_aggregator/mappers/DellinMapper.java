@@ -1,13 +1,7 @@
 package com.example.delivery_aggregator.mappers;
 
-import com.example.delivery_aggregator.dto.pages.IndexPageDataDto;
-import com.example.delivery_aggregator.dto.pages.LocationDto;
-import com.example.delivery_aggregator.dto.dellin.DellinCalculatorRequest;
-import com.example.delivery_aggregator.dto.dellin.request.*;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
-import org.mapstruct.Named;
 
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 

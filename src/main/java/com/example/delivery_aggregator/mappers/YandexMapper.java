@@ -1,11 +1,7 @@
 package com.example.delivery_aggregator.mappers;
 
 import com.example.delivery_aggregator.dto.pages.LocationDto;
-import com.example.delivery_aggregator.dto.pages.PackageDto;
-import com.example.delivery_aggregator.dto.pages.PackageParamsDto;
-import com.example.delivery_aggregator.dto.yandex.PlacePhysicalDimensions;
-import com.example.delivery_aggregator.dto.yandex.PricingDestinationNode;
-import com.example.delivery_aggregator.dto.yandex.PricingResourcePlace;
+import com.example.delivery_aggregator.dto.external_api.yandex.PricingDestinationNode;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
