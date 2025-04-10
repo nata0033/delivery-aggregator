@@ -1,47 +1,74 @@
 document.addEventListener('DOMContentLoaded', function() {
-    const loginForm = document.querySelector('form[th\\:action="@{/login}"]');
+    // Основные элементы формы
+    const loginForm = document.getElementById("loginForm");
     if (!loginForm) return;
 
-    // Получаем элементы формы
     const loginInput = document.getElementById('loginInput');
     const passwordInput = document.getElementById('passwordInput');
     const submitButton = document.getElementById('loginButton');
 
-    // Создаем контейнер для ошибок
+    // Контейнер для отображения ошибок
     const errorContainer = document.createElement('div');
     errorContainer.id = 'loginErrorContainer';
     errorContainer.style.width = '100%';
     errorContainer.style.marginTop = '15px';
     submitButton.insertAdjacentElement('afterend', errorContainer);
 
-    // Объект для хранения текущих ошибок
-    const errors = {
+    // Хранилище элементов ошибок
+    const errorElements = {
         login: null,
         password: null
     };
 
-    // Функция отображения ошибок
-    function displayErrors() {
-        errorContainer.innerHTML = '';
+    /**
+     * Обновляет или создает элемент ошибки для указанного поля
+     * @param {string} field - Название поля ('login' или 'password')
+     * @param {string|null} message - Текст ошибки (null для удаления)
+     * @param {HTMLElement} errorContainer - Контейнер для ошибок
+     * @param {Object} errorElements - Хранилище элементов ошибок
+     */
+    function updateErrorElement(field, message) {
+        // Если ошибки нет - удаляем элемент
+        if (!message) {
+            if (errorElements[field]) {
+                errorElements[field].remove();
+                errorElements[field] = null;
+            }
+            return;
+        }
 
-        // Добавляем ошибки в контейнер (новые сверху)
-        Object.values(errors).filter(error => error !== null).forEach(error => {
-            const errorElement = document.createElement('div');
-            errorElement.className = 'alert alert-warning';
-            errorElement.style.width = '100%';
-            errorElement.style.marginBottom = '10px';
-            errorElement.style.padding = '10px';
-            errorElement.style.borderRadius = '4px';
-            errorElement.style.animation = 'fadeIn 0.3s ease-out';
-            errorElement.textContent = error;
-            errorContainer.appendChild(errorElement);
-        });
+        // Обновляем существующий элемент
+        if (errorElements[field]) {
+            errorElements[field].textContent = message;
+            return;
+        }
+
+        // Создаем новый элемент ошибки
+        const errorElement = document.createElement('div');
+        errorElement.className = `error-message ${field}-error`;
+        errorElement.textContent = message;
+        errorElement.style.width = '100%';
+        errorElement.style.marginBottom = '10px';
+        errorElement.style.padding = '10px';
+        errorElement.style.borderRadius = '4px';
+        errorElement.style.animation = 'fadeIn 0.3s ease-out';
+        errorElement.style.backgroundColor = '#fff3cd';
+        errorElement.style.color = '#856404';
+        errorElement.style.border = '1px solid #ffeeba';
+
+        errorContainer.appendChild(errorElement);
+        errorElements[field] = errorElement;
     }
 
-    // Валидация логина (email или телефон)
+    /**
+     * Валидирует поле логина
+     * @param {string} value - Значение поля
+     * @param {function} updateErrorElement - Функция обновления ошибок
+     * @returns {boolean} - Результат валидации
+     */
     function validateLogin(value) {
         if (!value.trim()) {
-            errors.login = 'Введите почту или телефон';
+            updateErrorElement('login', 'Введите почту');
             return false;
         }
 
@@ -49,60 +76,103 @@ document.addEventListener('DOMContentLoaded', function() {
         const isPhone = /^\+\d{11}$/.test(value);
 
         if (!isEmail && !isPhone) {
-            errors.login = 'Некорректный формат. Примеры:\nПочта: example@example.com\nТелефон: +78007008078';
+            updateErrorElement('login', 'Пример: example@example.com');
             return false;
         }
 
-        errors.login = null;
+        updateErrorElement('login', null);
         return true;
     }
 
-    // Валидация пароля
+    /**
+     * Валидирует поле пароля
+     * @param {string} value - Значение поля
+     * @param {function} updateErrorElement - Функция обновления ошибок
+     * @returns {boolean} - Результат валидации
+     */
     function validatePassword(value) {
         if (!value.trim()) {
-            errors.password = 'Введите пароль';
+            updateErrorElement('password', 'Введите пароль');
             return false;
         }
 
-        errors.password = null;
+        updateErrorElement('password', null);
         return true;
     }
 
-    // Обработчики событий для полей ввода
+    /**
+     * Проверяет существование пользователя по email
+     * @param {string} email - Email для проверки
+     * @returns {Promise<Object>} - Результат проверки {success, message}
+     */
+    async function checkUserExists(email) {
+        try {
+            const response = await fetch('/check-email-exist', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'Accept': 'application/json'
+                },
+                body: `email=${encodeURIComponent(email)}`
+            });
+            if (!response.ok) {
+                throw new Error('Ошибка сервера');
+            }
+            return await response.json();
+        } catch (error) {
+            console.error('Ошибка при проверке пользователя:', error);
+            return {
+                success: false,
+                message: 'Ошибка при проверке пользователя'
+            };
+        }
+    }
+
+    // Обработчики событий полей формы
     loginInput.addEventListener('input', function() {
         validateLogin(loginInput.value);
-        displayErrors();
     });
 
     passwordInput.addEventListener('input', function() {
         validatePassword(passwordInput.value);
-        displayErrors();
     });
 
-    // Обработчики потери фокуса
     loginInput.addEventListener('blur', function() {
         if (!loginInput.value.trim()) {
-            errors.login = 'Введите почту или телефон';
-            displayErrors();
+            updateErrorElement('login', 'Введите почту');
         }
     });
 
     passwordInput.addEventListener('blur', function() {
         if (!passwordInput.value.trim()) {
-            errors.password = 'Введите пароль';
-            displayErrors();
+            updateErrorElement('password', 'Введите пароль');
         }
     });
 
-    // Валидация при отправке формы
-    loginForm.addEventListener('submit', function(event) {
-        const isLoginValid = validateLogin(loginInput.value);
-        const isPasswordValid = validatePassword(passwordInput.value);
+    // Обработчик отправки формы
+    loginForm.addEventListener('submit', async function(event) {
+        event.preventDefault();
 
-        displayErrors();
+        const email = loginInput.value.trim();
+        const password = passwordInput.value.trim();
+
+        // Валидация полей
+        const isLoginValid = validateLogin(email);
+        const isPasswordValid = validatePassword(password);
 
         if (!isLoginValid || !isPasswordValid) {
-            event.preventDefault();
+            return;
         }
+
+        // Проверка существования пользователя
+        const checkResult = await checkUserExists(email);
+
+        if (!checkResult.success) {
+            updateErrorElement('login', checkResult.message || 'Пользователь с такой почтой не существует');
+            return;
+        }
+
+        // Отправка формы если все проверки пройдены
+        this.submit();
     });
 });

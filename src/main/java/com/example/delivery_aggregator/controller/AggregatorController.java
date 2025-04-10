@@ -135,13 +135,7 @@ public class AggregatorController {
         User user = userService.getUserByLogin(userLogin);
 
         DeliveryDataDto deliveryData = objectMapper.readValue(deliveryDataJsonString, DeliveryDataDto.class);
-/*
-Переделать так что бы работало для разных сервисов доставки
-Из TariffsPageData.DeliveryServiceDto получить информацию о тарифе
-Добавить в deliveryData поле с указанием сервиса
-Получить сервис и с помощью условий определить конкретный сервис
-Сделать запрос для него
-*/
+
         ResponseEntity<CdekOrderResponseDto> cdekOrderResponseDto = cdekService.createOrder(orderPageData, deliveryData);
 
         String serviceOrderNumber = cdekOrderResponseDto.getBody().getEntity().getUuid();

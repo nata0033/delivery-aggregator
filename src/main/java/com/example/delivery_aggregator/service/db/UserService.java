@@ -35,8 +35,12 @@ public class UserService implements UserDetailsService {
     }
 
     public User createUser(RegistrationPageDataDto registrationPageDataDto){
-        User user = aggregatorMapper.registrationPageToUser(registrationPageDataDto);
-        return userRepository.save(user);
+        User newUser = aggregatorMapper.registrationPageToUser(registrationPageDataDto);
+        User oldUser = getUserByLogin(newUser.getLogin());
+        if(oldUser == null) {
+            return userRepository.save(newUser);
+        }
+        return  oldUser;
     }
 
 }

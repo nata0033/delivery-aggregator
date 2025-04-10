@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // Получаем элементы формы
+    // ========== ЭЛЕМЕНТЫ ФОРМЫ ==========
     const form = document.getElementById('registrationForm');
     const registrationButton = document.getElementById('registrationButton');
     const inputs = {
@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', function() {
         repeatPassword: document.getElementById('repeatPasswordInput')
     };
 
-    // Verification elements
+    // ========== ЭЛЕМЕНТЫ ВЕРИФИКАЦИИ ==========
     const verificationModal = document.getElementById('verificationModal');
     const emailDisplay = document.getElementById('emailDisplay');
     const verificationCodeInput = document.getElementById('verificationCodeInput');
@@ -21,14 +21,14 @@ document.addEventListener('DOMContentLoaded', function() {
     const confirmButton = document.getElementById('confirmButton');
     const verificationError = document.getElementById('verificationError');
 
-    // Создаем контейнер для ошибок
+    // ========== ДИНАМИЧЕСКИ СОЗДАВАЕМЫЕ ЭЛЕМЕНТЫ ==========
     const errorContainer = document.createElement('div');
     errorContainer.id = 'errorContainer';
     errorContainer.style.width = '100%';
     errorContainer.style.marginTop = '15px';
     registrationButton.insertAdjacentElement('afterend', errorContainer);
 
-    // Объект для хранения текущих ошибок и их элементов
+    // ========== ПЕРЕМЕННЫЕ СОСТОЯНИЯ ==========
     const errorElements = {
         lastName: null,
         firstName: null,
@@ -39,39 +39,70 @@ document.addEventListener('DOMContentLoaded', function() {
         repeatPassword: null
     };
 
-    // Таймер для повторной отправки кода
     let countdownInterval;
     let countdown = 60;
 
-    // Функция для создания/обновления элемента ошибки
-    function updateErrorElement(field, message) {
-        // Если сообщения нет, удаляем элемент ошибки
-        if (!message) {
-            if (errorElements[field]) {
-                errorElements[field].remove();
-                errorElements[field] = null;
-            }
-            return;
-        }
+    // ========== ВАЛИДАЦИОННЫЕ ФУНКЦИИ ==========
 
-        // Если элемент ошибки уже существует, обновляем текст
-        if (errorElements[field]) {
-            errorElements[field].textContent = message;
-            return;
-        }
-
-        // Создаем новый элемент ошибки
-        const errorElement = document.createElement('div');
-        errorElement.className = `error-message ${field}-error`;
-        errorElement.textContent = message;
-        errorElement.style.animation = 'fadeIn 0.3s ease-out';
-
-        // Добавляем в контейнер
-        errorContainer.appendChild(errorElement);
-        errorElements[field] = errorElement;
+    /**
+     * Валидирует ФИО (фамилию, имя, отчество)
+     * @param {string} value - Значение поля
+     * @param {string} fieldName - Название поля ('фамилию', 'имя', 'отчество')
+     * @returns {string|null} - Сообщение об ошибке или null если валидно
+     */
+    function validateName(value, fieldName) {
+        if (!value.trim()) return null;
+        const regex = fieldName === 'отчество' ? /^[а-яА-ЯёЁ-]+$/ : /^[а-яА-ЯёЁ]+$/;
+        return !regex.test(value) ?
+            `${fieldName.charAt(0).toUpperCase() + fieldName.slice(1)} может содержать только буквы${fieldName === 'отчество' ? ' или прочерк' : ''}` :
+            null;
     }
 
-    // Валидаторы для каждого поля
+    /**
+     * Валидирует телефонный номер
+     * @param {string} value - Номер телефона
+     * @returns {string|null} - Сообщение об ошибке или null если валидно
+     */
+    function validatePhone(value) {
+        if (!value.trim()) return null;
+        if (/[a-zA-Z]/.test(value)) return 'Телефон не может содержать буквы';
+        if (!/^\+\d{11}$/.test(value)) return 'Пример: +78006005040';
+        return null;
+    }
+
+    /**
+     * Валидирует email
+     * @param {string} value - Email адрес
+     * @returns {string|null} - Сообщение об ошибке или null если валидно
+     */
+    function validateEmail(value) {
+        if (!value.trim()) return null;
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) return 'Пример: example@example.example';
+        return null;
+    }
+
+    /**
+     * Валидирует пароль
+     * @param {string} value - Пароль
+     * @returns {string|null} - Сообщение об ошибке или null если валидно
+     */
+    function validatePassword(value) {
+        if (!value.trim()) return null;
+        return null; // Дополнительные проверки пароля можно добавить здесь
+    }
+
+    /**
+     * Проверяет совпадение паролей
+     * @param {string} value - Повторный пароль
+     * @param {string} passwordValue - Оригинальный пароль
+     * @returns {string|null} - Сообщение об ошибке или null если совпадают
+     */
+    function validateRepeatPassword(value, passwordValue) {
+        if (!value.trim()) return null;
+        return value !== passwordValue ? 'Пароли не совпадают' : null;
+    }
+
+    // Объект валидаторов для каждого поля
     const validators = {
         lastName: (value) => validateName(value, 'фамилию'),
         firstName: (value) => validateName(value, 'имя'),
@@ -82,39 +113,40 @@ document.addEventListener('DOMContentLoaded', function() {
         repeatPassword: (value) => validateRepeatPassword(value, inputs.password.value)
     };
 
-    // Общие функции валидации
-    function validateName(value, fieldName) {
-        if (!value.trim()) return null;
-        const regex = fieldName === 'отчество' ? /^[а-яА-ЯёЁ-]+$/ : /^[а-яА-ЯёЁ]+$/;
-        return !regex.test(value) ?
-            `${fieldName.charAt(0).toUpperCase() + fieldName.slice(1)} может содержать только буквы${fieldName === 'отчество' ? ' или прочерк' : ''}` :
-            null;
+    // ========== ФУНКЦИИ РАБОТЫ С ОШИБКАМИ ==========
+
+    /**
+     * Обновляет или создает элемент ошибки для поля
+     * @param {string} field - Имя поля (ключ из errorElements)
+     * @param {string|null} message - Текст ошибки (null для удаления)
+     */
+    function updateErrorElement(field, message) {
+        if (!message) {
+            if (errorElements[field]) {
+                errorElements[field].remove();
+                errorElements[field] = null;
+            }
+            return;
+        }
+
+        if (errorElements[field]) {
+            errorElements[field].textContent = message;
+            return;
+        }
+
+        const errorElement = document.createElement('div');
+        errorElement.className = `error-message ${field}-error`;
+        errorElement.textContent = message;
+        errorElement.style.animation = 'fadeIn 0.3s ease-out';
+
+        errorContainer.appendChild(errorElement);
+        errorElements[field] = errorElement;
     }
 
-    function validatePhone(value) {
-        if (!value.trim()) return null;
-        if (/[a-zA-Z]/.test(value)) return 'Телефон не может содержать буквы';
-        if (!/^\+\d{11}$/.test(value)) return 'Пример: +78006005040';
-        return null;
-    }
-
-    function validateEmail(value) {
-        if (!value.trim()) return null;
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) return 'Пример: example@example.example';
-        return null;
-    }
-
-    function validatePassword(value) {
-        if (!value.trim()) return null;
-        return null; // Дополнительные проверки пароля можно добавить здесь
-    }
-
-    function validateRepeatPassword(value, passwordValue) {
-        if (!value.trim()) return null;
-        return value !== passwordValue ? 'Пароли не совпадают' : null;
-    }
-
-    // Проверка всей формы на валидность
+    /**
+     * Проверяет валидность всей формы
+     * @returns {boolean} - true если форма валидна, false если есть ошибки
+     */
     function isFormValid() {
         let isValid = true;
 
@@ -140,11 +172,55 @@ document.addEventListener('DOMContentLoaded', function() {
         return isValid;
     }
 
-    // Отправка кода подтверждения
+    // ========== ФУНКЦИИ ВЕРИФИКАЦИИ ==========
+
+    /**
+     * Обновляет текст таймера обратного отсчета
+     */
+    function updateCountdownText() {
+        countdownElement.textContent = countdown;
+        resendLink.innerHTML = `Отправить код повторно через <span id="countdown">${countdown}</span> секунд`;
+    }
+
+    /**
+     * Запускает таймер обратного отсчета для повторной отправки кода
+     */
+    function startCountdown() {
+        countdown = 60;
+        resendLink.classList.add('disabled');
+        updateCountdownText();
+
+        countdownInterval = setInterval(() => {
+            countdown--;
+            updateCountdownText();
+
+            if (countdown <= 0) {
+                clearInterval(countdownInterval);
+                resendLink.classList.remove('disabled');
+                resendLink.textContent = 'Отправить код повторно';
+            }
+        }, 1000);
+    }
+
+    /**
+     * Показывает модальное окно верификации
+     * @param {string} email - Email для отображения
+     */
+    function showVerificationModal(email) {
+        emailDisplay.textContent = email;
+        verificationModal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+        startCountdown();
+    }
+
+    /**
+     * Отправляет код подтверждения на email
+     * @returns {Promise} - Promise с результатом отправки
+     */
     function sendVerificationCode() {
         const email = inputs.email.value.trim();
 
-        fetch('/send-code', {
+        return fetch('/send-code', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
@@ -169,46 +245,15 @@ document.addEventListener('DOMContentLoaded', function() {
             console.error('Error:', error);
             updateErrorElement('email', 'Ошибка при отправке кода подтверждения');
             throw error;
-        }).finally(() => {
+        })
+        .finally(() => {
             document.getElementById('registrationSpinner').style.display = 'none';
         });
     }
 
-    // Показать модальное окно подтверждения
-    function showVerificationModal(email) {
-        emailDisplay.textContent = email;
-        verificationModal.style.display = 'flex';
-        document.body.style.overflow = 'hidden'; // Блокируем прокрутку страницы
-
-        // Запускаем таймер
-        startCountdown();
-    }
-
-    // Запуск таймера для повторной отправки
-    function startCountdown() {
-        countdown = 60;
-        resendLink.classList.add('disabled');
-        updateCountdownText();
-
-        countdownInterval = setInterval(() => {
-            countdown--;
-            updateCountdownText();
-
-            if (countdown <= 0) {
-                clearInterval(countdownInterval);
-                resendLink.classList.remove('disabled');
-                resendLink.textContent = 'Отправить код повторно';
-            }
-        }, 1000);
-    }
-
-    // Обновление текста таймера
-    function updateCountdownText() {
-        countdownElement.textContent = countdown;
-        resendLink.innerHTML = `Отправить код повторно через <span id="countdown">${countdown}</span> секунд`;
-    }
-
-    // Подтверждение кода
+    /**
+     * Подтверждает введенный код верификации
+     */
     function confirmVerificationCode() {
         const email = inputs.email.value.trim();
         const code = verificationCodeInput.value.trim();
@@ -234,7 +279,6 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .then(data => {
             if (data.success) {
-                // Если код верный, отправляем форму регистрации
                 form.submit();
             } else {
                 verificationError.textContent = data.message || 'Неверный код';
@@ -248,7 +292,9 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Обработчики событий
+    // ========== ОБРАБОТЧИКИ СОБЫТИЙ ==========
+
+    // Обработчики ввода и потери фокуса для полей формы
     Object.entries(inputs).forEach(([field, input]) => {
         if (!input) return;
 
@@ -272,16 +318,43 @@ document.addEventListener('DOMContentLoaded', function() {
         event.preventDefault();
 
         if (isFormValid()) {
-            // Показываем индикатор загрузки
-            document.getElementById('registrationSpinner').style.display = 'block';
-            sendVerificationCode()
+            const email = inputs.email.value.trim();
+
+            // Проверка уникальности email перед отправкой кода
+            fetch('/check-email-unique', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `email=${encodeURIComponent(email)}`
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Ошибка при проверке email');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('registrationSpinner').style.display = 'block';
+                    return sendVerificationCode();
+                } else {
+                    updateErrorElement('email', data.message || 'Пользователь с такой почтой уже существует');
+                    document.getElementById('registrationSpinner').style.display = 'none';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                updateErrorElement('email', 'Ошибка при проверке email');
+                document.getElementById('registrationSpinner').style.display = 'none';
+            });
         }
     });
 
-    // Обработчик кнопки подтверждения
+    // Обработчик кнопки подтверждения кода
     confirmButton.addEventListener('click', confirmVerificationCode);
 
-    // Обработчик ссылки повторной отправки
+    // Обработчик повторной отправки кода
     resendLink.addEventListener('click', function(event) {
         if (!resendLink.classList.contains('disabled')) {
             event.preventDefault();
@@ -289,14 +362,4 @@ document.addEventListener('DOMContentLoaded', function() {
             sendVerificationCode();
         }
     });
-
-//    // Закрытие модального окна при клике вне его
-//    verificationModal.addEventListener('click', function(event) {
-//        if (event.target === verificationModal) {
-//            verificationModal.style.display = 'none';
-//            document.body.style.overflow = 'auto'; // Разблокируем прокрутку страницы
-//            clearInterval(countdownInterval);
-//        }
-//    });
-
 });
