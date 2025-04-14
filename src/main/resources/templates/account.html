@@ -10,6 +10,7 @@
         body{
             background: url(https://images.vfl.ru/ii/1529068231/ce3e64b3/22124907.jpg) no-repeat;
             background-size: 100%;
+            overflow: hidden;
         }
     </style>
 </head>
@@ -87,7 +88,7 @@
                 <div class="col-lg-12 pb-5" style="margin-left:15px">
                     <div class="d-flex justify-content-end pb-3">
                         <div class="card-body">
-                            <form action="account/changeUser" method="POST">
+                            <form action="account/changeUser" method="POST" id="changeUserForm">
                                 <div class="row mb-3">
                                     <div class="col-sm-3">
                                         <label class="mb-0" for="userPic"><strong>Аватарка</strong></label>
@@ -136,11 +137,17 @@
                                         <input type="text" class="form-control" th:value="${accountPageData.user.phone}" id="userPhone" required>
                                     </div>
                                 </div>
+                                <div class="row mb-3">
+                                    <div class="col-sm-3"></div>
+                                    <div class="col-sm-9 text-secondary">
+                                        <a href="#" id="changePasswordButton" class="btn btn-link">Изменить пароль</a>
+                                    </div>
+                                </div>
                                 <div class="row">
                                     <div class="col-sm-3"></div>
                                     <div class="col-sm-9 text-secondary">
                                         <input type="hidden" th:value="${accountPageData.user.id}">
-                                        <input type="button" class="btn btn-primary px-4" onclick="updateUserProfile()" value="Сохранить">
+                                        <input type="button" class="btn btn-primary px-4" onclick="updateUserProfile()" value="Сохранить" id="changeUserFormSubmitButton" >
                                     </div>
                                 </div>
                             </form>
@@ -148,13 +155,95 @@
                     </div>
                 </div>
             </div>
-            <div id="addresses"></div>
-            <div id="contacts"></div>
+            <div class= "modal fade" id="passwordChangeModal" style="display: none;" >
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Изменение пароля</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <form id="passwordChangeForm">
+                                <input type="hidden" name="username" th:value="${accountPageData.user.email}"></input>
+                                <div class="form-group">
+                                    <label for="oldPassword">Старый пароль</label>
+                                    <input type="password" class="form-control" id="oldPassword" autocomplete="current-password" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="newPassword">Новый пароль</label>
+                                    <input type="password" class="form-control" id="newPassword" autocomplete="new-password" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="repeatNewPassword">Повторите новый пароль</label>
+                                    <input type="password" class="form-control" id="repeatNewPassword" autocomplete="new-password" required>
+                                </div>
+                                <div id="passwordChangeError" class="alert alert-danger" style="display: none;"></div>
+                                <button type="submit" class="btn btn-primary">Сохранить</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal fade" id="emailVerificationModal" tabindex="-1" role="dialog" aria-hidden="true">
+                <div class="container-fluid">
+                    <div class="row justify-content-center">
+                        <div class="col-md-auto verification-content" style="padding:72px; background-color:white; border-radius:.25rem; z-index: 1001; position: relative;">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Подтверждение email</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <p>Введите код из письма отправленного на адрес <span id="verificationEmailDisplay"></span></p>
+                                        <div class="form-group">
+                                            <input type="text" class="form-control" id="verificationCodeInput" placeholder="Введите код">
+                                        </div>
+                                        <div id="verificationError" class="alert alert-danger" style="display: none;"></div>
+                                        <button type="button" class="btn btn-primary" id="verifyEmailButton">Подтвердить</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="addresses">
+                <table class="table table-hover mb-0" id="addresses-table">
+                    <thead>
+                        <tr>
+                            <th class="sortable" data-sort="number">Город</th>
+                        </tr>
+                    </thead>
+                    <tbody id="addresses-body">
+                    </tbody>
+                </table>
+            </div>
+            <div id="contacts">
+                <table class="table table-hover mb-0" id="contacts-table">
+                    <thead>
+                    <tr>
+                        <th class="sortable" data-sort="number">Фамилия</th>
+                    </tr>
+                    </thead>
+                    <tbody id="contacts-body">
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>
 
 <p id="orders-data" style="visibility: hidden" th:text="${ordersDataJsonString}"></p>
+<p id="addresses-data" style="visibility: hidden" th:text="${addressesDataJsonString}"></p>
+<p id="contacts-data" style="visibility: hidden" th:text="${contactsDataJsonString}"></p>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 <script th:src="@{js/account.js}"></script>
 <!--<script src="../static/js/account.js"></script>-->
 </body>
