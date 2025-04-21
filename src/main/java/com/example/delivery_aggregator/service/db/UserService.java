@@ -53,21 +53,6 @@ public class UserService implements UserDetailsService {
         return  oldUser;
     }
 
-    private String uploadAvatar(MultipartFile avatar) throws IOException {
-        // Логика сохранения аватарки и возврата URL
-        // ...
-        return "";
-    }
-
-    public void updateUser(ContactDto contactDto, MultipartFile avatar) throws IOException {
-        if (avatar != null && !avatar.isEmpty()) {
-            contactDto.setPic(uploadAvatar(avatar));
-        }
-
-        Contact contact = aggregatorMapper.contactDtoToContact(contactDto);
-        contactRepository.save(contact);
-    }
-
     public Boolean changePassword(String username, String oldPassword, String newPassword){
         User user = userRepository.findByLogin(username).orElse(null);
         assert user != null;

@@ -8,7 +8,6 @@ import com.example.delivery_aggregator.mappers.AggregatorMapper;
 import com.example.delivery_aggregator.service.db.ContactService;
 import com.example.delivery_aggregator.service.db.OrderService;
 import com.example.delivery_aggregator.service.db.UserService;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
@@ -19,9 +18,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.security.Principal;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -37,57 +34,44 @@ public class AccountController {
     private final ObjectMapper objectMapper;
     private final VerificationController verificationController;
 
+
     @GetMapping("/account")
-    public String accountPage(Principal principal, Model model) throws JsonProcessingException {
-        String userLogin = (principal != null) ? principal.getName() : "anonymous";
-        model.addAttribute("userLogin", userLogin);
-
-        User user = userService.getUserByLogin(userLogin);
-        Contact contact = contactService.findByEmail(userLogin);
-
-        AccountPageDataDto accountPageData = createAccountPageDataDto(user, contact);
-        model.addAttribute("accountPageData", accountPageData);
-        model.addAttribute("ordersDataJsonString", objectMapper.writeValueAsString(accountPageData.getOrders()));
-        model.addAttribute("addressesDataJsonString", objectMapper.writeValueAsString(accountPageData.getAddresses()));
-        model.addAttribute("contactsDataJsonString", objectMapper.writeValueAsString(accountPageData.getContacts()));
+    public String accountPage(Principal principal, Model model){
+        model.addAttribute("isAuthenticated", true);
         return "account";
     }
 
-    private AccountPageDataDto createAccountPageDataDto(User user,Contact contact){
-        AccountPageDataDto accountPageDataDto = aggregatorMapper.contactToAccountPageDataDto(user, contact);
-        accountPageDataDto.setAddresses(new ArrayList<>());
+    @GetMapping("/account/accountPageData")
+    @ResponseBody
+    public ResponseEntity<?> getAccountPageData(Principal principal) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            User user = userService.getUserByLogin(principal.getName());
+            Contact contact = contactService.findByEmail(user.getLogin());
+            AccountPageDataDto accountPageDataDto = aggregatorMapper.contactToAccountPageDataDto(user, contact);
 
-        accountPageDataDto.setOrders(aggregatorMapper.OrdersToOrdersDto(orderService.getUserOrders(user)));
-        return accountPageDataDto;
-    }
-
-    @PostMapping("/account/changeUser")
-    public String changeUserData(@ModelAttribute ContactDto contactDto,
-                                 @RequestParam(required = false) MultipartFile avatar,
-                                 Principal principal,
-                                 Model model) throws IOException, JsonProcessingException {
-
-        String userLogin = principal.getName();
-        User user = userService.getUserByLogin(userLogin);
-
-        // Обновляем данные пользователя
-        userService.updateUser(contactDto, avatar);
-
-        // Если изменился email, отправляем код подтверждения
-        if (!user.getLogin().equals(contactDto.getEmail())) {
-            verificationController.sendCode(contactDto.getEmail());
+            response.put("success", true);
+            response.put("data", accountPageDataDto);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "Ошибка при получении данных пользователя");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
+    }
 
-        // Обновляем данные для отображения
-        Contact contact = contactService.findByEmail(user.getLogin());
-        AccountPageDataDto accountPageData = createAccountPageDataDto(user, contact);
+    @PostMapping("/account/changeUserData")
+    public ResponseEntity<?> changeUserData(@RequestPart("contactDto") ContactDto contactDto, @RequestPart(required = false) MultipartFile avatar, Principal principal) {
+        contactService.update(contactDto, avatar);
 
-        model.addAttribute("accountPageData", accountPageData);
-        model.addAttribute("ordersDataJsonString", objectMapper.writeValueAsString(accountPageData.getOrders()));
-        model.addAttribute("addressesDataJsonString", objectMapper.writeValueAsString(accountPageData.getAddresses()));
-        model.addAttribute("contactsDataJsonString", objectMapper.writeValueAsString(accountPageData.getContacts()));
-
-        return "account";
+        Map<String, Object> response = new HashMap<>();
+        try {
+            response.put("success", true);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            response.put("success", false);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
     }
 
 

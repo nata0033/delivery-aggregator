@@ -4,247 +4,260 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Аккаунт</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body{
-            background: url(https://images.vfl.ru/ii/1529068231/ce3e64b3/22124907.jpg) no-repeat;
-            background-size: 100%;
-            overflow: hidden;
-        }
-    </style>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link th:href="@{css/account.css}" rel="stylesheet"/>
 </head>
-<header class="p-3 bg-dark text-white">
+<body>
+
+<!-- Шапка сайта с навигацией -->
+<header class="p-3 bg-dark text-white fixed-top">
     <div class="container">
         <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
             <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
-                <li><a th:href="@{/}" class="nav-link px-2 text-white">Главная</a></li>
-                <li><a th:href="@{/account}" class="nav-link px-2 text-white">Личный кабинет</a></li>
+                <li><a href="/" class="nav-link px-2 text-white">Главная</a></li>
+                <li><a href="/account" class="nav-link px-2 text-white">Личный кабинет</a></li>
             </ul>
             <div class="text-end">
-                <a th:if="${userLogin == 'anonymous'}" th:href="@{/registration}" class="btn btn-outline-light me-2">Регистрация</a>
-                <a th:if="${userLogin == 'anonymous'}" th:href="@{/login}" class="btn btn-light">Вход</a>
-                <a th:if="${userLogin != 'anonymous'}" th:href="@{/logout}" class="btn btn-light">Выход</a>
+                <a href="/logout" class="btn btn-light">Выход</a>
             </div>
         </div>
     </div>
 </header>
-<body>
-<div class="container mb-4 main-container" style="padding:72px; background-color:white; border-radius:.25rem; margin-top:30px">
+
+<!-- Основной контент страницы -->
+<div class="container main-container">
     <div class="row">
+        <!-- Левая колонка - профиль и навигация -->
         <div class="col-lg-4 pb-5">
-            <div class="author-card pb -3" >
-                <div class="author-card-profile">
-                    <div class="author-card-avatar"><img th:src="${accountPageData.user.pic}" width="315" height="315" style="border-radius:.25rem;" alt="Фото профиля" >
-                    </div>
+            <!-- Блок профиля пользователя -->
+            <div class="author-card pb-3" id="profileSection">
+                <div class="author-card-profile text-center">
+<!--                    <div class="author-card-avatar mb-3">-->
+<!--                        <img id="userAvatar" src="/images/default-avatar.png"-->
+<!--                             class="rounded-circle img-thumbnail" alt="Фото профиля">-->
+<!--                    </div>-->
                     <div class="author-card-details">
-                        <h5 th:text="${accountPageData.user.lastName + ' ' + accountPageData.user.firstName + ' ' + accountPageData.user.fatherName}"></h5>
-                        <p class="author-card-position" th:text="${accountPageData.user.email}"></p>
-                        <p class="author-card-position" th:text="${accountPageData.user.phone}"></p>
+                        <h4 id="userFullName"></h4>
                     </div>
                 </div>
             </div>
-            <div class="wizard" style="margin-top: 15px">
+
+            <!-- Навигационное меню личного кабинета -->
+            <div class="wizard">
                 <nav class="list-group list-group-flush">
                     <a class="list-group-item active" id="deliveriesButton">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
-                                <i class="fa fa-shopping-bag mr-1 text-muted"></i>
-                                <div class="d-inline-block font-weight-medium text-uppercase">Доставки</div>
+                                <i class="fas fa-shopping-bag me-2 text-muted"></i>
+                                <span class="d-inline-block font-weight-medium text-uppercase">Доставки</span>
                             </div>
-                            <span class="badge badge-secondary" th:text="${accountPageData.orderQuantity}"></span>
+                            <span class="badge bg-secondary" id="ordersCount">0</span>
                         </div>
                     </a>
                     <a class="list-group-item" id="accountEditButton">
-                        <i class="fa fa-user text-muted"></i>Настройки профиля
+                        <i class="fas fa-user me-2 text-muted"></i>Настройки профиля
                     </a>
-                    <a class="list-group-item" id="addressesButton">
-                        <i class="fa fa-map-marker text-muted"></i>Адреса
-                    </a>
-                    <a class="list-group-item" id="recipientsButton">
-                        <i class="fa fa-map-marker text-muted"></i>Получатели
-                    </a>
+<!--                    <a class="list-group-item" id="addressesButton">-->
+<!--                        <i class="fas fa-map-marker-alt me-2 text-muted"></i>Адреса-->
+<!--                    </a>-->
+<!--                    <a class="list-group-item" id="recipientsButton">-->
+<!--                        <i class="fas fa-users me-2 text-muted"></i>Получатели-->
+<!--                    </a>-->
                 </nav>
             </div>
         </div>
+
+        <!-- Правая колонка - контентные разделы -->
         <div class="col-lg-8 pb-5">
-            <div id="deliveries">
-                <div class="table-responsive">
-                    <table class="table table-hover mb-0" id="orders-table">
-                        <thead>
+            <!-- Раздел "Доставки" -->
+            <div id="deliveriesContent" class="content-section">
+                <h4 class="mb-4">Мои доставки</h4>
+
+                <!-- Подраздел "Отправленные" -->
+                <div class="orders-subsection" id="sendOrdersHeader">
+                    <h5>
+                        <i class="fas fa-chevron-down me-2"></i>
+                        Отправленные (<span id="sendOrdersCount">0</span>)
+                    </h5>
+                </div>
+                <div id="sendOrdersContent">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle orders-table" id="sendOrdersTable">
+                            <thead class="table-light">
                             <tr>
-                                <th class="sortable" data-sort="number">Заказ №</th>
-                                <th class="sortable" data-sort="date">Дата заказа</th>
-                                <th class="sortable" data-sort="status">Статус</th>
-                                <th class="sortable" data-sort="price">Цена</th>
+                                <th scope="col" width="40%" class="sortable" data-sort="number">Заказ №</th>
+                                <th scope="col" width="20%" class="sortable" data-sort="date">Дата</th>
+                                <th scope="col" width="20%" class="sortable" data-sort="status">Статус</th>
+                                <th scope="col" width="20%" class="sortable" data-sort="price">Цена</th>
                             </tr>
-                        </thead>
-                        <tbody id="orders-body">
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody id="sendOrdersTableBody">
+                            <tr>
+                                <td colspan="4" class="text-center py-4">
+                                    <div class="spinner-border text-primary" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-            </div>
-            <div id="accountEdit">
-                <div class="col-lg-12 pb-5" style="margin-left:15px">
-                    <div class="d-flex justify-content-end pb-3">
-                        <div class="card-body">
-                            <form action="account/changeUser" method="POST" id="changeUserForm">
-                                <div class="row mb-3">
-                                    <div class="col-sm-3">
-                                        <label class="mb-0" for="userPic"><strong>Аватарка</strong></label>
+
+                <!-- Подраздел "Получаемые" -->
+                <div class="orders-subsection mt-4" id="receivedOrdersHeader">
+                    <h5>
+                        <i class="fas fa-chevron-down me-2"></i>
+                        Получаемые (<span id="receivedOrdersCount">0</span>)
+                    </h5>
+                </div>
+                <div id="receivedOrdersContent">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle orders-table" id="receivedOrdersTable">
+                            <thead class="table-light">
+                            <tr>
+                                <th scope="col" width="40%" class="sortable" data-sort="number">Заказ №</th>
+                                <th scope="col" width="20%" class="sortable" data-sort="date">Дата</th>
+                                <th scope="col" width="20%" class="sortable" data-sort="status">Статус</th>
+                                <th scope="col" width="20%" class="sortable" data-sort="price">Цена</th>
+                            </tr>
+                            </thead>
+                            <tbody id="receivedOrdersTableBody">
+                            <tr>
+                                <td colspan="4" class="text-center py-4">
+                                    <div class="spinner-border text-primary" role="status">
+                                        <span class="visually-hidden">Loading...</span>
                                     </div>
-                                    <div class="col-sm-9 text-secondary">
-                                        <input type="file" class="form-control" id="userPic" required>
-                                    </div>
-                                </div>
-                                <div class="row mb-3">
-                                    <div class="col-sm-3">
-                                        <label class="mb-0" for="userLastName"><strong>Фамилия</strong></label>
-                                    </div>
-                                    <div class="col-sm-9 text-secondary">
-                                            <input type="text" class="form-control" th:value="${accountPageData.user.lastName}" id="userLastName" required>
-                                    </div>
-                                </div>
-                                <div class="row mb-3">
-                                    <div class="col-sm-3">
-                                        <label for="userFirstName"><strong>Имя</strong></label>
-                                    </div>
-                                    <div class="col-sm-9 text-secondary">
-                                        <input type="text" class="form-control" th:value="${accountPageData.user.firstName}" id="userFirstName" required>
-                                    </div>
-                                </div>
-                                <div class="row mb-3">
-                                    <div class="col-sm-3">
-                                        <label for="userFatherName"><strong>Отчество</strong></label>
-                                    </div>
-                                    <div class="col-sm-9 text-secondary">
-                                        <input type="text" class="form-control" th:value="${accountPageData.user.fatherName}" id="userFatherName" required>
-                                    </div>
-                                </div>
-                                <div class="row mb-3">
-                                    <div class="col-sm-3">
-                                        <label for="userEmail"><strong>Почта</strong></label>
-                                    </div>
-                                    <div class="col-sm-9 text-secondary">
-                                        <input type="text" class="form-control" th:value="${accountPageData.user.email}" id="userEmail" required>
-                                    </div>
-                                </div>
-                                <div class="row mb-3">
-                                    <div class="col-sm-3">
-                                        <label for="userPhone"><strong>Телефон</strong></label>
-                                    </div>
-                                    <div class="col-sm-9 text-secondary">
-                                        <input type="text" class="form-control" th:value="${accountPageData.user.phone}" id="userPhone" required>
-                                    </div>
-                                </div>
-                                <div class="row mb-3">
-                                    <div class="col-sm-3"></div>
-                                    <div class="col-sm-9 text-secondary">
-                                        <a href="#" id="changePasswordButton" class="btn btn-link">Изменить пароль</a>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-sm-3"></div>
-                                    <div class="col-sm-9 text-secondary">
-                                        <input type="hidden" th:value="${accountPageData.user.id}">
-                                        <input type="button" class="btn btn-primary px-4" onclick="updateUserProfile()" value="Сохранить" id="changeUserFormSubmitButton" >
-                                    </div>
-                                </div>
-                            </form>
-                        </div>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
-            <div class= "modal fade" id="passwordChangeModal" style="display: none;" >
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title">Изменение пароля</h5>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                        </div>
-                        <div class="modal-body">
-                            <form id="passwordChangeForm">
-                                <input type="hidden" name="username" th:value="${accountPageData.user.email}"></input>
-                                <div class="form-group">
-                                    <label for="oldPassword">Старый пароль</label>
-                                    <input type="password" class="form-control" id="oldPassword" autocomplete="current-password" required>
+
+            <!-- Раздел "Настройки профиля" -->
+            <div id="accountEditContent" class="content-section" style="display: none;">
+                <h4 class="mb-4">Настройки профиля</h4>
+
+                <form id="profileForm" enctype="multipart/form-data">
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-9">
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <label for="lastNameInput" class="form-label">Фамилия</label>
+                                    <input type="text" class="form-control" id="lastNameInput" required>
                                 </div>
-                                <div class="form-group">
-                                    <label for="newPassword">Новый пароль</label>
-                                    <input type="password" class="form-control" id="newPassword" autocomplete="new-password" required>
+
+                                <div class="col-md-4">
+                                    <label for="firstNameInput" class="form-label">Имя</label>
+                                    <input type="text" class="form-control" id="firstNameInput" required>
                                 </div>
-                                <div class="form-group">
-                                    <label for="repeatNewPassword">Повторите новый пароль</label>
-                                    <input type="password" class="form-control" id="repeatNewPassword" autocomplete="new-password" required>
-                                </div>
-                                <div id="passwordChangeError" class="alert alert-danger" style="display: none;"></div>
-                                <button type="submit" class="btn btn-primary">Сохранить</button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="modal fade" id="emailVerificationModal" tabindex="-1" role="dialog" aria-hidden="true">
-                <div class="container-fluid">
-                    <div class="row justify-content-center">
-                        <div class="col-md-auto verification-content" style="padding:72px; background-color:white; border-radius:.25rem; z-index: 1001; position: relative;">
-                            <div class="modal-dialog" role="document">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title">Подтверждение email</h5>
-                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                            <span aria-hidden="true">&times;</span>
-                                        </button>
-                                    </div>
-                                    <div class="modal-body">
-                                        <p>Введите код из письма отправленного на адрес <span id="verificationEmailDisplay"></span></p>
-                                        <div class="form-group">
-                                            <input type="text" class="form-control" id="verificationCodeInput" placeholder="Введите код">
-                                        </div>
-                                        <div id="verificationError" class="alert alert-danger" style="display: none;"></div>
-                                        <button type="button" class="btn btn-primary" id="verifyEmailButton">Подтвердить</button>
-                                    </div>
+
+                                <div class="col-md-4">
+                                    <label for="fatherNameInput" class="form-label">Отчество</label>
+                                    <input type="text" class="form-control" id="fatherNameInput">
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            </div>
-            <div id="addresses">
-                <table class="table table-hover mb-0" id="addresses-table">
-                    <thead>
-                        <tr>
-                            <th class="sortable" data-sort="number">Город</th>
-                        </tr>
-                    </thead>
-                    <tbody id="addresses-body">
-                    </tbody>
-                </table>
-            </div>
-            <div id="contacts">
-                <table class="table table-hover mb-0" id="contacts-table">
-                    <thead>
-                    <tr>
-                        <th class="sortable" data-sort="number">Фамилия</th>
-                    </tr>
-                    </thead>
-                    <tbody id="contacts-body">
-                    </tbody>
-                </table>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label for="emailInput" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="emailInput" required>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="phoneInput" class="form-label">Телефон</label>
+                            <input type="tel" class="form-control" id="phoneInput" required>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <button type="button" class="btn btn-outline-primary" id="changePasswordBtn">
+                            <i class="fas fa-key me-1"></i> Изменить пароль
+                        </button>
+
+                        <button type="submit" class="btn btn-primary px-4">
+                            <i class="fas fa-save me-1"></i> Сохранить изменения
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
 </div>
 
-<p id="orders-data" style="visibility: hidden" th:text="${ordersDataJsonString}"></p>
-<p id="addresses-data" style="visibility: hidden" th:text="${addressesDataJsonString}"></p>
-<p id="contacts-data" style="visibility: hidden" th:text="${contactsDataJsonString}"></p>
+<!-- Модальное окно изменения пароля -->
+<div class="modal fade" id="passwordModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Изменение пароля</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="passwordForm">
+                    <div class="mb-3">
+                        <label for="currentPassword" class="form-label">Текущий пароль</label>
+                        <input type="password" class="form-control" id="currentPassword" required>
+                    </div>
 
+                    <div class="mb-3">
+                        <label for="newPassword" class="form-label">Новый пароль</label>
+                        <input type="password" class="form-control" id="newPassword" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="confirmPassword" class="form-label">Подтвердите пароль</label>
+                        <input type="password" class="form-control" id="confirmPassword" required>
+                    </div>
+
+                    <div class="alert alert-danger d-none" id="passwordError"></div>
+
+                    <div class="d-flex justify-content-end">
+                        <button type="button" class="btn btn-outline-secondary me-2" data-bs-dismiss="modal">Отмена</button>
+                        <button type="submit" class="btn btn-primary">Сохранить</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно подтверждения email -->
+<div class="modal fade" id="emailVerificationModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Подтверждение email</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>На адрес <span id="verificationEmail"></span> был отправлен код подтверждения. Введите его ниже:</p>
+
+                <div class="mb-3">
+                    <label for="verificationCode" class="form-label">Код подтверждения</label>
+                    <input type="text" class="form-control" id="verificationCode" required>
+                </div>
+
+                <div class="alert alert-danger d-none" id="verificationError"></div>
+
+                <button type="button" class="btn btn-primary" id="verifyBtn">Подтвердить</button>
+                <button type="button" class="btn btn-link" id="resendCodeBtn">Отправить код повторно</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-<script th:src="@{js/account.js}"></script>
-<!--<script src="../static/js/account.js"></script>-->
+<script src="/js/account/account_core.js"></script>
+<script src="/js/account/account_orders.js"></script>
+<script src="/js/account/account_profile.js"></script>
+<script src="/js/validation.js"></script>
+
 </body>
 </html>

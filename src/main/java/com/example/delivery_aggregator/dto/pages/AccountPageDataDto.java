@@ -9,10 +9,9 @@ import java.util.List;
 
 @Data
 public class AccountPageDataDto {
-    private ContactDto user;
+    private ContactDto userData;
     private List<AddressDto> addresses;
-    private List<OrderDto> orders;
+    private List<OrderDto> sendOrders;
+    private List<OrderDto> receivedOrders;
     private List<ContactDto> contacts;
-    private Integer orderQuantity;
-
 }

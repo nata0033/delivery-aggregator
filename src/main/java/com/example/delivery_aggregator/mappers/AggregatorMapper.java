@@ -29,11 +29,11 @@ public interface AggregatorMapper {
     @Mapping(target = "login", source = "email")
     User registrationPageToUser(RegistrationPageDataDto registrationPageDto);
 
-    @Mapping(target = "user", source = "contact")
+    @Mapping(target = "userData", source = "contact")
     @Mapping(target = "addresses", source = "contact.addresses")
-    @Mapping(target = "orders", source = "user.sentOrders")
+    @Mapping(target = "sendOrders", source = "user.sentOrders")
+    @Mapping(target = "receivedOrders", source = "contact.receivedOrders")
     @Mapping(target = "contacts", source = "user.contacts")
-    @Mapping(target = "orderQuantity", expression = "java((int)user.getSentOrders().stream().count())")
     AccountPageDataDto contactToAccountPageDataDto(User user, Contact contact);
 
     Contact contactDtoToContact(ContactDto contactDto);

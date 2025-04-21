@@ -1,0 +1,27 @@
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: none
+  application:
+    name: DeliveryAggregator
+  datasource:
+    url: jdbc:postgresql://localhost:5432/postgres?currentSchema=delivery_aggregator
+    username: postgres
+    driver-class-name: org.postgresql.Driver
+    password: postgres
+  liquibase:
+    change-log: classpath:db_changelog/db.changelog-master.xml
+    url: jdbc:postgresql://localhost:5432/postgres?currentSchema=delivery_aggregator
+    user: postgres
+    password: postgres
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: xxnatasha03@gmail.com
+    password: arivofgxrqoubmek
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true

@@ -2,13 +2,14 @@ package com.example.delivery_aggregator.dto.db;
 
 import com.example.delivery_aggregator.dto.pages.PackageDto;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import jakarta.persistence.Column;
 import lombok.Data;
 
 import java.util.List;
+import java.util.UUID;
 
 @Data
 public class OrderDto {
+    private UUID id;
     private String serviceName;
     private String number;
     @JsonFormat(pattern = "dd-MM-yyyy")
