@@ -1,8 +1,6 @@
 package com.example.delivery_aggregator.service.db;
 
-import com.example.delivery_aggregator.dto.db.ContactDto;
 import com.example.delivery_aggregator.dto.pages.RegistrationPageDataDto;
-import com.example.delivery_aggregator.entity.Contact;
 import com.example.delivery_aggregator.entity.User;
 import com.example.delivery_aggregator.mappers.AggregatorMapper;
 import com.example.delivery_aggregator.repository.ContactRepository;
@@ -13,9 +11,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.Objects;
 
 @Service

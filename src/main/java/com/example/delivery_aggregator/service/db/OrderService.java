@@ -2,7 +2,6 @@ package com.example.delivery_aggregator.service.db;
 
 import com.example.delivery_aggregator.dto.pages.DeliveryDataDto;
 import com.example.delivery_aggregator.dto.pages.OrderPageDataDto;
-import com.example.delivery_aggregator.dto.pages.PackageDto;
 import com.example.delivery_aggregator.entity.*;
 import com.example.delivery_aggregator.entity.Package;
 import com.example.delivery_aggregator.mappers.AggregatorMapper;

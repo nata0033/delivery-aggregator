@@ -13,7 +13,8 @@ import com.example.delivery_aggregator.dto.pages.OrderPageDataDto;
 import com.example.delivery_aggregator.dto.external_api.cdek.calculator.CdekCalculatorRequestDto;
 import com.example.delivery_aggregator.dto.external_api.cdek.calculator.CdekCalculatorResponseDto;
 import com.example.delivery_aggregator.mappers.CdekMapper;
-import lombok.RequiredArgsConstructor;
+import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -23,11 +24,17 @@ import java.util.*;
 import java.util.stream.IntStream;
 
 
-@RequiredArgsConstructor
+@AllArgsConstructor
 @Service
 public class CdekService {
 
     private final String URL = "https://api.edu.cdek.ru";
+
+    @Value("${authorization-codes.cdek.client-id}")
+    private String cdekClientId;
+
+    @Value("${authorization-codes.cdek.client-secret}")
+    private String clientSecret;
 
     private final CdekMapper cdekMapper;
 
@@ -37,10 +44,10 @@ public class CdekService {
         final String REQUEST_URL = URL + "/v2/oauth/token?grant_type={grantType}&client_id={clientId}&client_secret={clientSecret}";
         final String GRAND_TYPE = "client_credentials";
 
-        final String CLIENT_ID = "wqGwiQx0gg8mLtiEKsUinjVSICCjtTEP";
-        final String CLIENT_SECRET = "RmAmgvSgSl1yirlz9QupbzOJVqhCxcP5";
+//        final String CLIENT_ID = "wqGwiQx0gg8mLtiEKsUinjVSICCjtTEP";
+//        final String CLIENT_SECRET = "RmAmgvSgSl1yirlz9QupbzOJVqhCxcP5";
 
-        CdekOAuthTokenResponseDto response = restTemplate.postForEntity(REQUEST_URL, null, CdekOAuthTokenResponseDto.class, GRAND_TYPE, CLIENT_ID, CLIENT_SECRET).getBody();
+        CdekOAuthTokenResponseDto response = restTemplate.postForEntity(REQUEST_URL, null, CdekOAuthTokenResponseDto.class, GRAND_TYPE, cdekClientId, clientSecret).getBody();
         return response.getAccessToken();
     }
 

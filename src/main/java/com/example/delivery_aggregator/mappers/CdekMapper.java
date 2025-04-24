@@ -4,10 +4,10 @@ import com.example.delivery_aggregator.dto.external_api.cdek.CdekSuggestCityResp
 import com.example.delivery_aggregator.dto.external_api.cdek.calculator.CdekCalculatorPackageDto;
 import com.example.delivery_aggregator.dto.external_api.cdek.calculator.CdekCalculatorTariffCodeDto;
 import com.example.delivery_aggregator.dto.db.ContactDto;
-import com.example.delivery_aggregator.dto.external_api.cdek.order.*;
-import com.example.delivery_aggregator.dto.pages.*;
 import com.example.delivery_aggregator.dto.external_api.cdek.calculator.CdekCalculatorResponseDto;
 import com.example.delivery_aggregator.dto.external_api.cdek.calculator.CdekCalculatorLocationDto;
+import com.example.delivery_aggregator.dto.external_api.cdek.order.*;
+import com.example.delivery_aggregator.dto.pages.*;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
