@@ -25,3 +25,11 @@ spring:
           auth: true
           starttls:
             enable: true
+authorization-codes:
+  cdek:
+    client-id: wqGwiQx0gg8mLtiEKsUinjVSICCjtTEP
+    client-secret: RmAmgvSgSl1yirlz9QupbzOJVqhCxcP5
+  yandex: y2_AgAAAAD04omrAAAPeAAAAAACRpC94Qk6Z5rUTgOcTgYFECJllXYKFx8
+  dpd:
+    client-number: 1001027795
+    client-key: 182A17BD6FC5557D1FCA30FA1D56593EB21AEF88
