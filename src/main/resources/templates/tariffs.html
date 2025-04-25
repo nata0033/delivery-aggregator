@@ -152,12 +152,12 @@
             <div class="row" style="padding-top: 55px;">
                 <div class="col-md-12">
                     <div th:each="tariff : ${tariffsPageData.tariffs}" class="tariff-card" style="background-color: white;">
-                        <div class="tariff-card-header" th:text="${tariffsPageData.service.name}"></div>
+                        <div class="tariff-card-header" th:text="${tariff.service.name}"></div>
                         <div class="tariff-card-body">
                             <div class="container">
                                 <div class="row">
                                     <div class="col-md-3" style="align-content: center;">
-                                        <img th:src="${tariffsPageData.service.logo}" width="120"  src="" alt="Логотип сервиса"/>
+                                        <img th:src="${tariff.service.logo}" width="120"  src="" alt="Логотип сервиса"/>
                                     </div>
                                     <div class="col-md-3">
                                         <p><strong>Мин. дней:</strong></p>

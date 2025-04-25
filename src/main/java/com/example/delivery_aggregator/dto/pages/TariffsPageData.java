@@ -6,7 +6,6 @@ import java.util.List;
 
 @Data
 public class TariffsPageData {
-    private DeliveryServiceDto service;
     private LocationDto fromLocation;
     private LocationDto toLocation;
     private List<TariffDto> tariffs;

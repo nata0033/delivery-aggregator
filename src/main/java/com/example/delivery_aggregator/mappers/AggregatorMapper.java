@@ -74,4 +74,8 @@ public interface AggregatorMapper {
     OrderDto OrderToOrderDto(Order order);
 
     List<OrderDto> OrdersToOrdersDto(List<Order> order);
+
+    @Mapping(target = "packageQuantity", expression = "java((int) indexPageDataDto.getPackages().stream().count())")
+    @Mapping(target = "packageWeight",  expression = "java(indexPageDataDto.getPackages().stream().mapToInt(p -> p.getWeight()).sum())")
+    TariffsPageData indexPageDataDtoToTariffsPageData(IndexPageDataDto indexPageDataDto);
 }

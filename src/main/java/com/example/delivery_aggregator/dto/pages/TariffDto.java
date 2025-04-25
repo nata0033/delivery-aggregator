@@ -4,7 +4,8 @@ import lombok.Data;
 
 @Data
 public class TariffDto {
-    private Integer code;
+    private DeliveryServiceDto service;
+    private String code;
     private String name;
     private Integer minTime;
     private Integer maxTime;

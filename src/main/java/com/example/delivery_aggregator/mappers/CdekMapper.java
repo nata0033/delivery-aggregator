@@ -15,6 +15,7 @@ import org.mapstruct.Named;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING,
 uses = AggregatorMapper.class)
@@ -31,19 +32,23 @@ public interface CdekMapper {
 
     //Тарифы
     @Named("cdekCalculatorResponseToTariffsPageData")
-    @Mapping(target = "code", source = "tariffCode")
-    @Mapping(target = "name", source = "tariffName")
-    @Mapping(target = "price", source = "deliverySum")
-    @Mapping(target = "minTime", source = "periodMin")
-    @Mapping(target = "maxTime", source = "periodMax")
-    TariffDto tariffCodeToTariff(CdekCalculatorTariffCodeDto tariffCode);
+    @Mapping(target = "service", source = "deliveryServiceDto")
+    @Mapping(target = "code", source = "tariffCode.tariffCode")
+    @Mapping(target = "name", source = "tariffCode.tariffName")
+    @Mapping(target = "price", source = "tariffCode.deliverySum")
+    @Mapping(target = "minTime", source = "tariffCode.periodMin")
+    @Mapping(target = "maxTime", source = "tariffCode.periodMax")
+    TariffDto tariffCodeToTariff(CdekCalculatorTariffCodeDto tariffCode, DeliveryServiceDto deliveryServiceDto);
 
-    @Mapping(target = "tariffs", source = "cdekCalculatorResponse.tariffCodes", qualifiedByName = "cdekCalculatorResponseToTariffsPageData")
-    @Mapping(target = "fromLocation", source = "indexPageDataDto.fromLocation")
-    @Mapping(target = "toLocation", source = "indexPageDataDto.toLocation")
-    @Mapping(target = "packageQuantity", expression = "java((int) indexPageDataDto.getPackages().stream().count())")
-    @Mapping(target = "packageWeight",  expression = "java(indexPageDataDto.getPackages().stream().mapToInt(p -> p.getWeight()).sum())")
-    TariffsPageData cdekCalculatorResponseToTariffsPageData(CdekCalculatorResponseDto cdekCalculatorResponse, IndexPageDataDto indexPageDataDto);
+    default ArrayList<TariffDto> cdekCalculatorResponseDtoToTariffDtoList(CdekCalculatorResponseDto cdekCalculatorResponseDto, DeliveryServiceDto deliveryServiceDto){
+        if (cdekCalculatorResponseDto == null || cdekCalculatorResponseDto.getTariffCodes() == null) {
+            return new ArrayList<>();
+        }
+
+        return cdekCalculatorResponseDto.getTariffCodes().stream()
+                .map(tariffCode -> tariffCodeToTariff(tariffCode, deliveryServiceDto))
+                .collect(Collectors.toCollection(ArrayList::new));
+    }
 
     //Заказ
     @Mapping(target = "tariffCode", source = "deliveryData.tariff.code")
