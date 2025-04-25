@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="create_package_table" author="postgres">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="package"/>
+            </not>
+        </preConditions>
+        <createTable tableName="package">
+            <column name="id" type="UUID" defaultValueComputed="gen_random_uuid()">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="order_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="weight" type="INTEGER"/>
+            <column name="length" type="INTEGER"/>
+            <column name="height" type="INTEGER"/>
+            <column name="width" type="INTEGER"/>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="package" baseColumnNames="order_id"
+                                 constraintName="fk_package_order"
+                                 referencedTableName="order" referencedColumnNames="id"
+                                 onDelete="CASCADE"/>
+    </changeSet>
+</databaseChangeLog>
+
