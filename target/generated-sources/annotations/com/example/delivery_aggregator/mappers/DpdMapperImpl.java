@@ -12,7 +12,7 @@ import ru.dpd.ws.calculator._2012_03_20.ServiceCost;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-04-25T15:06:42+0500",
+    date = "2025-04-25T15:42:26+0500",
     comments = "version: 1.6.3, compiler: javac, environment: Java 21.0.1 (Oracle Corporation)"
 )
 @Component

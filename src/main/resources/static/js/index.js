@@ -3,7 +3,41 @@ document.addEventListener('DOMContentLoaded', function() {
     const dateInput = document.getElementById("shipmentDateInput");
     const today = new Date();
     dateInput.valueAsDate = today;
+
+    // Load cities from server
+    loadCities();
 });
+
+let cities = [];
+let defaultCities = [];
+
+async function loadCities() {
+    try {
+        const response = await fetch('/getCities');
+        if (!response.ok) {
+            throw new Error('Failed to load cities');
+        }
+        cities = await response.json();
+
+        // Set default popular cities
+        defaultCities = [
+            findCityByName("Москва"),
+            findCityByName("Санкт-Петербург"),
+            findCityByName("Казань"),
+            findCityByName("Екатеринбург"),
+            findCityByName("Новосибирск")
+        ].filter(city => city !== undefined);
+    } catch (error) {
+        console.error('Error loading cities:', error);
+        // Fallback to empty arrays if request fails
+        cities = [];
+        defaultCities = [];
+    }
+}
+
+function findCityByName(name) {
+    return cities.find(city => city.name === name);
+}
 
 //Добавление полей для ввода груза
 addPackageButton = document.getElementById('addPackageButton')
@@ -15,16 +49,20 @@ addPackageButton.addEventListener('click', () => {
     newDiv = `
         <div class="form-row" id="package">
             <div class="form-group col-md-2">
-                <input type="number" name="packages[` + quantityOfCargo + `].weight" class="form-control" id="packageWeight" placeholder="Вес(гр)" min="1" required>
+                <label for="packageWeight${quantityOfCargo}">Вес (гр)</label>
+                <input type="number" name="packages[` + quantityOfCargo + `].weight" class="form-control" id="packageWeight${quantityOfCargo}" placeholder="Вес(гр)" min="1" value="10" required>
             </div>
             <div class="form-group col-md-2">
-                <input type="number" name="packages[` + quantityOfCargo + `].length" class="form-control" id="packagrLength" placeholder="Длина(см)" min="1" required>
+                <label for="packagrLength${quantityOfCargo}">Длина (см)</label>
+                <input type="number" name="packages[` + quantityOfCargo + `].length" class="form-control" id="packagrLength${quantityOfCargo}" placeholder="Длина(см)" min="1" value="10" required>
             </div>
             <div class="form-group col-md-2">
-                <input type="number" name="packages[` + quantityOfCargo + `].width" class="form-control" id="packageWidth" placeholder="Ширина(см)" min="1" required>
+                <label for="packageWidth${quantityOfCargo}">Ширина (см)</label>
+                <input type="number" name="packages[` + quantityOfCargo + `].width" class="form-control" id="packageWidth${quantityOfCargo}" placeholder="Ширина(см)" min="1" value="10" required>
             </div>
             <div class="form-group col-md-2">
-                <input type="number" name="packages[` + quantityOfCargo + `].height" class="form-control" id="packageHeight" placeholder="Высота(см)" min="1" required>
+                <label for="packageHeight${quantityOfCargo}">Высота (см)</label>
+                <input type="number" name="packages[` + quantityOfCargo + `].height" class="form-control" id="packageHeight${quantityOfCargo}" placeholder="Высота(см)" min="1" value="10" required>
             </div>
         </div>
     `
@@ -42,61 +80,31 @@ removePackageButton.addEventListener('click', () => {
     }
 })
 
-let cities = [
-               { "name": "Москва", "subject": "Москва" },
-               { "name": "Пушкин", "subject": "Санкт-Петербург" },
-               { "name": "Новосибирск", "subject": "Новосибирская область" },
-               { "name": "Екатеринбург", "subject": "Уральский" },
-               { "name": "Казань", "subject": "Поволжский" },
-               { "name": "Оренбург", "subject": "Оренбургская область" },
-               { "name": "Нижний Новгород", "subject": "Нижегородская область" },
-               { "name": "Челябинск", "subject": "Челябинская область" },
-               { "name": "Красноярск", "subject": "Красноярский край" },
-               { "name": "Самара", "subject": "Самарская область" },
-               { "name": "Уфа", "subject": "Башкортостан" },
-               { "name": "Ростов-на-Дону", "subject": "Ростовская область" },
-               { "name": "Краснодар", "subject": "Краснодарский край" },
-               { "name": "Омск", "subject": "Омская область" },
-               { "name": "Воронеж", "subject": "Воронежская область" },
-               { "name": "Пермь", "subject": "Пермский край" },
-               { "name": "Волгоград", "subject": "Волгоградская область" },
-               { "name": "Саратов", "subject": "Саратовская область" },
-               { "name": "Тюмень", "subject": "Тюменская область" },
-               { "name": "Тольятти", "subject": "Самарская область" },
-               { "name": "Ижевск", "subject": "Удмуртия" },
-               { "name": "Барнаул", "subject": "Алтайский край" },
-               { "name": "Иркутск", "subject": "Иркутская область" },
-               { "name": "Ульяновск", "subject": "Ульяновская область" },
-               { "name": "Хабаровск", "subject": "Хабаровский край" },
-               { "name": "Владивосток", "subject": "Приморский край" },
-               { "name": "Ярославль", "subject": "Ярославская область" },
-               { "name": "Махачкала", "subject": "Дагестан" },
-               { "name": "Томск", "subject": "Томская область" },
-               { "name": "Новокузнецк", "subject": "Кемеровская область" },
-               { "name": "Элиста", "subject": "Калмыкия" },
-               { "name": "Южно-Сахалинск", "subject": "Сахалинская область" },
-               { "name": "Чита", "subject": "Забайкальский край" },
-               { "name": "Щелково", "subject": "Московская область" },
-               { "name": "Грозный", "subject": "Чечня" },
-               { "name": "Рыбинск", "subject": "Ярославская область" },
-               { "name": "Фрязино", "subject": "Московская область" },
-               { "name": "Йошкар-Ола", "subject": "Марий Эл" },
-               { "name": "Абакан", "subject": "Хакасия" },
-               { "name": "Брянск", "subject": "Брянская область" },
-               { "name": "Дзержинск", "subject": "Нижегородская область" },
-               { "name": "Клин", "subject": "Московская область" },
-               { "name": "Липецк", "subject": "Липецкая область" }
-             ]
+// Close suggestions when clicking outside
+document.addEventListener('click', function(event) {
+    if (!event.target.closest('#fromLocationCityInput') && !event.target.closest('#fromLocationSuggest')) {
+        fromLocationSuggest.innerHTML = '';
+    }
+    if (!event.target.closest('#toLocationCityInput') && !event.target.closest('#toLocationSuggest')) {
+        toLocationSuggest.innerHTML = '';
+    }
+});
 
 //Получение изменений в поле ввода города отправки
 fromLocationStateInput = document.getElementById('fromLocationStateInput')
 fromLocationCityInput = document.getElementById('fromLocationCityInput')
+fromLocationSuggest = document.getElementById('fromLocationSuggest')
 fromLocationCityInput.addEventListener('input', function() {
     const fromLocationCityInputValue = this.value.toLowerCase()
 
-    const fromLocationFilteredCities = cities.filter(city =>
-        city.name.toLowerCase().startsWith(fromLocationCityInputValue)
-    )
+    let fromLocationFilteredCities;
+    if (fromLocationCityInputValue === '') {
+        fromLocationFilteredCities = defaultCities;
+    } else {
+        fromLocationFilteredCities = cities.filter(city =>
+            city.name.toLowerCase().startsWith(fromLocationCityInputValue))
+            .slice(0, 5); // Limit to 5 suggestions
+    }
     displayFromLocationSuggestions(fromLocationFilteredCities)
 })
 
@@ -104,19 +112,16 @@ fromLocationCityInput.addEventListener('input', function() {
 function displayFromLocationSuggestions(cities) {
     fromLocationSuggest.innerHTML = ''
 
-//Создание подсказок
     cities.forEach(city => {
-
         const fromLocationSuggestCitiesButton = document.createElement('button')
         fromLocationSuggestCitiesButton.textContent = city.name + ', ' + city.subject
         fromLocationSuggestCitiesButton.id = "fromLocationSuggestCitiesButton"
         fromLocationSuggestCitiesButton.className = "w-100 btn btn-light"
 
-//Обработка нажатия на город из подсказки для города отправки
         fromLocationSuggestCitiesButton.addEventListener('click', function() {
-        fromLocationStateInput.value = city.subject.split(" ")[0]
-        fromLocationCityInput.value = city.name
-        fromLocationSuggest.innerHTML = ''
+            fromLocationStateInput.value = city.subject.split(" ")[0]
+            fromLocationCityInput.value = city.name
+            fromLocationSuggest.innerHTML = ''
         })
         fromLocationSuggest.appendChild(fromLocationSuggestCitiesButton)
     })
@@ -125,11 +130,18 @@ function displayFromLocationSuggestions(cities) {
 //Получение изменений в поле ввода города получения
 toLocationStateInput = document.getElementById('toLocationStateInput')
 toLocationCityInput = document.getElementById('toLocationCityInput')
+toLocationSuggest = document.getElementById('toLocationSuggest')
 toLocationCityInput.addEventListener('input', function() {
     const toLocationCityInputValue = this.value.toLowerCase()
-    const toLocationFilteredCities = cities.filter(city =>
-        city.name.toLowerCase().startsWith(toLocationCityInputValue)
-    )
+
+    let toLocationFilteredCities;
+    if (toLocationCityInputValue === '') {
+        toLocationFilteredCities = defaultCities;
+    } else {
+        toLocationFilteredCities = cities.filter(city =>
+            city.name.toLowerCase().startsWith(toLocationCityInputValue))
+            .slice(0, 5); // Limit to 5 suggestions
+    }
     displayToLocationSuggestions(toLocationFilteredCities)
 })
 
@@ -137,19 +149,16 @@ toLocationCityInput.addEventListener('input', function() {
 function displayToLocationSuggestions(cities) {
     toLocationSuggest.innerHTML = ''
 
-//Создание подсказок
     cities.forEach(city => {
-
         const toLocationSuggestCitiesButton = document.createElement('button')
         toLocationSuggestCitiesButton.textContent = city.name + ', ' + city.subject
         toLocationSuggestCitiesButton.id = "toLocationSuggestCitiesButton"
         toLocationSuggestCitiesButton.className = "w-100 btn btn-light"
 
-//Обработка нажатия на город из подсказки для города получения
         toLocationSuggestCitiesButton.addEventListener('click', function() {
-        toLocationStateInput.value = city.subject.split(" ")[0]
-        toLocationCityInput.value = city.name
-        toLocationSuggest.innerHTML = ''
+            toLocationStateInput.value = city.subject.split(" ")[0]
+            toLocationCityInput.value = city.name
+            toLocationSuggest.innerHTML = ''
         })
         toLocationSuggest.appendChild(toLocationSuggestCitiesButton)
     })

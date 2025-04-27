@@ -1,0 +1,38 @@
+body {
+    background: url(https://img.geliophoto.com/orenburg/04_orenburg.jpg) no-repeat;
+    background-size: 100%;
+}
+
+.header {
+    padding: 0.75rem 1rem;
+    background-color: #343a40;
+    color: white;
+}
+
+.form-container {
+    margin-top: 5%;
+    padding: 72px;
+    background-color: white;
+    border-radius: 0.25rem;
+}
+
+.form-container h1 {
+    color: #343a40;
+}
+
+.locationSuggest {
+    background-color: white;
+    position: absolute;
+    z-index: 1;
+    max-height: 570px;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.date-container {
+    padding-top: 30px;
+}
+
+.buttons-container {
+    padding-top: 30px;
+}
