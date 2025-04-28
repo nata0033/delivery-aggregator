@@ -1,6 +1,6 @@
 package com.example.delivery_aggregator.service.db;
 
-import com.example.delivery_aggregator.dto.pages.RegistrationPageDataDto;
+import com.example.delivery_aggregator.dto.aggregator.RegistrationPageDataDto;
 import com.example.delivery_aggregator.entity.User;
 import com.example.delivery_aggregator.mappers.AggregatorMapper;
 import com.example.delivery_aggregator.repository.ContactRepository;

@@ -14,9 +14,6 @@ import org.springframework.web.client.RestTemplate;
 @Configuration
 @AllArgsConstructor
 public class AppConfig {
-    @Value("${authorization-codes.yandex}")
-    public String yandexAuthToken;
-
     @Value("${authorization-codes.cdek.client-id}")
     public String cdekClientId;
 

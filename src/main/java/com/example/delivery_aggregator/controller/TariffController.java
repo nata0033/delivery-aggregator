@@ -1,17 +1,15 @@
 package com.example.delivery_aggregator.controller;
 
 import com.example.delivery_aggregator.dto.external_api.cdek.calculator.CdekCalculatorResponseDto;
-import com.example.delivery_aggregator.dto.pages.DeliveryServiceDto;
-import com.example.delivery_aggregator.dto.pages.IndexPageDataDto;
-import com.example.delivery_aggregator.dto.pages.TariffDto;
-import com.example.delivery_aggregator.dto.pages.TariffsPageData;
+import com.example.delivery_aggregator.dto.aggregator.DeliveryServiceDto;
+import com.example.delivery_aggregator.dto.aggregator.IndexPageDataDto;
+import com.example.delivery_aggregator.dto.aggregator.TariffDto;
+import com.example.delivery_aggregator.dto.aggregator.TariffsPageData;
 import com.example.delivery_aggregator.mappers.AggregatorMapper;
 import com.example.delivery_aggregator.mappers.CdekMapper;
 import com.example.delivery_aggregator.mappers.DpdMapper;
-import com.example.delivery_aggregator.mappers.YandexMapper;
 import com.example.delivery_aggregator.service.external_api.CdekService;
 import com.example.delivery_aggregator.service.external_api.DpdService;
-import com.example.delivery_aggregator.service.external_api.YandexService;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -21,13 +19,9 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import ru.dpd.ws.calculator._2012_03_20.ServiceCost;
 
-import java.io.IOException;
-import java.lang.reflect.Array;
 import java.security.Principal;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -45,7 +39,7 @@ public class TariffController {
     private final DpdMapper dpdMapper;
 
     @PostMapping("/tariffs")
-    public String getTariffs(@ModelAttribute IndexPageDataDto indexPageDataDto, Principal principal, Model model) throws IOException {
+    public String getTariffs(@ModelAttribute IndexPageDataDto indexPageDataDto, Principal principal, Model model){
         String userLogin = (principal != null) ? principal.getName() : "anonymous";
         model.addAttribute("userLogin", userLogin);
 
@@ -56,9 +50,6 @@ public class TariffController {
         DeliveryServiceDto cdekDeliveryServiceDto = new DeliveryServiceDto("CDEK", "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f8/CDEK_logo.svg/145px-CDEK_logo.svg.png");
         DeliveryServiceDto dpdDeliveryServiceDto = new DeliveryServiceDto("DPD", "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ab/DPD_logo_%282015%29.svg/177px-DPD_logo_%282015%29.svg.png");
 
-        List<TariffDto> cdekTariffs = cdekMapper.cdekCalculatorResponseDtoToTariffDtoList(cdekResponseEntity.getBody(), cdekDeliveryServiceDto);
-        List<TariffDto> dpdTariffs = dpdMapper.serviceCostListToTariffDtoList((List<ServiceCost>) dpdResponseEntity.getBody(), dpdDeliveryServiceDto);
-
         tariffsPageData.setTariffs(
                 Stream.concat(
                         cdekMapper.cdekCalculatorResponseDtoToTariffDtoList(cdekResponseEntity.getBody(), cdekDeliveryServiceDto).stream(),
@@ -66,7 +57,6 @@ public class TariffController {
                 ).collect(Collectors.toList())
         );
 
-        //tariffsPageData.setTariffs(tariffsPageData.getTariffs().stream().filter(t-> Objects.equals(t.getName(), "Посылка дверь-дверь")).sorted(Comparator.comparing(TariffDto::getPrice)).toList());
         tariffsPageData.setTariffs(tariffsPageData.getTariffs().stream().sorted(Comparator.comparing(TariffDto::getPrice)).toList());
 
         model.addAttribute(tariffsPageData);

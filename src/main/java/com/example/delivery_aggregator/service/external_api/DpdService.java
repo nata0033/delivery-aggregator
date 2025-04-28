@@ -1,7 +1,7 @@
 package com.example.delivery_aggregator.service.external_api;
 
-import com.example.delivery_aggregator.dto.pages.IndexPageDataDto;
-import com.example.delivery_aggregator.dto.pages.PackageDto;
+import com.example.delivery_aggregator.dto.aggregator.IndexPageDataDto;
+import com.example.delivery_aggregator.dto.aggregator.PackageDto;
 import com.example.delivery_aggregator.mappers.DpdMapper;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -11,7 +11,6 @@ import ru.dpd.ws.calculator._2012_03_20.*;
 import ru.dpd.ws.geography._2015_05_20.*;
 import ru.dpd.ws.geography._2015_05_20.City;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -59,10 +58,7 @@ public class DpdService {
     }
 
     public ResponseEntity<?> getTariffs(IndexPageDataDto indexPageDataDto) {
-//        DpdServiceCostRequestDto dpdServiceCostRequestDto = dpdMapper.indexPageDataDtoToDpdServiceCostRequestDto(indexPageDataDto);
-
         try {
-            //"https://wstest.dpd.ru/services/calculator2?wsdl"
             // Создаем экземпляр сервиса
             DPDCalculatorService service = new DPDCalculatorService();
 

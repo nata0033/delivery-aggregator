@@ -1,7 +1,7 @@
 package com.example.delivery_aggregator.controller;
 
 import com.example.delivery_aggregator.dto.db.ContactDto;
-import com.example.delivery_aggregator.dto.pages.AccountPageDataDto;
+import com.example.delivery_aggregator.dto.aggregator.AccountPageDataDto;
 import com.example.delivery_aggregator.entity.Contact;
 import com.example.delivery_aggregator.entity.User;
 import com.example.delivery_aggregator.mappers.AggregatorMapper;

@@ -16,9 +16,9 @@
                 <li><a th:href="@{/account}" class="nav-link px-2 text-white">Личный кабинет</a></li>
             </ul>
             <div class="text-end">
-                <a th:if="${userLogin == 'anonymous'}" th:href="@{/registration}" class="btn btn-outline-light me-2">Регистрация</a>
-                <a th:if="${userLogin == 'anonymous'}" th:href="@{/login}" class="btn btn-light">Вход</a>
-                <a th:if="${userLogin != 'anonymous'}" th:href="@{/logout}" class="btn btn-light">Выход</a>
+                <a th:unless="${isAuthenticated}" th:href="@{/registration}" class="btn btn-outline-light me-2">Регистрация</a>
+                <a th:unless="${isAuthenticated}" th:href="@{/login}" class="btn btn-light">Вход</a>
+                <a th:if="${isAuthenticated}" th:href="@{/logout}" class="btn btn-light">Выход</a>
             </div>
         </div>
     </div>
@@ -64,19 +64,19 @@
                 <div class="form-row" id="package">
                     <div class="form-group col-md-2">
                         <label for="packageWeight">Вес (гр)</label>
-                        <input type="number" name="packages[0].weight" class="form-control" id="packageWeight" placeholder="Вес(гр)" min="1" value="10" required>
+                        <input type="number" name="packages[0].weight" class="form-control" id="packageWeight" placeholder="Вес" min="1" value="10" required>
                     </div>
                     <div class="form-group col-md-2">
                         <label for="packagrLength">Длина (см)</label>
-                        <input type="number" name="packages[0].length" class="form-control" id="packagrLength" placeholder="Длина(см)" min="1" value="10" required>
+                        <input type="number" name="packages[0].length" class="form-control" id="packagrLength" placeholder="Длина" min="1" value="10" required>
                     </div>
                     <div class="form-group col-md-2">
                         <label for="packageWidth">Ширина (см)</label>
-                        <input type="number" name="packages[0].width" class="form-control" id="packageWidth" placeholder="Ширина(см)" min="1" value="10" required>
+                        <input type="number" name="packages[0].width" class="form-control" id="packageWidth" placeholder="Ширина" min="1" value="10" required>
                     </div>
                     <div class="form-group col-md-2">
                         <label for="packageHeight">Высота (см)</label>
-                        <input type="number" name="packages[0].height" class="form-control" id="packageHeight" placeholder="Высота(см)" min="1" value="10" required>
+                        <input type="number" name="packages[0].height" class="form-control" id="packageHeight" placeholder="Высота" min="1" value="10" required>
                     </div>
                 </div>
                 <button type="submit" class="btn btn-primary" id="submitButton2">Найти</button>

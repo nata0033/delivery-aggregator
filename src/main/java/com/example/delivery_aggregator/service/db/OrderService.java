@@ -1,7 +1,7 @@
 package com.example.delivery_aggregator.service.db;
 
-import com.example.delivery_aggregator.dto.pages.DeliveryDataDto;
-import com.example.delivery_aggregator.dto.pages.OrderPageDataDto;
+import com.example.delivery_aggregator.dto.aggregator.CookieDeliveryDataDto;
+import com.example.delivery_aggregator.dto.aggregator.OrderPageDataDto;
 import com.example.delivery_aggregator.entity.*;
 import com.example.delivery_aggregator.entity.Package;
 import com.example.delivery_aggregator.mappers.AggregatorMapper;
@@ -27,7 +27,7 @@ public class OrderService {
 
     private final AggregatorMapper aggregatorMapper;
 
-    public void create(OrderPageDataDto orderPageDataDto, String serviceOrderNumber, String serviceName, User user, DeliveryDataDto deliveryData){
+    public void create(OrderPageDataDto orderPageDataDto, String serviceOrderNumber, String serviceName, User user, CookieDeliveryDataDto deliveryData){
         Contact contact = contactService.create(orderPageDataDto, user);
 
         DeliveryService deliveryService = deliveryServiceService.createWithName(serviceName);

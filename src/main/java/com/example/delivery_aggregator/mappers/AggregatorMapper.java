@@ -2,7 +2,7 @@ package com.example.delivery_aggregator.mappers;
 
 import com.example.delivery_aggregator.dto.db.ContactDto;
 import com.example.delivery_aggregator.dto.db.OrderDto;
-import com.example.delivery_aggregator.dto.pages.*;
+import com.example.delivery_aggregator.dto.aggregator.*;
 import com.example.delivery_aggregator.entity.Contact;
 import com.example.delivery_aggregator.entity.Order;
 import com.example.delivery_aggregator.entity.Package;
@@ -22,7 +22,7 @@ public interface AggregatorMapper {
     @Mapping(target = "fromLocation", source = "deliveryData.fromLocation")
     @Mapping(target = "toLocation", source = "deliveryData.toLocation")
     @Mapping(target = "tariff", source = "deliveryData.tariff")
-    OrderPageDataDto deliveryDataToOrderPageData(DeliveryDataDto deliveryData, Contact contact);
+    OrderPageDataDto deliveryDataToOrderPageData(CookieDeliveryDataDto deliveryData, Contact contact);
 
     Contact registrationPageToContact(RegistrationPageDataDto registrationPageDto);
 

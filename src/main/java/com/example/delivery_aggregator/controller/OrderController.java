@@ -2,8 +2,8 @@ package com.example.delivery_aggregator.controller;
 
 import com.example.delivery_aggregator.dto.db.ContactDto;
 import com.example.delivery_aggregator.dto.external_api.cdek.order.CdekOrderResponseDto;
-import com.example.delivery_aggregator.dto.pages.DeliveryDataDto;
-import com.example.delivery_aggregator.dto.pages.OrderPageDataDto;
+import com.example.delivery_aggregator.dto.aggregator.CookieDeliveryDataDto;
+import com.example.delivery_aggregator.dto.aggregator.OrderPageDataDto;
 import com.example.delivery_aggregator.entity.Contact;
 import com.example.delivery_aggregator.entity.User;
 import com.example.delivery_aggregator.mappers.AggregatorMapper;
@@ -43,7 +43,7 @@ public class OrderController {
         model.addAttribute("userLogin", userLogin);
 
         Contact contact = contactService.findByEmail(userLogin);
-        DeliveryDataDto deliveryData = objectMapper.readValue(deliveryDataJsonString, DeliveryDataDto.class);
+        CookieDeliveryDataDto deliveryData = objectMapper.readValue(deliveryDataJsonString, CookieDeliveryDataDto.class);
 
         OrderPageDataDto orderPageData = aggregatorMapper.deliveryDataToOrderPageData(deliveryData, contact);
         orderPageData.setRecipient(new ContactDto());
@@ -56,7 +56,7 @@ public class OrderController {
         String userLogin = (principal != null) ? principal.getName() : "anonymous";
         User user = userService.getUserByLogin(userLogin);
 
-        DeliveryDataDto deliveryData = objectMapper.readValue(deliveryDataJsonString, DeliveryDataDto.class);
+        CookieDeliveryDataDto deliveryData = objectMapper.readValue(deliveryDataJsonString, CookieDeliveryDataDto.class);
 
         ResponseEntity<CdekOrderResponseDto> cdekOrderResponseDto = cdekService.createOrder(orderPageData, deliveryData);
 

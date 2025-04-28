@@ -7,9 +7,9 @@ import com.example.delivery_aggregator.dto.external_api.cdek.order.CdekOrderDeli
 import com.example.delivery_aggregator.dto.external_api.cdek.order.CdekOrderPackageDto;
 import com.example.delivery_aggregator.dto.external_api.cdek.order.CdekOrderRequestDto;
 import com.example.delivery_aggregator.dto.external_api.cdek.order.CdekOrderResponseDto;
-import com.example.delivery_aggregator.dto.pages.DeliveryDataDto;
-import com.example.delivery_aggregator.dto.pages.IndexPageDataDto;
-import com.example.delivery_aggregator.dto.pages.OrderPageDataDto;
+import com.example.delivery_aggregator.dto.aggregator.CookieDeliveryDataDto;
+import com.example.delivery_aggregator.dto.aggregator.IndexPageDataDto;
+import com.example.delivery_aggregator.dto.aggregator.OrderPageDataDto;
 import com.example.delivery_aggregator.dto.external_api.cdek.calculator.CdekCalculatorRequestDto;
 import com.example.delivery_aggregator.dto.external_api.cdek.calculator.CdekCalculatorResponseDto;
 import com.example.delivery_aggregator.mappers.CdekMapper;
@@ -100,7 +100,7 @@ public class CdekService {
         return response.getBody().getPostalCodes().getFirst();
     }
 
-    public ResponseEntity<CdekOrderResponseDto> createOrder(OrderPageDataDto orderPageData, DeliveryDataDto deliveryData){
+    public ResponseEntity<CdekOrderResponseDto> createOrder(OrderPageDataDto orderPageData, CookieDeliveryDataDto deliveryData){
         final String REQUEST_URL = URL + "/v2/orders";
 
         HttpHeaders headers = getHttpHeaders();

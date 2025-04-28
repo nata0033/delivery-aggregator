@@ -7,7 +7,7 @@ import com.example.delivery_aggregator.dto.db.ContactDto;
 import com.example.delivery_aggregator.dto.external_api.cdek.calculator.CdekCalculatorResponseDto;
 import com.example.delivery_aggregator.dto.external_api.cdek.calculator.CdekCalculatorLocationDto;
 import com.example.delivery_aggregator.dto.external_api.cdek.order.*;
-import com.example.delivery_aggregator.dto.pages.*;
+import com.example.delivery_aggregator.dto.aggregator.*;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
@@ -56,7 +56,7 @@ public interface CdekMapper {
     @Mapping(target = "recipient", source = "orderPageData.recipient", qualifiedByName = "userToContact")
     @Mapping(target = "fromLocation", source = "orderPageData.fromLocation", qualifiedByName = "locationToOrderCdekLocation")
     @Mapping(target = "toLocation", source = "orderPageData.toLocation", qualifiedByName = "locationToOrderCdekLocation")
-    CdekOrderRequestDto orderPageDataAndDeliveryDataToCdekOrderRequest(OrderPageDataDto orderPageData, DeliveryDataDto deliveryData);
+    CdekOrderRequestDto orderPageDataAndDeliveryDataToCdekOrderRequest(OrderPageDataDto orderPageData, CookieDeliveryDataDto deliveryData);
 
     @Named("userToContact")
     @Mapping(target = "name", expression = "java(user.getFirstName() + ' ' + user.getLastName() + ' ' + user.getFatherName())")
