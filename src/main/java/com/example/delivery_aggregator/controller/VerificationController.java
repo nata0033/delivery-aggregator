@@ -26,6 +26,10 @@ public class VerificationController {
 
     private final VerificationCodeService verificationCodeService;
 
+    private static final String SUCCESS = "success";
+
+    private static final String MESSAGE = "message";
+
     public static String generateRandomCode() {
         SecureRandom random = new SecureRandom();
         StringBuilder code = new StringBuilder();
@@ -42,11 +46,11 @@ public class VerificationController {
             VerificationCode verificationCode = verificationCodeService.create(email);
             emailService.sendVerificationCode(verificationCode.getEmail(), verificationCode.getCode());
 
-            response.put("success", true);
+            response.put(SUCCESS, true);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            response.put("success", false);
-            response.put("message", "Ошибка при отправке кода, попробуйте позже");
+            response.put(SUCCESS, false);
+            response.put(MESSAGE, "Ошибка при отправке кода, попробуйте позже");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
@@ -56,56 +60,56 @@ public class VerificationController {
         Map<String, Object> response = new HashMap<>();
         try {
             Boolean isValid = verificationCodeService.existsValidCode(email, code);
-            response.put("success", isValid);
-            if (!isValid) {
-                response.put("message", "Неверный код");
+            response.put(SUCCESS, isValid);
+            if (Boolean.FALSE.equals(isValid)) {
+                response.put(MESSAGE, "Неверный код");
             }
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            response.put("success", false);
-            response.put("message", "Ошибка при проверке кода");
+            response.put(SUCCESS, false);
+            response.put(MESSAGE, "Ошибка при проверке кода");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
 
     @PostMapping("/check-email-unique")
-    public ResponseEntity<?> checkUserUnique(@RequestParam String email){
+    public ResponseEntity<Map<String, Object>> checkUserUnique(@RequestParam String email){
         Map<String, Object> response = new HashMap<>();
         try {
-            Boolean unique = true;
+            boolean unique = true;
             User user = userService.getUserByLogin(email);
             if(user != null){
                 unique = false;
             }
-            response.put("success", unique);
-            if (!unique) {
-                response.put("message", "Пользователь с такой почтой уже существует");
+            response.put(SUCCESS, unique);
+            if (Boolean.FALSE.equals(unique)) {
+                response.put(MESSAGE, "Пользователь с такой почтой уже существует");
             }
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            response.put("success", false);
-            response.put("message", "Ошибка при проверке существования пользователя");
+            response.put(SUCCESS, false);
+            response.put(MESSAGE, "Ошибка при проверке существования пользователя");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
 
     @PostMapping("/check-email-exist")
-    public ResponseEntity<?> checkUserExist(@RequestParam String email){
+    public ResponseEntity<Map<String, Object>> checkUserExist(@RequestParam String email){
         Map<String, Object> response = new HashMap<>();
         try {
-            Boolean exist = true;
+            boolean exist = true;
             User user = userService.getUserByLogin(email);
             if(user == null){
                 exist = false;
             }
-            response.put("success", exist);
-            if (!exist) {
-                response.put("message", "Пользователя с такой почтой не существует ");
+            response.put(SUCCESS, exist);
+            if (Boolean.FALSE.equals(exist)) {
+                response.put(MESSAGE, "Пользователя с такой почтой не существует ");
             }
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            response.put("success", false);
-            response.put("message", "Ошибка при проверке существования пользователя");
+            response.put(SUCCESS, false);
+            response.put(MESSAGE, "Ошибка при проверке существования пользователя");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }

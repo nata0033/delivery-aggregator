@@ -9,4 +9,6 @@ public class IndexPageDataDto {
     private LocationDto fromLocation;
     private LocationDto toLocation;
     private List<PackageDto> packages;
+    private Boolean selfPickup;
+    private Boolean selfDelivery ;
 }

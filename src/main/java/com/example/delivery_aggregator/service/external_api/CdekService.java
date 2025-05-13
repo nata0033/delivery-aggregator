@@ -1,13 +1,11 @@
 package com.example.delivery_aggregator.service.external_api;
 
 import com.example.delivery_aggregator.dto.external_api.cdek.CdekOAuthTokenResponseDto;
-import com.example.delivery_aggregator.dto.external_api.cdek.CdekPostcodesResponseDto;
 import com.example.delivery_aggregator.dto.external_api.cdek.CdekSuggestCityResponseDto;
 import com.example.delivery_aggregator.dto.external_api.cdek.order.CdekOrderDeliveryRecipientCostDto;
 import com.example.delivery_aggregator.dto.external_api.cdek.order.CdekOrderPackageDto;
 import com.example.delivery_aggregator.dto.external_api.cdek.order.CdekOrderRequestDto;
 import com.example.delivery_aggregator.dto.external_api.cdek.order.CdekOrderResponseDto;
-import com.example.delivery_aggregator.dto.aggregator.CookieDeliveryDataDto;
 import com.example.delivery_aggregator.dto.aggregator.IndexPageDataDto;
 import com.example.delivery_aggregator.dto.aggregator.OrderPageDataDto;
 import com.example.delivery_aggregator.dto.external_api.cdek.calculator.CdekCalculatorRequestDto;
@@ -28,7 +26,7 @@ import java.util.stream.IntStream;
 @Service
 public class CdekService {
 
-    private final String URL = "https://api.edu.cdek.ru";
+    private static final String URL = "https://api.edu.cdek.ru";
 
     @Value("${authorization-codes.cdek.client-id}")
     private String cdekClientId;
@@ -43,9 +41,6 @@ public class CdekService {
     public String getOAuthToken(){
         final String REQUEST_URL = URL + "/v2/oauth/token?grant_type={grantType}&client_id={clientId}&client_secret={clientSecret}";
         final String GRAND_TYPE = "client_credentials";
-
-//        final String CLIENT_ID = "wqGwiQx0gg8mLtiEKsUinjVSICCjtTEP";
-//        final String CLIENT_SECRET = "RmAmgvSgSl1yirlz9QupbzOJVqhCxcP5";
 
         CdekOAuthTokenResponseDto response = restTemplate.postForEntity(REQUEST_URL, null, CdekOAuthTokenResponseDto.class, GRAND_TYPE, cdekClientId, clientSecret).getBody();
         return response.getAccessToken();
@@ -89,36 +84,15 @@ public class CdekService {
         return restTemplate.exchange(REQUEST_URL, HttpMethod.POST, requestData, CdekCalculatorResponseDto.class);
     }
 
-    public String getPostalCodes(String name){
-        final String REQUEST_URL = URL + "/v2/location/postcodes?code={code}";
-
-        Integer code = this.getCitiesCode(name).getCode();
-
-        HttpHeaders headers = getHttpHeaders();
-
-        ResponseEntity<CdekPostcodesResponseDto> response = restTemplate.exchange(REQUEST_URL, HttpMethod.POST, new HttpEntity<>(headers), CdekPostcodesResponseDto.class, code);
-        return response.getBody().getPostalCodes().getFirst();
-    }
-
-    public ResponseEntity<CdekOrderResponseDto> createOrder(OrderPageDataDto orderPageData, CookieDeliveryDataDto deliveryData){
+    public ResponseEntity<CdekOrderResponseDto> createOrder(OrderPageDataDto orderPageData){
         final String REQUEST_URL = URL + "/v2/orders";
 
         HttpHeaders headers = getHttpHeaders();
 
-        CdekOrderRequestDto cdekOrderRequest = cdekMapper.orderPageDataAndDeliveryDataToCdekOrderRequest(orderPageData,deliveryData);
-        cdekOrderRequest.setType(2);
-        cdekOrderRequest.setDeliveryRecipientCost(new CdekOrderDeliveryRecipientCostDto());
-        cdekOrderRequest.getDeliveryRecipientCost().setValue((float) 0);
-        cdekOrderRequest.getSender().setCompany("Агрегатор");
+        CdekOrderRequestDto cdekOrderRequest = cdekMapper.OrderPageDataDtoToCdekOrderRequest(orderPageData);
+
         HttpEntity<CdekOrderRequestDto> requestData = new HttpEntity<>(cdekOrderRequest, headers);
-        cdekOrderRequest.setPackages(
-                IntStream.range(0, deliveryData.getPackages().size())
-                        .mapToObj(i -> {
-                            CdekOrderPackageDto p = cdekMapper.aggregatorPackageToOrderCdekPackage(deliveryData.getPackages().get(i), orderPageData);
-                            p.setNumber(String.valueOf(i));
-                            return p;
-                        }).toList()
-        );
+
         return restTemplate.exchange(REQUEST_URL, HttpMethod.POST, requestData, CdekOrderResponseDto.class);
     }
 

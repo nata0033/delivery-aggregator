@@ -43,7 +43,7 @@ public class AccountController {
 
     @GetMapping("/account/accountPageData")
     @ResponseBody
-    public ResponseEntity<?> getAccountPageData(Principal principal) {
+    public ResponseEntity<Map<String, Object>> getAccountPageData(Principal principal) {
         Map<String, Object> response = new HashMap<>();
         try {
             User user = userService.getUserByLogin(principal.getName());
@@ -61,7 +61,7 @@ public class AccountController {
     }
 
     @PostMapping("/account/changeUserData")
-    public ResponseEntity<?> changeUserData(@RequestPart("contactDto") ContactDto contactDto, @RequestPart(required = false) MultipartFile avatar, Principal principal) {
+    public ResponseEntity<Map<String, Object>> changeUserData(@RequestPart("contactDto") ContactDto contactDto, @RequestPart(required = false) MultipartFile avatar, Principal principal) {
         contactService.update(contactDto, avatar);
 
         Map<String, Object> response = new HashMap<>();
@@ -77,7 +77,7 @@ public class AccountController {
 
     @PostMapping("/account/changeUserPassword")
     @ResponseBody
-    public ResponseEntity<?> changePassword(@RequestParam String oldPassword,
+    public ResponseEntity<Map<String, Object>> changePassword(@RequestParam String oldPassword,
                                             @RequestParam String newPassword,
                                             Principal principal) {
         Map<String, Object> response = new HashMap<>();

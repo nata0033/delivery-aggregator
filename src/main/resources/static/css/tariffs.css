@@ -1,0 +1,108 @@
+/* tariffs.css */
+.tariff-card {
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+  background: #fff;
+  border-radius: .25rem;
+  border: 1px solid #e0e0e0;
+  margin-bottom: 12px;
+  padding: 12px 18px;
+  min-height: 72px;
+}
+.tariff-card-header {
+  font-weight: bold;
+}
+.tariff-card-footer {
+  text-align: right;
+}
+.tariff-button {
+  padding: 8px 15px;
+  border-radius: 5px;
+  background-color: #007bff;
+  color: white;
+  text-decoration: none;
+}
+.form-container {
+  margin-bottom: 30px;
+}
+body {
+  background: url(https://cs.pikabu.ru/post_img/big/2013/05/16/6/1368692181_1340214248.jpg) no-repeat;
+  background-size: cover;
+}
+.deliveryData {
+  padding-top: 26px;
+}
+.spinner-border {
+  width: 3rem;
+  height: 3rem;
+}
+.loading-text {
+  margin-top: 1rem;
+  color: #007bff;
+  font-size: 1.1rem;
+}
+.tariff-logo {
+  height: 38px;
+  width: 38px;
+  object-fit: contain;
+  margin-right: 10px;
+}
+.tariff-service {
+  font-weight: 600;
+  font-size: 17px;
+}
+.tariff-rating {
+  color: #ffb400;
+  margin-left: 4px;
+  font-size: 15px;
+  vertical-align: middle;
+}
+.tariff-section {
+  flex: 1 1 0;
+  min-width: 120px;
+  text-align: left;
+  padding: 0 10px;
+}
+.tariff-section b {
+  display: block;
+}
+.tariff-price {
+  font-weight: bold;
+  font-size: 22px;
+  white-space: nowrap;
+}
+.tariff-btn {
+  border: 1px solid #0d6efd;
+  background: #fff;
+  color: #0d6efd;
+  border-radius: 6px;
+  padding: 7px 18px;
+  font-weight: 500;
+  transition: background .2s;
+}
+.tariff-btn:hover {
+  background: #0d6efd;
+  color: #fff;
+}
+.tariff-on-time {
+  color: #d32f2f;
+  font-size: 13px;
+}
+.delivery-header {
+  background-color: white;
+  margin-top: 15px;
+  height: 72px;
+  border-radius: .25rem;
+}
+.min-height-278 { min-height: 278px; }
+.max-height-695 { max-height: 695px; }
+.pt-55 { padding-top: 55px; }
+.spinner {
+  display: none;
+  text-align: center;
+  margin: 24px 0;
+}

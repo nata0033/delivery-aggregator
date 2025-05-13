@@ -30,6 +30,7 @@
             <form th:action="@{/tariffs}" novalidate="novalidate" method="POST" autocomplete="off" class="marked">
                 <div class="form-row">
                     <div class="form-group col-md-5">
+                        <input type="hidden" name="fromLocation.country" class="form-control" id="fromLocationCountryInput" value="Россия" required>
                         <input type="hidden" name="fromLocation.state" class="form-control" id="fromLocationStateInput" value="Москва" required>
                         <label for="fromLocationCityInput">Город отправления</label>
                         <input type="text" name="fromLocation.city" class="form-control" id="fromLocationCityInput" placeholder="Город отправления" value="Москва" required>
@@ -37,13 +38,14 @@
                         <div class="form-row date-container">
                             <div class="form-group col-md-6">
                                 <div class="form-floating mb-3">
-                                    <input type="date" name="fromLocation.date" class="form-control" id="shipmentDateInput" required>
-                                    <label for="shipmentDateInput">Дата отправки</label>
+                                    <input type="date" name="fromLocation.date" class="form-control" id="fromLocationDateInput" required>
+                                    <label for="fromLocationDateInput">Дата отправки</label>
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div class="form-group col-md-5">
+                        <input type="hidden" name="toLocation.country" class="form-control" id="toLocationCountryInput" value="Россия" required>
                         <input type="hidden" name="toLocation.state" class="form-control" id="toLocationStateInput" value="Оренбургская" required>
                         <label for="toLocationCityInput">Город получения</label>
                         <input type="text" name="toLocation.city" class="form-control" id="toLocationCityInput" placeholder="Город получения" value="Оренбург" required>

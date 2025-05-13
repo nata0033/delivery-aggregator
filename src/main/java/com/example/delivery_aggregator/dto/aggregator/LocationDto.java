@@ -3,6 +3,7 @@ package com.example.delivery_aggregator.dto.aggregator;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
+
 @Data
 public class LocationDto {
     private String country;

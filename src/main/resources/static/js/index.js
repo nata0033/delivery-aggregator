@@ -1,205 +1,262 @@
-//Установка даты на завтрашнее число
+/**
+ * Основной модуль для работы с формой доставки
+ * Обрабатывает города, посылки и сохранение данных
+ */
 document.addEventListener('DOMContentLoaded', function() {
-    const dateInput = document.getElementById("shipmentDateInput");
-    const today = new Date();
-    dateInput.valueAsDate = today;
+    // Инициализация даты отправки (завтрашний день)
+    initShipmentDate();
 
-    // Load cities from server
+    // Загрузка списка городов с сервера
     loadCities();
+
+    // Инициализация обработчиков событий
+    initEventHandlers();
 });
 
+// Глобальные переменные для хранения городов
 let cities = [];
 let defaultCities = [];
 
+/**
+ * Инициализирует дату отправки (устанавливает завтрашний день)
+ */
+function initShipmentDate() {
+    const dateInput = document.getElementById("fromLocationDateInput");
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    dateInput.valueAsDate = tomorrow;
+}
+
+/**
+ * Загружает список городов с сервера
+ */
 async function loadCities() {
     try {
         const response = await fetch('/getCities');
         if (!response.ok) {
-            throw new Error('Failed to load cities');
+            throw new Error('Ошибка загрузки городов');
         }
         cities = await response.json();
-
-        // Set default popular cities
-        defaultCities = [
-            findCityByName("Москва"),
-            findCityByName("Санкт-Петербург"),
-            findCityByName("Казань"),
-            findCityByName("Екатеринбург"),
-            findCityByName("Новосибирск")
-        ].filter(city => city !== undefined);
+        initDefaultCities();
     } catch (error) {
-        console.error('Error loading cities:', error);
-        // Fallback to empty arrays if request fails
+        console.error('Ошибка:', error);
         cities = [];
         defaultCities = [];
     }
 }
 
+/**
+ * Инициализирует список популярных городов по умолчанию
+ */
+function initDefaultCities() {
+    defaultCities = [
+        "Москва", "Санкт-Петербург", "Казань",
+        "Екатеринбург", "Новосибирск"
+    ].map(name => findCityByName(name)).filter(Boolean);
+}
+
+/**
+ * Находит город по названию
+ */
 function findCityByName(name) {
     return cities.find(city => city.name === name);
 }
 
-//Добавление полей для ввода груза
-addPackageButton = document.getElementById('addPackageButton')
-addPackageButton.addEventListener('click', () => {
-    console.log('inside the newPackage function')
-    addedPackageDiv = document.getElementById('package')
+/**
+ * Инициализирует все обработчики событий
+ */
+function initEventHandlers() {
+    // Обработчики для добавления/удаления посылок
+    document.getElementById('addPackageButton').addEventListener('click', addPackage);
+    document.getElementById('removePackageButton').addEventListener('click', removePackage);
 
-    var quantityOfCargo = document.querySelectorAll('#package').length
-    newDiv = `
-        <div class="form-row" id="package">
+    // Обработчики для полей городов
+    initCityInputHandlers();
+
+    // Обработчики для кнопок отправки
+    document.getElementById("submitButton1").addEventListener('click', saveFormData);
+    document.getElementById("submitButton2").addEventListener('click', saveFormData);
+
+    // Закрытие подсказок при клике вне поля
+    document.addEventListener('click', closeSuggestionsOnClickOutside);
+}
+
+/**
+ * Добавляет новый блок для ввода параметров посылки
+ */
+function addPackage() {
+    const container = document.getElementById('packagesContainer');
+    const packageCount = document.querySelectorAll('.package-form').length;
+
+    const packageHTML = `
+        <div class="package-form form-row">
             <div class="form-group col-md-2">
-                <label for="packageWeight${quantityOfCargo}">Вес (гр)</label>
-                <input type="number" name="packages[` + quantityOfCargo + `].weight" class="form-control" id="packageWeight${quantityOfCargo}" placeholder="Вес(гр)" min="1" value="10" required>
+                <label>Вес (гр)</label>
+                <input type="number" name="packages[${packageCount}].weight"
+                       class="form-control" placeholder="Вес(гр)" min="1" value="10" required>
             </div>
             <div class="form-group col-md-2">
-                <label for="packagrLength${quantityOfCargo}">Длина (см)</label>
-                <input type="number" name="packages[` + quantityOfCargo + `].length" class="form-control" id="packagrLength${quantityOfCargo}" placeholder="Длина(см)" min="1" value="10" required>
+                <label>Длина (см)</label>
+                <input type="number" name="packages[${packageCount}].length"
+                       class="form-control" placeholder="Длина(см)" min="1" value="10" required>
             </div>
             <div class="form-group col-md-2">
-                <label for="packageWidth${quantityOfCargo}">Ширина (см)</label>
-                <input type="number" name="packages[` + quantityOfCargo + `].width" class="form-control" id="packageWidth${quantityOfCargo}" placeholder="Ширина(см)" min="1" value="10" required>
+                <label>Ширина (см)</label>
+                <input type="number" name="packages[${packageCount}].width"
+                       class="form-control" placeholder="Ширина(см)" min="1" value="10" required>
             </div>
             <div class="form-group col-md-2">
-                <label for="packageHeight${quantityOfCargo}">Высота (см)</label>
-                <input type="number" name="packages[` + quantityOfCargo + `].height" class="form-control" id="packageHeight${quantityOfCargo}" placeholder="Высота(см)" min="1" value="10" required>
+                <label>Высота (см)</label>
+                <input type="number" name="packages[${packageCount}].height"
+                       class="form-control" placeholder="Высота(см)" min="1" value="10" required>
             </div>
         </div>
-    `
-    addedPackageDiv.insertAdjacentHTML("beforeBegin", newDiv)
-})
+    `;
 
-//Удаление полей для ввода груза
-removePackageButton = document.getElementById('removePackageButton')
-removePackageButton.addEventListener('click', () => {
-    console.log('inside the removePackage function')
-    removedPackageDiv = document.getElementById('package')
-
-    if (document.querySelectorAll('#package').length > 1){
-        removedPackageDiv.remove()
-    }
-})
-
-// Close suggestions when clicking outside
-document.addEventListener('click', function(event) {
-    if (!event.target.closest('#fromLocationCityInput') && !event.target.closest('#fromLocationSuggest')) {
-        fromLocationSuggest.innerHTML = '';
-    }
-    if (!event.target.closest('#toLocationCityInput') && !event.target.closest('#toLocationSuggest')) {
-        toLocationSuggest.innerHTML = '';
-    }
-});
-
-//Получение изменений в поле ввода города отправки
-fromLocationStateInput = document.getElementById('fromLocationStateInput')
-fromLocationCityInput = document.getElementById('fromLocationCityInput')
-fromLocationSuggest = document.getElementById('fromLocationSuggest')
-fromLocationCityInput.addEventListener('input', function() {
-    const fromLocationCityInputValue = this.value.toLowerCase()
-
-    let fromLocationFilteredCities;
-    if (fromLocationCityInputValue === '') {
-        fromLocationFilteredCities = defaultCities;
-    } else {
-        fromLocationFilteredCities = cities.filter(city =>
-            city.name.toLowerCase().startsWith(fromLocationCityInputValue))
-            .slice(0, 5); // Limit to 5 suggestions
-    }
-    displayFromLocationSuggestions(fromLocationFilteredCities)
-})
-
-//Создание подсказок и обработка нажатия на город из подсказки для города отправки
-function displayFromLocationSuggestions(cities) {
-    fromLocationSuggest.innerHTML = ''
-
-    cities.forEach(city => {
-        const fromLocationSuggestCitiesButton = document.createElement('button')
-        fromLocationSuggestCitiesButton.textContent = city.name + ', ' + city.subject
-        fromLocationSuggestCitiesButton.id = "fromLocationSuggestCitiesButton"
-        fromLocationSuggestCitiesButton.className = "w-100 btn btn-light"
-
-        fromLocationSuggestCitiesButton.addEventListener('click', function() {
-            fromLocationStateInput.value = city.subject.split(" ")[0]
-            fromLocationCityInput.value = city.name
-            fromLocationSuggest.innerHTML = ''
-        })
-        fromLocationSuggest.appendChild(fromLocationSuggestCitiesButton)
-    })
+    container.insertAdjacentHTML('beforeend', packageHTML);
 }
 
-//Получение изменений в поле ввода города получения
-toLocationStateInput = document.getElementById('toLocationStateInput')
-toLocationCityInput = document.getElementById('toLocationCityInput')
-toLocationSuggest = document.getElementById('toLocationSuggest')
-toLocationCityInput.addEventListener('input', function() {
-    const toLocationCityInputValue = this.value.toLowerCase()
-
-    let toLocationFilteredCities;
-    if (toLocationCityInputValue === '') {
-        toLocationFilteredCities = defaultCities;
-    } else {
-        toLocationFilteredCities = cities.filter(city =>
-            city.name.toLowerCase().startsWith(toLocationCityInputValue))
-            .slice(0, 5); // Limit to 5 suggestions
+/**
+ * Удаляет последний блок с параметрами посылки
+ */
+function removePackage() {
+    const packages = document.querySelectorAll('.package-form');
+    if (packages.length > 1) {
+        packages[packages.length - 1].remove();
     }
-    displayToLocationSuggestions(toLocationFilteredCities)
-})
-
-//Создание подсказок и обработка нажатия на город из подсказки для города получения
-function displayToLocationSuggestions(cities) {
-    toLocationSuggest.innerHTML = ''
-
-    cities.forEach(city => {
-        const toLocationSuggestCitiesButton = document.createElement('button')
-        toLocationSuggestCitiesButton.textContent = city.name + ', ' + city.subject
-        toLocationSuggestCitiesButton.id = "toLocationSuggestCitiesButton"
-        toLocationSuggestCitiesButton.className = "w-100 btn btn-light"
-
-        toLocationSuggestCitiesButton.addEventListener('click', function() {
-            toLocationStateInput.value = city.subject.split(" ")[0]
-            toLocationCityInput.value = city.name
-            toLocationSuggest.innerHTML = ''
-        })
-        toLocationSuggest.appendChild(toLocationSuggestCitiesButton)
-    })
 }
 
-submitButton1 = document.getElementById("submitButton1")
-submitButton1.addEventListener('click', addJson)
-submitButton2 = document.getElementById("submitButton2")
-submitButton2.addEventListener('click', addJson)
+/**
+ * Инициализирует обработчики для полей ввода городов
+ */
+function initCityInputHandlers() {
+    const fromInput = document.getElementById('fromLocationCityInput');
+    const toInput = document.getElementById('toLocationCityInput');
 
-//Добавление данных из формы в виде json в cookie
-function addJson(){
-    const fromLocationState = document.getElementById("fromLocationStateInput").value;
-    const fromLocationCity = document.getElementById("fromLocationCityInput").value;
-    const toLocationState = document.getElementById("toLocationStateInput").value;
-    const toLocationCity = document.getElementById("toLocationCityInput").value;
+    fromInput.addEventListener('input', () => handleCityInput('from'));
+    toInput.addEventListener('input', () => handleCityInput('to'));
+}
 
-    const deliveryDataJson = {
-        fromLocation: {
-            state: fromLocationState,
-            city: fromLocationCity
-        },
-        toLocation: {
-            state: toLocationState,
-            city: toLocationCity
-        },
-        packages: [],
-        tariff: {}
-    };
-    const packageInputs = document.querySelectorAll('[name^="packages"]');
-    packageInputs.forEach(input => {
-        const packageName = input.name.match(/\[(\d+)\]/)[1];
-        const packageIndex = parseInt(packageName);
+/**
+ * Обрабатывает ввод в поле города
+ */
+function handleCityInput(type) {
+    const input = document.getElementById(`${type}LocationCityInput`);
+    const value = input.value.toLowerCase();
 
-        if (!deliveryDataJson.packages[packageIndex]) {
-            deliveryDataJson.packages[packageIndex] = {
-            };
-        }
+    const filteredCities = value === ''
+        ? defaultCities
+        : cities.filter(city =>
+            city.name.toLowerCase().startsWith(value)
+          ).slice(0, 5);
 
-        const paramName = input.name.split('.').pop(); // Извлекаем имя параметра (weight, length, width, height)
-        deliveryDataJson.packages[packageIndex][paramName] = parseInt(input.value);
+    displayCitySuggestions(type, filteredCities);
+}
+
+/**
+ * Отображает подсказки для городов
+ */
+function displayCitySuggestions(type, cities) {
+    const suggestElement = document.getElementById(`${type}LocationSuggest`);
+    suggestElement.innerHTML = '';
+
+    cities.forEach(city => {
+        const button = document.createElement('button');
+        button.className = "w-100 btn btn-light";
+        button.textContent = `${city.name}, ${city.subject}`;
+
+        button.addEventListener('click', () => {
+            document.getElementById(`${type}LocationStateInput`).value = city.subject.split(" ")[0];
+            document.getElementById(`${type}LocationCityInput`).value = city.name;
+            suggestElement.innerHTML = '';
+        });
+
+        suggestElement.appendChild(button);
     });
-    document.cookie = 'delivery_data' + '=' +  encodeURIComponent(JSON.stringify(deliveryDataJson))
-};
+}
+
+/**
+ * Закрывает подсказки при клике вне поля ввода
+ */
+function closeSuggestionsOnClickOutside(event) {
+    const fromElements = ['fromLocationCityInput', 'fromLocationSuggest'];
+    const toElements = ['toLocationCityInput', 'toLocationSuggest'];
+
+    if (!event.target.closest(fromElements.join(', '))) {
+        document.getElementById('fromLocationSuggest').innerHTML = '';
+    }
+
+    if (!event.target.closest(toElements.join(', '))) {
+        document.getElementById('toLocationSuggest').innerHTML = '';
+    }
+}
+
+/**
+ * Сохраняет данные формы в cookie
+ */
+function saveFormData() {
+    const formData = {
+        fromLocation: getLocationData('from'),
+        toLocation: getLocationData('to'),
+        packages: getPackagesData(),
+        recipient: null,
+        tariff: null
+    };
+
+    setCookie('delivery_data', JSON.stringify(formData), 86400); // 24 часа
+}
+
+/**
+ * Получает данные о местоположении
+ */
+function getLocationData(type) {
+    return {
+        country: document.getElementById(`${type}LocationCountryInput`).value,
+        state: document.getElementById(`${type}LocationStateInput`).value,
+        city: document.getElementById(`${type}LocationCityInput`).value,
+        street: "",
+        house: "",
+        apartment: "",
+        postalCode: "",
+        date: type === 'from'
+            ? document.getElementById('fromLocationDateInput').value
+            : ""
+    };
+}
+
+/**
+ * Получает данные о посылках
+ */
+function getPackagesData() {
+    const packages = [];
+    const inputs = document.querySelectorAll('[name^="packages"]');
+    const packagesMap = {};
+
+    inputs.forEach(input => {
+        const [, index, field] = input.name.match(/packages\[(\d+)\]\.(\w+)/) || [];
+        if (index && field) {
+            if (!packagesMap[index]) packagesMap[index] = {};
+            packagesMap[index][field] = parseInt(input.value) || 0;
+        }
+    });
+
+    for (const index in packagesMap) {
+        packages.push({
+            weight: packagesMap[index].weight,
+            length: packagesMap[index].length,
+            width: packagesMap[index].width,
+            height: packagesMap[index].height
+        });
+    }
+
+    return packages;
+}
+
+/**
+ * Устанавливает cookie
+ */
+function setCookie(name, value, seconds) {
+    const date = new Date();
+    date.setTime(date.getTime() + (seconds * 1000));
+    document.cookie = `${name}=${encodeURIComponent(value)};path=/;expires=${date.toUTCString()}`;
+}

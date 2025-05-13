@@ -16,6 +16,7 @@ import org.mapstruct.Named;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING,
 uses = AggregatorMapper.class)
@@ -51,12 +52,35 @@ public interface CdekMapper {
     }
 
     //Заказ
-    @Mapping(target = "tariffCode", source = "deliveryData.tariff.code")
-    @Mapping(target = "sender", source = "orderPageData.sender", qualifiedByName = "userToContact")
-    @Mapping(target = "recipient", source = "orderPageData.recipient", qualifiedByName = "userToContact")
-    @Mapping(target = "fromLocation", source = "orderPageData.fromLocation", qualifiedByName = "locationToOrderCdekLocation")
-    @Mapping(target = "toLocation", source = "orderPageData.toLocation", qualifiedByName = "locationToOrderCdekLocation")
-    CdekOrderRequestDto orderPageDataAndDeliveryDataToCdekOrderRequest(OrderPageDataDto orderPageData, CookieDeliveryDataDto deliveryData);
+    @Mapping(target = "tariffCode", source = "tariff.code")
+    @Mapping(target = "sender", source = "sender", qualifiedByName = "userToContact")
+    @Mapping(target = "recipient", source = "recipient", qualifiedByName = "userToContact")
+    @Mapping(target = "fromLocation", source = "fromLocation", qualifiedByName = "locationToOrderCdekLocation")
+    @Mapping(target = "toLocation", source = "toLocation", qualifiedByName = "locationToOrderCdekLocation")
+    @Mapping(target = "packages", source = "packages",  qualifiedByName = "packageDtoListToCdekOrderPackageDtoList")
+    CdekOrderRequestDto OrderPageDataDtoToCdekOrderRequest(OrderPageDataDto orderPageData);
+
+    @Named("packageDtoListToCdekOrderPackageDtoList")
+    default List<CdekOrderPackageDto> packageDtoListToCdekOrderPackageDtoList (List<PackageDto> packages){
+        List<CdekOrderPackageDto> cdekPackages = new ArrayList<>();
+        
+        return cdekPackages(
+                IntStream.range(0, packages.size())
+                        .mapToObj(i -> {
+                            CdekOrderPackageDto p = aggregatorPackageToOrderCdekPackage(packages.get(i));
+                            p.setNumber(String.valueOf(i));
+                            return p;
+                        }).toList()
+        );
+    }
+
+    List<CdekOrderPackageDto> cdekPackages(List<CdekOrderPackageDto> list);
+
+    @Mapping(target = "length", source = "length")
+    @Mapping(target = "height", source = "height")
+    @Mapping(target = "width", source = "width")
+    @Mapping(target = "weight", source = "weight")
+    CdekOrderPackageDto aggregatorPackageToOrderCdekPackage(PackageDto p);
 
     @Named("userToContact")
     @Mapping(target = "name", expression = "java(user.getFirstName() + ' ' + user.getLastName() + ' ' + user.getFatherName())")
@@ -76,12 +100,4 @@ public interface CdekMapper {
     @Mapping(target = "region", source = "state")
     @Mapping(target = "address", expression = "java(location.getStreet() + ' ' + location.getHouse() + ' ' + location.getApartment())")
     CdekOrderLocationDto locationToOrderCdekLocation(LocationDto location);
-
-    @Mapping(target = "length", source = "pack.length")
-    @Mapping(target = "height", source = "pack.height")
-    @Mapping(target = "width", source = "pack.width")
-    @Mapping(target = "weight", source = "pack.weight")
-    @Mapping(target = "comment", source = "orderPageData.comment")
-    CdekOrderPackageDto aggregatorPackageToOrderCdekPackage(PackageDto pack, OrderPageDataDto orderPageData);
-
 }
