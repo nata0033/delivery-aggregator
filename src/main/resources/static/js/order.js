@@ -81,6 +81,7 @@ async function sendOrder() {
         // Добавляем тариф и упаковки из куки
         orderData.tariff = deliveryData.tariff;
         orderData.packages = deliveryData.packages
+        orderData.fromLocation.date = deliveryData.fromLocation.date
 
         // Отправляем данные на сервер
         const response = await fetch('/order/create', {

@@ -13,12 +13,9 @@ import ru.dpd.ws.geography._2015_05_20.*;
 import ru.dpd.ws.geography._2015_05_20.City;
 import ru.dpd.ws.geography._2015_05_20.WSFault_Exception;
 import ru.dpd.ws.order2._2012_04_04.*;
-import ru.dpd.ws.order2._2012_04_04.Address;
 
-import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -34,15 +31,13 @@ public class DpdService {
     private DpdMapper dpdMapper;
 
     public XMLGregorianCalendar convertStringToXMLGregorianCalendar(String dateStr) throws Exception {
-        // Парсим строку в java.util.Date
-        SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy");
+        // Используем формат "yyyy-MM-dd"
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         Date date = sdf.parse(dateStr);
 
-        // Конвертируем Date -> GregorianCalendar
         GregorianCalendar cal = new GregorianCalendar();
         cal.setTime(date);
 
-        // Конвертируем GregorianCalendar -> XMLGregorianCalendar
         return DatatypeFactory.newInstance().newXMLGregorianCalendar(cal);
     }
 
@@ -122,76 +117,14 @@ public class DpdService {
 
     }
 
-    public ResponseEntity<?> createOrder(OrderPageDataDto orderPageDataDto) {
+    public ResponseEntity<List<DpdOrderStatus2>> createOrder(OrderPageDataDto orderPageDataDto) {
         try {
-            // Создаем экземпляр сервиса
-            DPDOrderService service = new DPDOrderService();
 
-            // Получаем порт для работы с API
+            DpdOrdersData request = dpdMapper.OrderPageDataDtoAndAuthParamsToDpdOrdersData(orderPageDataDto, dpdClientNumber, dpdClientKey);
+
+            DPDOrderService service = new DPDOrderService();
             DPDOrder port = service.getDPDOrderPort();
 
-            // Подготавливаем запрос
-            DpdOrdersData request = new DpdOrdersData();
-
-            // Устанавливаем аутентификацию
-            ru.dpd.ws.order2._2012_04_04.Auth auth = new ru.dpd.ws.order2._2012_04_04.Auth();
-            auth.setClientNumber(dpdClientNumber);
-            auth.setClientKey(dpdClientKey);
-            request.setAuth(auth);
-
-            // Устанавливаем заголовок заказа
-            Header header = new Header();
-            XMLGregorianCalendar xmlDate = convertStringToXMLGregorianCalendar(orderPageDataDto.getFromLocation().getDate());
-            header.setDatePickup(xmlDate);
-            header.setPickupTimePeriod("9-18"); // Стандартный интервал времени
-
-            // Устанавливаем адрес отправителя
-            Address senderAddress = new Address();
-            senderAddress.setCity(orderPageDataDto.getFromLocation().getCity());
-            senderAddress.setStreet(orderPageDataDto.getFromLocation().getStreet());
-            senderAddress.setHouse(orderPageDataDto.getFromLocation().getHouse());
-            senderAddress.setFlat(orderPageDataDto.getFromLocation().getApartment());
-            senderAddress.setIndex(orderPageDataDto.getFromLocation().getPostalCode());
-            header.setSenderAddress(senderAddress);
-
-            request.setHeader(header);
-
-            // Устанавливаем параметры заказа
-            Order order = new Order();
-            order.setOrderNumberInternal(orderPageDataDto.getComment()); // Используем комментарий как внутренний номер
-            order.setServiceCode(orderPageDataDto.getTariff().getCode());
-            order.setServiceVariant("ДД"); // Вариант доставки "Дверь-Дверь"
-
-            // Устанавливаем параметры груза
-
-            order.setCargoNumPack(orderPageDataDto.getPackages().size());
-            order.setCargoWeight(orderPageDataDto.getPackages().stream()
-                    .mapToInt(PackageDto::getWeight)
-                    .sum());
-            order.setCargoVolume(orderPageDataDto.getPackages().stream()
-                    .mapToDouble(p -> p.getLength() * p.getWidth() * p.getHeight() / 1_000_000.0)
-                    .sum());
-            order.setCargoRegistered(false); // По умолчанию не ценный груз
-
-            // Устанавливаем адрес получателя
-            Address receiverAddress = new Address();
-            receiverAddress.setCity(orderPageDataDto.getToLocation().getCity());
-            receiverAddress.setStreet(orderPageDataDto.getToLocation().getStreet());
-            receiverAddress.setHouse(orderPageDataDto.getToLocation().getHouse());
-            receiverAddress.setFlat(orderPageDataDto.getToLocation().getApartment());
-            receiverAddress.setIndex(orderPageDataDto.getToLocation().getPostalCode());
-            order.setReceiverAddress(receiverAddress);
-
-            // Устанавливаем контактные данные получателя
-/*            Contact receiverContact = new Contact();
-            receiverContact.setFio(String.join(" ",
-                    orderPageDataDto.getRecipient().getLastName(),
-                    orderPageDataDto.getRecipient().getFirstName(),
-                    orderPageDataDto.getRecipient().getFatherName()));
-            receiverContact.setPhone(orderPageDataDto.getRecipient().getPhone());
-            order.setReceiverContact(receiverContact);*/
-
-            // Выполняем запрос
             List<DpdOrderStatus2> response = port.createOrder2(request);
 
             // Обрабатываем ответ
@@ -200,5 +133,4 @@ public class DpdService {
             return ResponseEntity.internalServerError().body(new ArrayList<>());
         }
     }
-
 }
