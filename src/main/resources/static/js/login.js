@@ -107,7 +107,7 @@ document.addEventListener('DOMContentLoaded', function() {
      */
     async function checkUserExists(email) {
         try {
-            const response = await fetch('/check-email-exist', {
+            const response = await fetch('/email/check/exist', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',

@@ -36,13 +36,13 @@ public class UserService implements UserDetailsService {
                 .build();
     }
 
-    public User getUserByLogin(String login){
+    public User findByLogin(String login){
         return userRepository.findByLogin(login).orElse(null);
     }
 
     public User createUser(RegistrationPageDataDto registrationPageDataDto){
         User newUser = aggregatorMapper.registrationPageToUser(registrationPageDataDto);
-        User oldUser = getUserByLogin(newUser.getLogin());
+        User oldUser = findByLogin(newUser.getLogin());
         if(oldUser == null) {
             return userRepository.save(newUser);
         }

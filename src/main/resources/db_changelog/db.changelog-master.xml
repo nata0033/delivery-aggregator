@@ -12,6 +12,7 @@
     <include file="create_address.xml" relativeToChangelogFile="true"/>
     <include file="create_payment.xml" relativeToChangelogFile="true"/>
     <include file="create_verification_code.xml" relativeToChangelogFile="true"/>
+    <include file="create_dpd_city.xml" relativeToChangelogFile="true"/>
 
     <include file="add_column_pic_to_contact.xml" relativeToChangelogFile="true"/>
 </databaseChangeLog>

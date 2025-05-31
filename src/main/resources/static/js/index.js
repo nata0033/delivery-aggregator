@@ -32,7 +32,7 @@ function initShipmentDate() {
  */
 async function loadCities() {
     try {
-        const response = await fetch('/getCities');
+        const response = await fetch('/cities/get');
         if (!response.ok) {
             throw new Error('Ошибка загрузки городов');
         }

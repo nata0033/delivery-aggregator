@@ -220,7 +220,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function sendVerificationCode() {
         const email = inputs.email.value.trim();
 
-        return fetch('/send-code', {
+        return fetch('/email/code/send', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
@@ -264,7 +264,7 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-        fetch('/confirm-code', {
+        fetch('/email/code/confirm', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
@@ -321,7 +321,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const email = inputs.email.value.trim();
 
             // Проверка уникальности email перед отправкой кода
-            fetch('/check-email-unique', {
+            fetch('/email/check/unique', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',

@@ -1,12 +1,9 @@
 package com.example.delivery_aggregator.mappers;
 
-import com.example.delivery_aggregator.dto.external_api.cdek.CdekSuggestCityResponseDto;
-import com.example.delivery_aggregator.dto.external_api.cdek.calculator.CdekCalculatorPackageDto;
-import com.example.delivery_aggregator.dto.external_api.cdek.calculator.CdekCalculatorTariffCodeDto;
-import com.example.delivery_aggregator.dto.db.ContactDto;
-import com.example.delivery_aggregator.dto.external_api.cdek.calculator.CdekCalculatorResponseDto;
-import com.example.delivery_aggregator.dto.external_api.cdek.calculator.CdekCalculatorLocationDto;
-import com.example.delivery_aggregator.dto.external_api.cdek.order.*;
+import com.example.delivery_aggregator.dto.cdek.CdekSuggestCityResponseDto;
+import com.example.delivery_aggregator.dto.cdek.calculator.*;
+import com.example.delivery_aggregator.dto.aggregator.ContactDto;
+import com.example.delivery_aggregator.dto.cdek.order.*;
 import com.example.delivery_aggregator.dto.aggregator.*;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -23,13 +20,18 @@ uses = AggregatorMapper.class)
 public interface CdekMapper {
 
     //Калькулятор
+    @Mapping(target = "fromLocation", source = "suggestFromCityResponse")
+    @Mapping(target = "toLocation", source = "suggestToCityResponse")
+    @Mapping(target = "packages", source = "indexPageDataDto.packages")
+    CdekCalculatorRequestDto indexPageDataDtoAndCdekSuggestCityResponseDtoToCdekCalculatorRequestDto(
+            IndexPageDataDto indexPageDataDto, CdekSuggestCityResponseDto suggestFromCityResponse,
+            CdekSuggestCityResponseDto suggestToCityResponse);
+
     CdekCalculatorLocationDto suggestCityResponseToLocation(CdekSuggestCityResponseDto suggestCityResponse);
 
-    @Mapping(target = "length", source = "pack.length")
-    @Mapping(target = "height", source = "pack.height")
-    @Mapping(target = "width", source = "pack.width")
-    @Mapping(target = "weight", source = "pack.weight")
-    CdekCalculatorPackageDto aggregatorPackageToCalculatorCdekPackage(PackageDto pack);
+    CdekCalculatorPackageDto packageDtoToCdekCalculatorPackageDto(PackageDto p);
+
+    List<CdekCalculatorPackageDto> packageDtoListToCdekCalculatorPackageDtoList(List<PackageDto> packages);
 
     //Тарифы
     @Named("cdekCalculatorResponseToTariffsPageData")
@@ -41,7 +43,8 @@ public interface CdekMapper {
     @Mapping(target = "maxTime", source = "tariffCode.periodMax")
     TariffDto tariffCodeToTariff(CdekCalculatorTariffCodeDto tariffCode, DeliveryServiceDto deliveryServiceDto);
 
-    default ArrayList<TariffDto> cdekCalculatorResponseDtoToTariffDtoList(CdekCalculatorResponseDto cdekCalculatorResponseDto, DeliveryServiceDto deliveryServiceDto){
+    default ArrayList<TariffDto> cdekCalculatorResponseDtoToTariffDtoList(CdekCalculatorResponseDto cdekCalculatorResponseDto,
+                                                                          DeliveryServiceDto deliveryServiceDto){
         if (cdekCalculatorResponseDto == null || cdekCalculatorResponseDto.getTariffCodes() == null) {
             return new ArrayList<>();
         }

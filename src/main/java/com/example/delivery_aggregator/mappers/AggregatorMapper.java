@@ -1,29 +1,18 @@
 package com.example.delivery_aggregator.mappers;
 
-import com.example.delivery_aggregator.dto.db.ContactDto;
-import com.example.delivery_aggregator.dto.db.OrderDto;
+import com.example.delivery_aggregator.dto.aggregator.ContactDto;
 import com.example.delivery_aggregator.dto.aggregator.*;
-import com.example.delivery_aggregator.entity.Contact;
-import com.example.delivery_aggregator.entity.Order;
+import com.example.delivery_aggregator.dto.cdek.order.CdekOrderResponseDto;
+import com.example.delivery_aggregator.entity.*;
 import com.example.delivery_aggregator.entity.Package;
-import com.example.delivery_aggregator.entity.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
-import org.mapstruct.Named;
+import ru.dpd.ws.order2._2012_04_04.DpdOrderStatus2;
 
-import java.util.ArrayList;
-import java.util.List;
 
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public interface AggregatorMapper {
-
-    @Mapping(target = "sender", source = "contact")
-    @Mapping(target = "fromLocation", source = "deliveryData.fromLocation")
-    @Mapping(target = "toLocation", source = "deliveryData.toLocation")
-    @Mapping(target = "tariff", source = "deliveryData.tariff")
-    OrderPageDataDto deliveryDataToOrderPageData(CookieDeliveryDataDto deliveryData, Contact contact);
-
     Contact registrationPageToContact(RegistrationPageDataDto registrationPageDto);
 
     @Mapping(target = "login", source = "email")
@@ -38,44 +27,33 @@ public interface AggregatorMapper {
 
     Contact contactDtoToContact(ContactDto contactDto);
 
+    //Заказ
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "serviceOrderNumber", source = "serviceOrderNumber")
+    @Mapping(target = "serviceOrderNumber", source = "cdekOrderResponseDto.entity.uuid")
     @Mapping(target = "price", source = "orderPageDataDto.tariff.price")
-    @Mapping(target = "fromLocation", source = "orderPageDataDto.fromLocation", qualifiedByName = "locationDtoToLocationString")
-    @Mapping(target = "toLocation", source = "orderPageDataDto.toLocation", qualifiedByName = "locationDtoToLocationString")
-    @Mapping(target = "contact", source = "orderPageDataDto.recipient")
-    Order orderPageDataDtoToOrder(OrderPageDataDto orderPageDataDto, String serviceOrderNumber);
+    @Mapping(target = "fromLocation", source = "orderPageDataDto.fromLocation")
+    @Mapping(target = "toLocation", source = "orderPageDataDto.toLocation")
+    @Mapping(target = "user", source = "user")
+    @Mapping(target = "contact", source = "contact")
+    @Mapping(target = "packages", source = "orderPageDataDto.packages")
+    Order orderPageDataDtoAndCdekOrderResponseDto(OrderPageDataDto orderPageDataDto, User user, Contact contact,
+                                                  DeliveryService deliveryService, CdekOrderResponseDto cdekOrderResponseDto);
 
-    @Named("locationDtoToLocationString")
-    default String locationDtoToLocationString(LocationDto locationDto) {
-        return locationDto.getCity() + " " + locationDto.getStreet() + " " + locationDto.getHouse() + " " + locationDto.getApartment();
-    }
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "serviceOrderNumber", source = "dpdOrderResponseDto.orderNumberInternal")
+    @Mapping(target = "price", source = "orderPageDataDto.tariff.price")
+    @Mapping(target = "fromLocation", source = "orderPageDataDto.fromLocation")
+    @Mapping(target = "toLocation", source = "orderPageDataDto.toLocation")
+    @Mapping(target = "user", source = "user")
+    @Mapping(target = "contact", source = "contact")
+    @Mapping(target = "packages", source = "orderPageDataDto.packages")
+    Order orderPageDataDtoAndCdekOrderResponseDto(OrderPageDataDto orderPageDataDto, User user, Contact contact,
+                                                  DeliveryService deliveryService, DpdOrderStatus2 dpdOrderResponseDto);
 
     @Mapping(target = "id", ignore = true)
     Package packageDtoToPackage(PackageDto packageDto);
 
-    default List<Package> packagesDtoToPackages(List<PackageDto> packagesDto, Order order){
-        List<Package> packages = new ArrayList<>();
-
-        for(PackageDto packageDto : packagesDto) {
-            Package pack = packageDtoToPackage(packageDto);
-            pack.setOrder(order);
-            packages.add(pack);
-        }
-        return packages;
+    default String locationDtoToLocationString(LocationDto locationDto) {
+        return locationDto.getCity() + " " + locationDto.getStreet() + " " + locationDto.getHouse() + " " + locationDto.getApartment();
     }
-
-    @Mapping(target = "serviceName", source = "deliveryService.name")
-    @Mapping(target = "number", source = "serviceOrderNumber")
-    @Mapping(target = "date", source = "createdAt")
-    @Mapping(target = "recipient", source = "contact")
-    @Mapping(target = "fromLocation", source = "fromLocation")
-    @Mapping(target = "toLocation", source = "toLocation")
-    OrderDto OrderToOrderDto(Order order);
-
-    List<OrderDto> OrdersToOrdersDto(List<Order> order);
-
-    @Mapping(target = "packageQuantity", expression = "java((int) indexPageDataDto.getPackages().stream().count())")
-    @Mapping(target = "packageWeight",  expression = "java(indexPageDataDto.getPackages().stream().mapToInt(p -> p.getWeight()).sum())")
-    TariffsPageData indexPageDataDtoToTariffsPageData(IndexPageDataDto indexPageDataDto);
 }

@@ -34,7 +34,7 @@
         <button type="submit">Подтвердить</button>
     </form>
     <div id="timer">01:00</div>
-    <a id="resendLink" style="display: none;" href="#" th:href="@{/send-code(email=${email})}">Отправить новое письмо</a>
+    <a id="resendLink" style="display: none;" href="#" th:href="@{/email/code/send(email=${email})}">Отправить новое письмо</a>
 </div>
 
 <script>

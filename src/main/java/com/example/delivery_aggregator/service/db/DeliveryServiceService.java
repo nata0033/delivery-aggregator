@@ -12,15 +12,10 @@ public class DeliveryServiceService {
     private final DeliveryServiceRepository deliveryServiceRepository;
 
     public DeliveryService findByName(String name) {
-        return deliveryServiceRepository.findByName(name).orElse(null);
+        return deliveryServiceRepository.findByName(name).orElse(createWithName(name));
     }
 
     public DeliveryService createWithName(String name){
-        DeliveryService deliveryService = findByName(name);
-        if (deliveryService != null){
-            return deliveryService;
-        }
-
         DeliveryService newDeliveryService = new DeliveryService();
         newDeliveryService.setName(name);
         return deliveryServiceRepository.save(newDeliveryService);

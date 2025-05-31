@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.9.xsd">
+
+    <changeSet id="create-dpd_city-table" author="postgres">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="dpd_city"/>
+            </not>
+        </preConditions>
+
+        <createTable tableName="dpd_city">
+            <column name="city_id" type="BIGINT">
+                <constraints nullable="true"/>
+            </column>
+            <column name="country_code" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="country_name" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="region_code" type="INTEGER">
+                <constraints nullable="true"/>
+            </column>
+            <column name="region_name" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="city_code" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="city_name" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="abbreviation" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="index_min" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="index_max" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+        </createTable>
+    </changeSet>
+</databaseChangeLog>

@@ -14,7 +14,6 @@ public class PackageService {
     private final PackageRepository packageRepository;
 
     public void createList(List<Package> packages){
-        for(Package pack : packages) {packageRepository.save(pack);}
+        packageRepository.saveAll(packages);
     }
-
 }

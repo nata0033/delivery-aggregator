@@ -1,13 +1,13 @@
 package com.example.delivery_aggregator.service.db;
 
-import com.example.delivery_aggregator.dto.aggregator.CookieDeliveryDataDto;
 import com.example.delivery_aggregator.dto.aggregator.OrderPageDataDto;
+import com.example.delivery_aggregator.dto.cdek.order.CdekOrderResponseDto;
 import com.example.delivery_aggregator.entity.*;
-import com.example.delivery_aggregator.entity.Package;
 import com.example.delivery_aggregator.mappers.AggregatorMapper;
 import com.example.delivery_aggregator.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.dpd.ws.order2._2012_04_04.DpdOrderStatus2;
 
 import java.util.List;
 
@@ -19,35 +19,35 @@ public class OrderService {
 
     private final ContactService contactService;
 
-    private final PaymentService paymentService;
-
-    private final PackageService packageService;
+    private final UserService userService;
 
     private final DeliveryServiceService deliveryServiceService;
 
     private final AggregatorMapper aggregatorMapper;
 
-    public void create(OrderPageDataDto orderPageDataDto, String serviceOrderNumber, String serviceName, User user, CookieDeliveryDataDto deliveryData){
-        Contact contact = contactService.create(orderPageDataDto, user);
+    public <T> Order create(OrderPageDataDto orderPageDataDto, T responseDto) {
+        User user = userService.findByLogin(orderPageDataDto.getSender().getEmail());
+        Contact contact = contactService.findUserContact(orderPageDataDto.getRecipient(), user);
 
-        DeliveryService deliveryService = deliveryServiceService.createWithName(serviceName);
+        String deliveryServiceName;
+        Order order;
 
-        Order order = aggregatorMapper.orderPageDataDtoToOrder(orderPageDataDto, serviceOrderNumber);
-        order.setServiceOrderNumber(serviceOrderNumber);
-        order.setUser(user);
-        order.setContact(contact);
-        order.setDeliveryService(deliveryService);
-        order = orderRepository.save(order);
-
-        Payment payment = new Payment();
-        payment.setOrder(order);
-        paymentService.create(payment);
-
-        List<Package> packages = aggregatorMapper.packagesDtoToPackages(deliveryData.getPackages(), order);
-        packageService.createList(packages);
+        if (responseDto instanceof CdekOrderResponseDto cdekResponse) {
+            deliveryServiceName = "CDEK";
+            DeliveryService deliveryService = deliveryServiceService.findByName(deliveryServiceName);
+            order = aggregatorMapper.orderPageDataDtoAndCdekOrderResponseDto(orderPageDataDto, user, contact, deliveryService, cdekResponse);
+        } else if (responseDto instanceof DpdOrderStatus2 dpdResponse) {
+            deliveryServiceName = "DPD";
+            DeliveryService deliveryService = deliveryServiceService.findByName(deliveryServiceName);
+            order = aggregatorMapper.orderPageDataDtoAndCdekOrderResponseDto(orderPageDataDto, user, contact, deliveryService, dpdResponse);
+        } else {
+            throw new IllegalArgumentException("Unsupported response DTO type: " + responseDto.getClass());
+        }
+        return orderRepository.save(order);
     }
 
-    public List<Order> getUserOrders(User user) {
+    public List<Order> getOrders(User user){
         return orderRepository.findAllByUserOrderByCreatedAtDesc(user);
     }
+
 }

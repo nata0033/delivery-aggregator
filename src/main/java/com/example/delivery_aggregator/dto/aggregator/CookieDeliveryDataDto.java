@@ -1,6 +1,5 @@
 package com.example.delivery_aggregator.dto.aggregator;
 
-import com.example.delivery_aggregator.dto.db.ContactDto;
 import lombok.Data;
 
 import java.util.List;

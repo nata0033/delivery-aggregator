@@ -39,7 +39,7 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                     .requestMatchers("/", "/tariffs/**", "/login", "/registration", "/error", "/js/**", "/css/**").permitAll()
                     .requestMatchers("/js/**", "/css/**").permitAll()
-                    .requestMatchers("/send-code", "/confirm-code", "/check-email-unique", "/check-email-exist", "/getCities").permitAll()
+                    .requestMatchers("email/**", "/cities/get", "/cities/dpd/load").permitAll()
                     .anyRequest().authenticated()
             ).build();
     }

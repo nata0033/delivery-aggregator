@@ -1,6 +1,6 @@
 package com.example.delivery_aggregator.controller;
 
-import com.example.delivery_aggregator.dto.external_api.cdek.calculator.CdekCalculatorResponseDto;
+import com.example.delivery_aggregator.dto.cdek.calculator.CdekCalculatorResponseDto;
 import com.example.delivery_aggregator.dto.aggregator.DeliveryServiceDto;
 import com.example.delivery_aggregator.dto.aggregator.IndexPageDataDto;
 import com.example.delivery_aggregator.dto.aggregator.TariffDto;
@@ -52,23 +52,24 @@ public class TariffsController {
             ResponseEntity<CdekCalculatorResponseDto> cdekResponse = cdekService.getTariffs(indexPageDataDto);
             ResponseEntity<List<ServiceCost>> dpdResponse = dpdService.getTariffs(indexPageDataDto);
 
-            DeliveryServiceDto cdekDeliveryService = new DeliveryServiceDto("CDEK", "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f8/CDEK_logo.svg/145px-CDEK_logo.svg.png");
 
-            DeliveryServiceDto dpdDeliveryService = new DeliveryServiceDto("DPD", "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ab/DPD_logo_%282015%29.svg/177px-DPD_logo_%282015%29.svg.png");
+            DeliveryServiceDto cdekDeliveryService = new DeliveryServiceDto("CDEK",
+                    "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f8/CDEK_logo.svg/145px-CDEK_logo.svg.png");
+            DeliveryServiceDto dpdDeliveryService = new DeliveryServiceDto("DPD",
+                    "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ab/DPD_logo_%282015%29.svg/177px-DPD_logo_%282015%29.svg.png");
 
             List<TariffDto> cdekTariffs = cdekMapper.cdekCalculatorResponseDtoToTariffDtoList(
                     cdekResponse.getBody(),
                     cdekDeliveryService
             );
-
             List<TariffDto> dpdTariffs = dpdMapper.serviceCostListToTariffDtoList(dpdResponse.getBody(), dpdDeliveryService);
+
 
             List<TariffDto> allTariffs = Stream.concat(cdekTariffs.stream(), dpdTariffs.stream())
                     .sorted(Comparator.comparing(TariffDto::getPrice))
                     .collect(Collectors.toList());
 
             return ResponseEntity.ok(allTariffs);
-
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Collections.emptyList());
