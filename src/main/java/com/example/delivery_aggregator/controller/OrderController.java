@@ -3,23 +3,17 @@ package com.example.delivery_aggregator.controller;
 import com.example.delivery_aggregator.dto.cdek.order.CdekOrderResponseDto;
 import com.example.delivery_aggregator.dto.aggregator.OrderPageDataDto;
 import com.example.delivery_aggregator.entity.Order;
-import com.example.delivery_aggregator.mappers.AggregatorMapper;
-import com.example.delivery_aggregator.service.db.ContactService;
 import com.example.delivery_aggregator.service.db.OrderService;
-import com.example.delivery_aggregator.service.db.UserService;
 import com.example.delivery_aggregator.service.external_api.CdekService;
 import com.example.delivery_aggregator.service.external_api.DpdService;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import ru.dpd.ws.order2._2012_04_04.DpdOrderStatus2;
 
-import java.security.Principal;
 import java.util.List;
 
 @Data
@@ -30,16 +24,11 @@ public class OrderController {
 
     private final CdekService cdekService;
     private final DpdService dpdService;
-    private final UserService userService;
-    private final ContactService contactService;
+
     private final OrderService orderService;
-    private final AggregatorMapper aggregatorMapper;
-    private final ObjectMapper objectMapper;
 
     @GetMapping()
-    public String orderPage(Principal principal, Model model){
-        String userLogin = (principal != null) ? principal.getName() : "anonymous";
-        model.addAttribute("userLogin", userLogin);
+    public String orderPage(){
         return "order";
     }
 

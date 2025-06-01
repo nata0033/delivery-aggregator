@@ -11,7 +11,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -27,9 +26,8 @@ public class AccountController {
     private final ContactService contactService;
     private final OrderService orderService;
 
-    @GetMapping("/account")
-    public String accountPage(Principal principal, Model model){
-        model.addAttribute("isAuthenticated", true);
+    @GetMapping("")
+    public String accountPage(){
         return "account";
     }
 

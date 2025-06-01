@@ -8,14 +8,12 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import ru.dpd.ws.geography._2015_05_20.City;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.security.Principal;
 import java.util.List;
 
 @Controller
@@ -30,9 +28,7 @@ public class AggregatorController {
     private Resource citiesResource;
 
     @GetMapping()
-    public String index(Principal principal, Model model){
-        boolean isAuthenticated = principal != null;
-        model.addAttribute("isAuthenticated", isAuthenticated);
+    public String index(){
         return "index";
     }
 

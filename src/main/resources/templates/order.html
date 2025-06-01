@@ -6,6 +6,8 @@
     <title>Заказ</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/inputs.css" rel="stylesheet">
+    <link href="/css/index.css" rel="stylesheet">
     <style>
         body{
             background: url(https://cs9.pikabu.ru/post_img/big/2016/10/14/8/1476449288194647767.jpg) no-repeat;
@@ -13,22 +15,8 @@
         }
     </style>
 </head>
-<header class="p-3 bg-dark text-white">
-    <div class="container" >
-        <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
-            <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
-                <li><a th:href="@{/}" class="nav-link px-2 text-white">Главная</a></li>
-                <li><a th:href="@{/account}" class="nav-link px-2 text-white">Личный кабинет</a></li>
-            </ul>
-            <div class="text-end">
-                <a th:if="${userLogin == 'anonymous'}" th:href="@{/registration}" class="btn btn-outline-light me-2">Регистрация</a>
-                <a th:if="${userLogin == 'anonymous'}" th:href="@{/login}" class="btn btn-light">Вход</a>
-                <a th:if="${userLogin != 'anonymous'}" th:href="@{/logout}" class="btn btn-light">Выход</a>
-            </div>
-        </div>
-    </div>
-</header>
 <body class="bg-light">
+<div id="header-container"></div>
 <div class="container py-4 py-4 rounded-4 bg-white">
     <div class="row">
         <!-- Форма заказа -->
@@ -192,6 +180,21 @@
         </div>
     </div>
 </div>
+
+<!-- Шаблоны для динамической генерации -->
+<template id="header-template">
+    <header class="header">
+        <div class="container">
+            <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
+                <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
+                    <li><a href="/" class="nav-link px-2 text-white">Главная</a></li>
+                </ul>
+                <div class="text-end" id="header-buttons-container"></div>
+            </div>
+        </div>
+    </header>
+</template>
+
 <script th:src="@{js/order.js}"></script>
 </body>
 </html>

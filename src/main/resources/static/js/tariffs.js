@@ -60,7 +60,13 @@ async function fetchTariffsWithParams(selfPickup, selfDelivery) {
 }
 
 function showSpinner(show) {
-    document.getElementById('spinner').style.display = show ? '' : 'none';
+    const tariffsList = document.getElementById('tariffs-list');
+    spinner =  document.getElementById('spinner');
+    if (!spinner) {
+        spinner = createSpinner();
+        tariffsList.appendChild(spinner);
+    }
+   spinner.style.display = show ? 'flex' : 'none';
 }
 
 // Вспомогательные функции для даты доставки
@@ -167,6 +173,7 @@ function renderTariffs(tariffs) {
         });
     });
 }
+
 // ----------------------- Основная логика -----------------------
 
 let allTariffs = []; // Все тарифы, полученные с сервера
@@ -222,15 +229,15 @@ function updateTariffsDisplay() {
  */
 async function loadAndDisplayTariffs(selfPickup, selfDelivery) {
     // Показываем лоадер
-    const container = document.getElementById('tariffs-list');
     showSpinner(true);
+    const container = document.getElementById('tariffs-list');
     try {
         allTariffs = await fetchTariffsWithParams(selfPickup, selfDelivery);
         updateTariffsDisplay();
     } catch (e) {
         container.innerHTML = `<div class="alert alert-danger">Ошибка: ${e.message}</div>`;
     }
-    showSpinner(false)
+    showSpinner(false);
 }
 
 /**
@@ -273,6 +280,74 @@ function handleChooseTariff(tariff) {
 
     // Переходим на страницу заказа
     window.location.href = '/order';
+}
+
+// ----------------------- Header Functions -----------------------
+
+/**
+ * Проверка статуса аутентификации
+ */
+async function checkAuthStatus() {
+    try {
+        const response = await fetch('/user/isAuth');
+        if (!response.ok) {
+            throw new Error('Ошибка сети');
+        }
+        return await response.json();
+    } catch (error) {
+        console.error('Ошибка при проверке аутентификации:', error);
+        return false;
+    }
+}
+
+/**
+ * Генерация HTML для заголовка
+ */
+function generateHeaderHtml(isAuthenticated) {
+    return `
+      <header class="header">
+        <div class="container">
+          <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
+            <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
+              <li><a href="/" class="nav-link px-2 text-white">Главная</a></li>
+              ${isAuthenticated ? '<li><a href="/account" class="nav-link px-2 text-white">Личный кабинет</a></li>' : ''}
+            </ul>
+            <div class="text-end">
+              ${isAuthenticated
+                ? '<a href="/logout" class="btn btn-light">Выход</a>'
+                : '<a href="/registration" class="btn btn-outline-light me-2">Регистрация</a>' +
+                  '<a href="/login" class="btn btn-light">Вход</a>'}
+            </div>
+          </div>
+        </div>
+      </header>
+    `;
+}
+
+/**
+ * Загрузка и отображение заголовка
+ */
+async function loadHeader() {
+    try {
+        // Проверяем аутентификацию
+        const isAuthenticated = await checkAuthStatus();
+
+        // Генерируем HTML заголовка
+        const headerHtml = generateHeaderHtml(isAuthenticated);
+
+        // Вставляем в DOM
+        const headerContainer = document.getElementById("header-container");
+        if (headerContainer) {
+            headerContainer.innerHTML = headerHtml;
+        }
+    } catch (error) {
+        console.error('Ошибка при загрузке заголовка:', error);
+        // В случае ошибки показываем заголовок для неавторизованного пользователя
+        const headerContainer = document.getElementById("header-container");
+        if (headerContainer) {
+            headerContainer.innerHTML = generateHeaderHtml(false);
+        }
+    }
 }
 
 // ----------------------- События управления -----------------------
@@ -322,12 +397,48 @@ document.querySelectorAll('input[type="radio"][name="delivery-method"]').forEach
 // ----------------------- Инициализация -----------------------
 
 /**
- * Загружаем тарифы при первой загрузке страницы
+ * Создает элемент спиннера
  */
-window.addEventListener('DOMContentLoaded', () => {
-    // По умолчанию: Дверь - Дверь (оба false)
+function createSpinner() {
+    const spinner = document.createElement('div');
+    spinner.id = 'spinner';
+    spinner.style.display = 'none';
+    spinner.style.justifyContent = 'center';
+    spinner.style.alignItems = 'center';
+    spinner.style.position = 'absolute';
+    spinner.style.top = '0';
+    spinner.style.left = '0';
+    spinner.style.right = '0';
+    spinner.style.bottom = '0';
+    spinner.style.backgroundColor = 'rgba(255, 255, 255, 0.7)';
+    spinner.style.zIndex = '1000';
+    spinner.innerHTML = `
+        <div class="spinner-border text-primary" role="status">
+            <span class="sr-only"></span>
+        </div>
+    `;
+    return spinner;
+}
+
+/**
+ * Инициализирует страницу
+ */
+function initializePage() {
+    // Создаем и добавляем спиннер
+    const tariffsList = document.getElementById('tariffs-list');
+    if (tariffsList) {
+        tariffsList.style.position = 'relative';
+        const spinner = createSpinner();
+        tariffsList.appendChild(spinner);
+    }
+
+    // Загружаем данные
     currentSelfPickup = false;
     currentSelfDelivery = false;
-    fillDeliveryHeader()
+    fillDeliveryHeader();
     loadAndDisplayTariffs(currentSelfPickup, currentSelfDelivery);
-});
+    loadHeader();
+}
+
+// Запускаем инициализацию при загрузке страницы
+window.addEventListener('DOMContentLoaded', initializePage);

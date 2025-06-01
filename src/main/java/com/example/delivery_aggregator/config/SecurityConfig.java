@@ -37,9 +37,9 @@ public class SecurityConfig {
                     .logoutUrl("/logout")
             )
             .authorizeHttpRequests(auth -> auth
-                    .requestMatchers("/", "/tariffs/**", "/login", "/registration", "/error", "/js/**", "/css/**").permitAll()
+                    .requestMatchers("/", "/tariffs/**", "order/**", "/login", "/registration", "/error").permitAll()
                     .requestMatchers("/js/**", "/css/**").permitAll()
-                    .requestMatchers("email/**", "/cities/get", "/cities/dpd/load").permitAll()
+                    .requestMatchers("email/**", "/cities/**", "/user/isAuth").permitAll()
                     .anyRequest().authenticated()
             ).build();
     }

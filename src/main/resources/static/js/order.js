@@ -1,6 +1,17 @@
 document.getElementById('order-pay-top').addEventListener('click', sendOrder);
 document.getElementById('order-pay-bottom').addEventListener('click', sendOrder);
 
+// Функция для установки куки
+function setCookie(name, value, days) {
+    let expires = "";
+    if (days) {
+        const date = new Date();
+        date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+        expires = "; expires=" + date.toUTCString();
+    }
+    document.cookie = name + "=" + encodeURIComponent(value) + expires + "; path=/";
+}
+
 // Функция для чтения куки по имени
 function getCookie(name) {
     const matches = document.cookie.match(new RegExp(
@@ -24,8 +35,58 @@ function declOfNum(number, titles) {
     return titles[2];
 }
 
+/**
+ * Проверка статуса аутентификации
+ */
+async function checkAuthStatus() {
+    try {
+        const response = await fetch('/user/isAuth');
+        return response.ok ? await response.json() : false;
+    } catch (error) {
+        console.error('Ошибка при проверке аутентификации:', error);
+        return false;
+    }
+}
+
+/**
+ * Загрузка и отображение заголовка
+ */
+async function loadHeader() {
+    try {
+      const isAuthenticated = await this.checkAuthStatus();
+      const headerTemplate = document.getElementById('header-template');
+      const headerClone = document.importNode(headerTemplate.content, true);
+
+      // Добавляем ссылку на личный кабинет если авторизован
+      if (isAuthenticated) {
+        const navList = headerClone.querySelector('ul');
+        const accountLi = document.createElement('li');
+        accountLi.innerHTML = '<a href="/account" class="nav-link px-2 text-white">Личный кабинет</a>';
+        navList.appendChild(accountLi);
+      }
+
+      // Добавляем кнопки входа/выхода
+      const headerButtons = headerClone.getElementById('header-buttons-container');
+      if (isAuthenticated) {
+        headerButtons.innerHTML = '<a href="/logout" class="btn btn-light">Выход</a>';
+      } else {
+        headerButtons.innerHTML = `
+          <a href="/registration" class="btn btn-outline-light me-2">Регистрация</a>
+          <a href="/login" class="btn btn-light">Вход</a>
+        `;
+      }
+
+      // Вставляем в DOM
+      document.getElementById("header-container").appendChild(headerClone);
+    } catch (error) {
+      console.error('Ошибка при загрузке заголовка:', error);
+      document.getElementById("header-container").innerHTML = '';
+    }
+}
+
 // Функция для отправки заказа
-async function sendOrder() {
+async function sendOrder(event) {
+    event.preventDefault();
     try {
         // Получаем данные из формы
         const orderData = {
@@ -50,7 +111,6 @@ async function sendOrder() {
                 house: document.getElementById('from-house').value,
                 apartment: document.getElementById('from-apartment').value,
                 postalCode: document.getElementById('from-postalCode').value,
-                //date: document.getElementById('from-date').value
             },
             toLocation: {
                 state: document.getElementById('to-state').value,
@@ -59,7 +119,6 @@ async function sendOrder() {
                 house: document.getElementById('to-house').value,
                 apartment: document.getElementById('to-apartment').value,
                 postalCode: document.getElementById('to-postalCode').value,
-                //date: document.getElementById('to-date').value
             },
             comment: document.getElementById('order-comment').value
         };
@@ -78,10 +137,38 @@ async function sendOrder() {
             throw new Error('Неверный формат данных о доставке');
         }
 
-        // Добавляем тариф и упаковки из куки
-        orderData.tariff = deliveryData.tariff;
-        orderData.packages = deliveryData.packages
-        orderData.fromLocation.date = deliveryData.fromLocation.date
+        // Обновляем данные в куки перед отправкой
+        const updatedDeliveryData = {
+            ...deliveryData,
+            sender: orderData.sender,
+            recipient: orderData.recipient,
+            fromLocation: {
+                ...deliveryData.fromLocation,
+                state: orderData.fromLocation.state,
+                city: orderData.fromLocation.city,
+                street: orderData.fromLocation.street,
+                house: orderData.fromLocation.house,
+                apartment: orderData.fromLocation.apartment,
+                postalCode: orderData.fromLocation.postalCode
+            },
+            toLocation: {
+                ...deliveryData.toLocation,
+                state: orderData.toLocation.state,
+                city: orderData.toLocation.city,
+                street: orderData.toLocation.street,
+                house: orderData.toLocation.house,
+                apartment: orderData.toLocation.apartment,
+                postalCode: orderData.toLocation.postalCode
+            }
+        };
+
+        // Сохраняем обновленные данные в куки
+        setCookie('delivery_data', JSON.stringify(updatedDeliveryData), 7);
+
+        // Добавляем тариф и упаковки из обновленных куки
+        orderData.tariff = updatedDeliveryData.tariff;
+        orderData.packages = updatedDeliveryData.packages;
+        orderData.fromLocation.date = updatedDeliveryData.fromLocation.date;
 
         // Отправляем данные на сервер
         const response = await fetch('/order/create', {
@@ -107,7 +194,10 @@ async function sendOrder() {
 }
 
 // Заполнение страницы при загрузке
-window.addEventListener('DOMContentLoaded', () => {
+window.addEventListener('DOMContentLoaded', async () => {
+    // Загружаем заголовок
+    await loadHeader();
+
     const deliveryDataRaw = getCookie('delivery_data');
     if (!deliveryDataRaw) return;
 
@@ -119,7 +209,25 @@ window.addEventListener('DOMContentLoaded', () => {
         return;
     }
 
-    // Отправитель
+    // Заполняем данные отправителя
+    if (deliveryData.sender) {
+        document.getElementById('sender-firstname').value = deliveryData.sender.firstName || '';
+        document.getElementById('sender-lastname').value = deliveryData.sender.lastName || '';
+        document.getElementById('sender-fathername').value = deliveryData.sender.fatherName || '';
+        document.getElementById('sender-email').value = deliveryData.sender.email || '';
+        document.getElementById('sender-phone').value = deliveryData.sender.phone || '';
+    }
+
+    // Заполняем данные получателя
+    if (deliveryData.recipient) {
+        document.getElementById('recipient-firstname').value = deliveryData.recipient.firstName || '';
+        document.getElementById('recipient-lastname').value = deliveryData.recipient.lastName || '';
+        document.getElementById('recipient-fathername').value = deliveryData.recipient.fatherName || '';
+        document.getElementById('recipient-email').value = deliveryData.recipient.email || '';
+        document.getElementById('recipient-phone').value = deliveryData.recipient.phone || '';
+    }
+
+    // Адрес отправления
     if (deliveryData.fromLocation) {
         document.getElementById('from-state').value = deliveryData.fromLocation.state || '';
         document.getElementById('from-city').value = deliveryData.fromLocation.city || '';
@@ -129,7 +237,7 @@ window.addEventListener('DOMContentLoaded', () => {
         document.getElementById('from-postalCode').value = deliveryData.fromLocation.postalCode || '';
     }
 
-    // Получатель
+    // Адрес получения
     if (deliveryData.toLocation) {
         document.getElementById('to-state').value = deliveryData.toLocation.state || '';
         document.getElementById('to-city').value = deliveryData.toLocation.city || '';
@@ -164,7 +272,7 @@ window.addEventListener('DOMContentLoaded', () => {
         const tariffPriceEl = document.getElementById('tariff-price');
         tariffPriceEl.textContent = deliveryData.tariff.price ? `${deliveryData.tariff.price} ₽` : '';
 
-        // Итоговая цена (можно расширить при необходимости)
+        // Итоговая цена
         const totalPriceEl = document.getElementById('total-price');
         totalPriceEl.textContent = deliveryData.tariff.price ? `${deliveryData.tariff.price} ₽` : '';
     }

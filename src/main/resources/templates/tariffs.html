@@ -1,29 +1,14 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeLeaf.org" lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Тарифы</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link th:href="@{css/tariffs.css}" rel="stylesheet">
+    <link href="css/tariffs.css" rel="stylesheet">
+    <link href="/css/header.css" rel="stylesheet">
 </head>
 <body>
-<header class="p-3 bg-dark text-white">
-    <div class="container">
-        <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
-            <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
-                <li><a href="/" class="nav-link px-2 text-white">Главная</a></li>
-                <li><a href="/account" class="nav-link px-2 text-white">Личный кабинет</a></li>
-            </ul>
-            <div class="text-end">
-                <a th:unless="${isAuthenticated}" th:href="@{/registration}" class="btn btn-outline-light me-2">Регистрация</a>
-                <a th:unless="${isAuthenticated}" th:href="@{/login}" class="btn btn-light">Вход</a>
-                <a th:if="${isAuthenticated}" th:href="@{/logout}" class="btn btn-light">Выход</a>
-            </div>
-        </div>
-    </div>
-</header>
-
+<div id="header-container"></div>
 <div class="container delivery-header">
     <div class="row">
         <div class="col deliveryData text-center">
@@ -95,17 +80,11 @@
         </div>
         <div class="col-md-8 overflow-auto max-height-695">
             <div class="row pt-55" id="tariffs-list">
-
-                <div id="spinner">
-                    <div class="spinner-border text-primary" role="status">
-                        <span class="sr-only"></span>
-                    </div>
-                </div>
                 <!-- Здесь будет спиннер загрузки, а затем тарифы -->
             </div>
         </div>
     </div>
 </div>
-<script th:src="@{js/tariffs.js}"></script>
+<script src="js/tariffs.js"></script>
 </body>
 </html>

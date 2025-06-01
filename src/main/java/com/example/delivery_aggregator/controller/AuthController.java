@@ -2,17 +2,19 @@ package com.example.delivery_aggregator.controller;
 
 import com.example.delivery_aggregator.dto.aggregator.RegistrationPageDataDto;
 import com.example.delivery_aggregator.entity.Contact;
+import com.example.delivery_aggregator.entity.User;
 import com.example.delivery_aggregator.service.db.ContactService;
 import com.example.delivery_aggregator.service.db.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -28,21 +30,18 @@ public class AuthController {
     private final UserService userService;
 
     @GetMapping("/login")
-    public String loginPage(Principal principal, Model model){
-        String userLogin = (principal != null) ? principal.getName() : "anonymous";
-        model.addAttribute("userLogin", userLogin);
+    public String loginPage(){
         return "login";
     }
 
     @GetMapping("/registration")
-    public String registrationPage(Principal principal, Model model){
-        String userLogin = (principal != null) ? principal.getName() : "anonymous";
-        model.addAttribute("userLogin", userLogin);
+    public String registrationPage(){
         return "registration";
     }
 
     @PostMapping("/registration")
-    public String createUser(@ModelAttribute RegistrationPageDataDto registrationPageDto, HttpServletRequest request, Model model){
+    public ResponseEntity<User> createUser(@ModelAttribute RegistrationPageDataDto registrationPageDto, HttpServletRequest request){
+        try {
         Contact contact = contactService.create(registrationPageDto);
 
         UserDetails user = userService.loadUserByUsername(contact.getUser().getLogin());
@@ -59,6 +58,17 @@ public class AuthController {
                 SecurityContextHolder.getContext()
         );
 
-        return "redirect:/account";
+        return ResponseEntity.status(HttpStatus.CREATED).body(contact.getUser());
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new User());
+        }
+    }
+
+    @GetMapping("/user/isAuth")
+    public ResponseEntity<Boolean> checkUserIsAuth(Principal principal) {
+        boolean isAuthenticated = principal != null;
+        return ResponseEntity.ok(isAuthenticated);
     }
 }
