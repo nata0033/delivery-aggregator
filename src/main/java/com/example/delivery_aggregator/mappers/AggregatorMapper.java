@@ -71,6 +71,10 @@ public interface AggregatorMapper {
     //Аккаунт
     ContactDto contactToContactDto(Contact contact);
 
+    @Mapping(target = "serviceName", source = "deliveryService.name")
+    @Mapping(target = "number", source = "serviceOrderNumber")
+    @Mapping(target = "date", source = "createdAt")
+    @Mapping(target = "recipient", source = "contact")
     OrderDto orderToOrderDto(Order order);
 
     List<OrderDto> orderListToOrderDtoList(List<Order> orders);

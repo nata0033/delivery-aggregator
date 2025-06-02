@@ -6,7 +6,7 @@ import { getCities } from './common/api.js';
 import { FormValidator } from './common/validation.js';
 import { setCookie } from './common/cookies.js';
 import { loadHeader } from './common/header.js';
-import { showValidateFormError, showValidateFormSuccess, showErrorMessage } from './common/error.js';
+import {showErrorMessage,  showValidateFormSuccess, showValidateFormError } from './common/error.js';
 
 class DeliveryForm {
   constructor() {
@@ -100,8 +100,11 @@ class DeliveryForm {
       button.className = 'w-100 btn btn-light';
       button.textContent = `${city.name}, ${city.subject}`;
       button.addEventListener('click', () => {
-        document.getElementById(`${type}LocationCityInput`).value = city.name;
-        document.getElementById(`${type}LocationStateInput`).value = city.subject.split(' ')[0];
+        const cityInput = document.getElementById(`${type}LocationCityInput`);
+        const stateInput = document.getElementById(`${type}LocationStateInput`);
+        cityInput.value = city.name;
+        stateInput.value = city.subject;
+        this.validateCityInput(cityInput); // Validate immediately after selection
         suggestElement.innerHTML = '';
       });
       suggestElement.appendChild(button);

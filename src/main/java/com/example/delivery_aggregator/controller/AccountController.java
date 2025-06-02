@@ -13,22 +13,24 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.util.*;
 
-@RestController
+@Controller
 @RequestMapping("/account")
 @RequiredArgsConstructor
 public class AccountController {
 
     private final AggregatorMapper aggregatorMapper;
+
     private final UserService userService;
     private final ContactService contactService;
     private final OrderService orderService;
 
-    @GetMapping("")
+    @GetMapping
     public String accountPage() {
         return "account";
     }

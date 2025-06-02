@@ -27,8 +27,8 @@ public class AggregatorController {
     @Value("classpath:static/json/russian-cities.json")
     private Resource citiesResource;
 
-    @GetMapping()
-    public String index(){
+    @GetMapping
+    public String indexPage(){
         return "index";
     }
 

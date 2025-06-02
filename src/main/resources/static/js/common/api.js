@@ -1,5 +1,3 @@
-import { setCookie } from './cookies.js';
-
 /**
  * Базовый метод для выполнения fetch-запросов
  * @param {string} url - URL для запроса
@@ -48,6 +46,15 @@ export async function checkAuthStatus() {
     return fetchRequest('/user/isAuth', 'GET');
 }
 
+/**
+ * Регистрирует нового пользователя
+ * @param {Object} userData - Данные пользователя
+ * @returns {Promise<Object>} - Результат регистрации
+ */
+export async function registerUser(userData) {
+    return fetchRequest('/registration', 'POST', userData);
+}
+
 // ==================== Email Related ====================
 
 /**
@@ -56,7 +63,7 @@ export async function checkAuthStatus() {
  * @returns {Promise<Object>} - {success: boolean, message?: string}
  */
 export async function checkUserExists(email) {
-    return fetchRequest('/email/check/exist', 'POST', { email });
+    return fetchRequest('/email/check/exist', 'POST', `email=${encodeURIComponent(email)}`, {}, 'application/x-www-form-urlencoded');
 }
 
 /**
@@ -105,7 +112,7 @@ export async function getCities() {
  * @returns {Promise<Object>} - Результат создания заказа
  */
 export async function createOrder(orderData) {
-    return fetchRequest('/order/create', 'POST', orderData);
+    return fetchRequest('/orders/create', 'POST', orderData);
 }
 
 // ==================== Tariffs Related ====================
@@ -141,20 +148,15 @@ export async function submitLogin(email, password) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
-        'Accept': 'text/html, application/json'
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8'
       },
       body: formData,
       credentials: 'include', // Включаем куки для сессии
       redirect: 'follow'
     });
 
-    console.log('Login response status:', response.status);
-    console.log('Login response headers:', [...response.headers.entries()]);
-    console.log('Redirected:', response.redirected);
-
     if (response.redirected) {
-      console.log('Redirecting to:', response.url);
-      window.location.href = response.url; // Следуем за редиректом (например, /account)
+      window.location.href = response.url;
       return;
     }
 
@@ -175,10 +177,8 @@ export async function submitLogin(email, password) {
     const text = await response.text();
     try {
       const data = JSON.parse(text);
-      console.log('Login response data:', data);
       return data;
     } catch {
-      console.log('Login response (non-JSON):', text);
       return { success: true }; // Успех без JSON
     }
   } catch (error) {
@@ -198,11 +198,8 @@ export async function fetchUserContact() {
       headers: {
         'Accept': 'application/json'
       },
-      credentials: 'include' // Включаем JSESSIONID для аутентификации
+      credentials: 'include' // Включаем куки для аутентификации
     });
-
-    console.log('Fetch user contact status:', response.status);
-    console.log('Fetch user contact headers:', [...response.headers.entries()]);
 
     if (!response.ok) {
       if (response.status === 401) {
@@ -212,21 +209,16 @@ export async function fetchUserContact() {
     }
 
     const contact = await response.json();
-    console.log('Fetched contact data:', contact);
 
-    // Формируем sender для cookie
+    // Формируем sender
     const sender = {
       email: contact.email || '',
       firstName: contact.firstName || '',
       lastName: contact.lastName || '',
       fatherName: contact.fatherName || '',
       phone: contact.phone || '',
-      pic: contact.pic || 'https://i.pinimg.com/736x/97/55/6b/97556b3f5865b4dc1c3aece334c0eeac.jpg'
+      pic: contact.pic || 'https://i.pinimg.com/736x/97/55/60/975560b7e586c4b0c1c4ce0e0eeac1.jpg'
     };
-
-    // Обновляем cookie delivery_data
-    const deliveryData = { sender };
-    setCookie('delivery_data', JSON.stringify(deliveryData), 7);
 
     return sender;
   } catch (error) {
@@ -236,7 +228,7 @@ export async function fetchUserContact() {
 }
 
 /**
- * Запрашивает данные заказов пользователя (отправленные и получаемые)
+ * Запрашивает данные заказов пользователя
  * @throws {Error} Если запрос не удался
  */
 export async function fetchUserOrders() {
@@ -246,11 +238,8 @@ export async function fetchUserOrders() {
       headers: {
         'Accept': 'application/json'
       },
-      credentials: 'include' // Включаем JSESSIONID для аутентификации
+      credentials: 'include' // Включаем куки для аутентификации
     });
-
-    console.log('Fetch user orders status:', response.status);
-    console.log('Fetch user orders headers:', [...response.headers.entries()]);
 
     if (!response.ok) {
       if (response.status === 401) {
@@ -260,7 +249,6 @@ export async function fetchUserOrders() {
     }
 
     const orders = await response.json();
-    console.log('Fetched orders data:', orders);
     return orders;
   } catch (error) {
     console.error('Ошибка при получении данных заказов:', error);

@@ -31,7 +31,7 @@ public class OrderController {
 
     private final AggregatorMapper aggregatorMapper;
 
-    @GetMapping()
+    @GetMapping
     public String orderPage(){
         return "order";
     }
