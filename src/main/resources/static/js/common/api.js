@@ -1,3 +1,6 @@
+import { showErrorMessage } from './error.js';
+import { getCookie, setCookie } from './cookies.js';
+
 /**
  * Базовый метод для выполнения fetch-запросов
  * @param {string} url - URL для запроса
@@ -32,6 +35,7 @@ async function fetchRequest(url, method, body = null, headers = {}, contentType 
         return await response.json();
     } catch (error) {
         console.error(`Error in fetchRequest to ${url}:`, error);
+        showErrorMessage(error.message);
         throw error;
     }
 }
@@ -112,7 +116,7 @@ export async function getCities() {
  * @returns {Promise<Object>} - Результат создания заказа
  */
 export async function createOrder(orderData) {
-    return fetchRequest('/orders/create', 'POST', orderData);
+    return fetchRequest('/order/create', 'POST', orderData);
 }
 
 // ==================== Tariffs Related ====================
@@ -138,53 +142,51 @@ export async function getTariffs(requestData) {
  * @throws {Error} Если запрос не удался
  */
 export async function submitLogin(email, password) {
-  try {
-    // Формируем тело запроса в формате application/x-www-form-urlencoded
-    const formData = new URLSearchParams();
-    formData.append('username', email);
-    formData.append('password', password);
-
-    const response = await fetch('http://localhost:8080/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8'
-      },
-      body: formData,
-      credentials: 'include', // Включаем куки для сессии
-      redirect: 'follow'
-    });
-
-    if (response.redirected) {
-      window.location.href = response.url;
-      return;
-    }
-
-    if (!response.ok) {
-      if (response.status === 401) {
-        throw new Error('Неверный email или пароль');
-      }
-      throw new Error(`Ошибка авторизации: ${response.statusText}`);
-    }
-
-    // Проверяем, установлена ли сессия
-    const isAuthenticated = await checkAuthStatus();
-    if (!isAuthenticated) {
-      throw new Error('Авторизация не удалась, сессия не установлена');
-    }
-
-    // Если сервер возвращает JSON (маловероятно для form login)
-    const text = await response.text();
     try {
-      const data = JSON.parse(text);
-      return data;
-    } catch {
-      return { success: true }; // Успех без JSON
+        const formData = new URLSearchParams();
+        formData.append('username', email);
+        formData.append('password', password);
+
+        const response = await fetch('http://localhost:8080/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8'
+            },
+            body: formData,
+            credentials: 'include',
+            redirect: 'follow'
+        });
+
+        if (response.redirected) {
+            window.location.href = response.url;
+            return;
+        }
+
+        if (!response.ok) {
+            if (response.status === 401) {
+                throw new Error('Неверный email или пароль');
+            }
+            throw new Error(`Ошибка авторизации: ${response.statusText}`);
+        }
+
+        const isAuthenticated = await checkAuthStatus();
+        if (!isAuthenticated) {
+            throw new Error('Авторизация не удалась, сессия не установлена');
+        }
+
+        const text = await response.text();
+        try {
+            const data = JSON.parse(text);
+            return data;
+        } catch {
+            return { success: true };
+        }
+    } catch (error) {
+        console.error('Ошибка при отправке формы логина:', error);
+        showErrorMessage(error.message);
+        throw error;
     }
-  } catch (error) {
-    console.error('Ошибка при отправке формы логина:', error);
-    throw error;
-  }
 }
 
 /**
@@ -192,39 +194,61 @@ export async function submitLogin(email, password) {
  * @throws {Error} Если запрос не удался
  */
 export async function fetchUserContact() {
-  try {
-    const response = await fetch('/account/user', {
-      method: 'GET',
-      headers: {
-        'Accept': 'application/json'
-      },
-      credentials: 'include' // Включаем куки для аутентификации
-    });
+    try {
+        const response = await fetch('/account/user', {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json'
+            },
+            credentials: 'include'
+        });
 
-    if (!response.ok) {
-      if (response.status === 401) {
-        throw new Error('Не аутентифицирован');
-      }
-      throw new Error(`Ошибка получения данных пользователя: ${response.statusText}`);
+        if (!response.ok) {
+            if (response.status === 401) {
+                throw new Error('Не аутентифицирован');
+            }
+            throw new Error(`Ошибка получения данных пользователя: ${response.statusText}`);
+        }
+
+        const contact = await response.json();
+
+        const sender = {
+            email: contact.email || '',
+            firstName: contact.firstName || '',
+            lastName: contact.lastName || '',
+            fatherName: contact.fatherName || '',
+            phone: contact.phone || '',
+            pic: contact.pic || 'https://i.pinimg.com/736x/97/55/60/975560b7e586c4b0c1c4ce0e0eeac1.jpg'
+        };
+
+// Получаем текущие данные из cookie
+        let delivery_data = getCookie('delivery_data');
+
+        // Если cookie не существует или пустое, инициализируем как объект
+        if (!delivery_data) {
+            delivery_data = {};
+        } else {
+            // Пробуем распарсить строку cookie в объект
+            try {
+                delivery_data = JSON.parse(delivery_data);
+            } catch (e) {
+                console.error('Ошибка парсинга delivery_data:', e);
+                delivery_data = {}; // Если парсинг не удался, используем пустой объект
+            }
+        }
+
+        // Обновляем свойство sender
+        delivery_data.sender = sender;
+
+        // Сохраняем обновлённые данные в cookie как строку
+        setCookie('delivery_data', JSON.stringify(delivery_data), 1);
+
+        return sender;
+    } catch (error) {
+        console.error('Ошибка при получении данных пользователя:', error);
+        showErrorMessage(error.message);
+        throw error;
     }
-
-    const contact = await response.json();
-
-    // Формируем sender
-    const sender = {
-      email: contact.email || '',
-      firstName: contact.firstName || '',
-      lastName: contact.lastName || '',
-      fatherName: contact.fatherName || '',
-      phone: contact.phone || '',
-      pic: contact.pic || 'https://i.pinimg.com/736x/97/55/60/975560b7e586c4b0c1c4ce0e0eeac1.jpg'
-    };
-
-    return sender;
-  } catch (error) {
-    console.error('Ошибка при получении данных пользователя:', error);
-    throw error;
-  }
 }
 
 /**
@@ -232,26 +256,27 @@ export async function fetchUserContact() {
  * @throws {Error} Если запрос не удался
  */
 export async function fetchUserOrders() {
-  try {
-    const response = await fetch('/account/orders', {
-      method: 'GET',
-      headers: {
-        'Accept': 'application/json'
-      },
-      credentials: 'include' // Включаем куки для аутентификации
-    });
+    try {
+        const response = await fetch('/account/orders', {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json'
+            },
+            credentials: 'include'
+        });
 
-    if (!response.ok) {
-      if (response.status === 401) {
-        throw new Error('Не аутентифицирован');
-      }
-      throw new Error(`Ошибка получения данных заказов: ${response.statusText}`);
+        if (!response.ok) {
+            if (response.status === 401) {
+                throw new Error('Не аутентифицирован');
+            }
+            throw new Error(`Ошибка получения данных заказов: ${response.statusText}`);
+        }
+
+        const orders = await response.json();
+        return orders;
+    } catch (error) {
+        console.error('Ошибка при получении данных заказов:', error);
+        showErrorMessage(error.message);
+        throw error;
     }
-
-    const orders = await response.json();
-    return orders;
-  } catch (error) {
-    console.error('Ошибка при получении данных заказов:', error);
-    throw error;
-  }
 }

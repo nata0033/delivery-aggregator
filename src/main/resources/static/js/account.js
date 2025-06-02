@@ -122,17 +122,17 @@ class AccountManager {
    * @param {string} status - Статус заказа
    * @returns {string} CSS-класс
    */
-  getStatusClass(status) {
+getStatusClass(status) {
     const statusClasses = {
-      'OrderDuplicate': 'badge-warning',
-      'ACCEPTED': 'badge-success',
-      'CANCELED': 'badge-danger',
-      'IN_PROGRESS': 'badge-primary',
-      'DELAYED': 'badge-warning',
-      'DELIVERED': 'badge-success'
+        'OrderDuplicate': 'badge-warning',
+        'ACCEPTED': 'badge-success',
+        'CANCELED': 'badge-danger',
+        'IN_PROGRESS': 'badge-primary',
+        'DELAYED': 'badge-warning',
+        'DELIVERED': 'badge-success',
     };
-    return statusClasses[status] || 'badge-secondary';
-  }
+    return statusClasses[status] || 'badge-secondary'; // По умолчанию серый цвет
+}
 
   /**
    * Переводит статус заказа в читаемый вид
