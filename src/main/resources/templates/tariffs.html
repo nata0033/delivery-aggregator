@@ -79,12 +79,58 @@
             </div>
         </div>
         <div class="col-md-8 overflow-auto max-height-695">
-            <div class="row pt-55" id="tariffs-list">
-                <!-- Здесь будет спиннер загрузки, а затем тарифы -->
-            </div>
+            <div class="row pt-55" id="tariffs-list"></div>
         </div>
     </div>
 </div>
-<script src="js/tariffs.js"></script>
+
+<!-- Шаблоны для динамической генерации -->
+<template id="header-template">
+    <header class="header">
+        <div class="container">
+            <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
+                <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
+                    <li><a href="/" class="nav-link px-2 text-white">Главная</a></li>
+                </ul>
+                <div class="text-end" id="header-buttons-container"></div>
+            </div>
+        </div>
+    </header>
+</template>
+
+<template id="tariffs-template">
+    <div class="tariff-card">
+        <div style="display:flex;align-items:center;min-width:180px;">
+            <img class="tariff-logo" src="" alt="">
+            <div>
+                <div class="tariff-service"></div>
+                <div class="tariff-name" style="font-size:13px;color:#888;"></div>
+            </div>
+        </div>
+        <div class="tariff-section">
+            <b>Срок</b>
+            <span class="tariff-time"></span>
+        </div>
+        <div class="tariff-section">
+            <b>Доставка</b>
+            <span class="tariff-delivery-date"></span><br>
+            <span class="tariff-weekday" style="color:#888;font-size:13px;"></span>
+        </div>
+        <div class="tariff-section" style="text-align:right;min-width:110px;">
+            <span class="tariff-price"></span><br>
+            <button class="tariff-btn">Выбрать тариф</button>
+        </div>
+    </div>
+</template>
+
+<template id="spinner-template">
+    <div style="display:flex;justify-content:center;align-items:center;position:fixed;top:0;left:0;width:100%;height:100%;z-index:1000;">
+        <div class="spinner-border text-primary" role="status">
+            <span class="sr-only"></span>
+        </div>
+    </div>
+</template>
+
+<script type="module" src="js/tariffs.js"></script>
 </body>
 </html>

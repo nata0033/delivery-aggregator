@@ -1,8 +1,10 @@
 package com.example.delivery_aggregator.controller;
 
+import com.example.delivery_aggregator.dto.aggregator.OrderDto;
 import com.example.delivery_aggregator.dto.cdek.order.CdekOrderResponseDto;
 import com.example.delivery_aggregator.dto.aggregator.OrderPageDataDto;
 import com.example.delivery_aggregator.entity.Order;
+import com.example.delivery_aggregator.mappers.AggregatorMapper;
 import com.example.delivery_aggregator.service.db.OrderService;
 import com.example.delivery_aggregator.service.external_api.CdekService;
 import com.example.delivery_aggregator.service.external_api.DpdService;
@@ -27,13 +29,15 @@ public class OrderController {
 
     private final OrderService orderService;
 
+    private final AggregatorMapper aggregatorMapper;
+
     @GetMapping()
     public String orderPage(){
         return "order";
     }
 
     @PostMapping("/create")
-    public ResponseEntity<Order> createOrder(@RequestBody OrderPageDataDto orderPageData) {
+    public ResponseEntity<OrderDto> createOrder(@RequestBody OrderPageDataDto orderPageData) {
         try {
             Order order = new Order();
 
@@ -44,14 +48,14 @@ public class OrderController {
                 }
                 case "DPD" -> {
                     ResponseEntity<List<DpdOrderStatus2>> dpdOrderResponseDto = dpdService.createOrder(orderPageData);
-                    order = orderService.create(orderPageData, dpdOrderResponseDto.getBody());
+                    order = orderService.create(orderPageData, dpdOrderResponseDto.getBody().getFirst());
                 }
             }
 
-            return ResponseEntity.ok(order);
+            return ResponseEntity.ok(aggregatorMapper.orderToOrderDto(order));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new Order());
+                    .body(new OrderDto());
         }
     }
 }

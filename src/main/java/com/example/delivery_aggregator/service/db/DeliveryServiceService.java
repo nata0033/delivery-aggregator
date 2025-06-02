@@ -12,7 +12,7 @@ public class DeliveryServiceService {
     private final DeliveryServiceRepository deliveryServiceRepository;
 
     public DeliveryService findByName(String name) {
-        return deliveryServiceRepository.findByName(name).orElse(createWithName(name));
+        return deliveryServiceRepository.findByName(name).orElseGet(() -> createWithName(name));
     }
 
     public DeliveryService createWithName(String name){

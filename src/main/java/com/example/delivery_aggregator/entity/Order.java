@@ -47,10 +47,10 @@ public class Order {
     @JoinColumn(name = "delivery_service_id")
     private DeliveryService deliveryService;
 
-    @OneToOne(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToOne(mappedBy = "order")
     private Payment payment;
 
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "order")
     private List<Package> packages;
 
     @PrePersist

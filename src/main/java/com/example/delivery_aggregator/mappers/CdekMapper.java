@@ -34,7 +34,6 @@ public interface CdekMapper {
     List<CdekCalculatorPackageDto> packageDtoListToCdekCalculatorPackageDtoList(List<PackageDto> packages);
 
     //Тарифы
-    @Named("cdekCalculatorResponseToTariffsPageData")
     @Mapping(target = "service", source = "deliveryServiceDto")
     @Mapping(target = "code", source = "tariffCode.tariffCode")
     @Mapping(target = "name", source = "tariffCode.tariffName")
@@ -55,15 +54,15 @@ public interface CdekMapper {
     }
 
     //Заказ
+    @Mapping(target = "type", constant = "2")
     @Mapping(target = "tariffCode", source = "tariff.code")
-    @Mapping(target = "sender", source = "sender", qualifiedByName = "userToContact")
-    @Mapping(target = "recipient", source = "recipient", qualifiedByName = "userToContact")
-    @Mapping(target = "fromLocation", source = "fromLocation", qualifiedByName = "locationToOrderCdekLocation")
-    @Mapping(target = "toLocation", source = "toLocation", qualifiedByName = "locationToOrderCdekLocation")
-    @Mapping(target = "packages", source = "packages",  qualifiedByName = "packageDtoListToCdekOrderPackageDtoList")
+    @Mapping(target = "sender", source = "sender")
+    @Mapping(target = "recipient", source = "recipient")
+    @Mapping(target = "fromLocation", source = "fromLocation")
+    @Mapping(target = "toLocation", source = "toLocation")
+    @Mapping(target = "packages", source = "packages")
     CdekOrderRequestDto OrderPageDataDtoToCdekOrderRequest(OrderPageDataDto orderPageData);
 
-    @Named("packageDtoListToCdekOrderPackageDtoList")
     default List<CdekOrderPackageDto> packageDtoListToCdekOrderPackageDtoList (List<PackageDto> packages){
         List<CdekOrderPackageDto> cdekPackages = new ArrayList<>();
         
@@ -77,20 +76,17 @@ public interface CdekMapper {
         );
     }
 
+
     List<CdekOrderPackageDto> cdekPackages(List<CdekOrderPackageDto> list);
 
-    @Mapping(target = "length", source = "length")
-    @Mapping(target = "height", source = "height")
-    @Mapping(target = "width", source = "width")
-    @Mapping(target = "weight", source = "weight")
+    @Mapping(target = "comment", constant = "no comment")
     CdekOrderPackageDto aggregatorPackageToOrderCdekPackage(PackageDto p);
 
-    @Named("userToContact")
     @Mapping(target = "name", expression = "java(user.getFirstName() + ' ' + user.getLastName() + ' ' + user.getFatherName())")
-    @Mapping(target = "phones", source = "phone", qualifiedByName = "phoneStringToPhones")
+    @Mapping(target = "phones", source = "phone")
+    @Mapping(target = "company", constant = "DeliveryAggregator")
     CdekOrderContactDto userToContact(ContactDto user);
 
-    @Named("phoneStringToPhones")
     default List<CdekOrderPhoneDto> phoneStringToPhones(String userPhone){
         CdekOrderPhoneDto phone = new CdekOrderPhoneDto();
         phone.setNumber(userPhone);
@@ -99,7 +95,6 @@ public interface CdekMapper {
         return phonies;
     }
 
-    @Named("locationToOrderCdekLocation")
     @Mapping(target = "region", source = "state")
     @Mapping(target = "address", expression = "java(location.getStreet() + ' ' + location.getHouse() + ' ' + location.getApartment())")
     CdekOrderLocationDto locationToOrderCdekLocation(LocationDto location);

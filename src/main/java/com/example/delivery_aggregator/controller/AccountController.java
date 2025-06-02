@@ -1,38 +1,40 @@
 package com.example.delivery_aggregator.controller;
 
+import com.example.delivery_aggregator.dto.aggregator.ContactDto;
+import com.example.delivery_aggregator.dto.aggregator.OrderDto;
 import com.example.delivery_aggregator.entity.Contact;
 import com.example.delivery_aggregator.entity.Order;
 import com.example.delivery_aggregator.entity.User;
+import com.example.delivery_aggregator.mappers.AggregatorMapper;
 import com.example.delivery_aggregator.service.db.ContactService;
 import com.example.delivery_aggregator.service.db.OrderService;
 import com.example.delivery_aggregator.service.db.UserService;
-import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.util.*;
 
-@Data
-@Controller
+@RestController
 @RequestMapping("/account")
 @RequiredArgsConstructor
 public class AccountController {
 
+    private final AggregatorMapper aggregatorMapper;
     private final UserService userService;
     private final ContactService contactService;
     private final OrderService orderService;
 
     @GetMapping("")
-    public String accountPage(){
+    public String accountPage() {
         return "account";
     }
 
-    @GetMapping("/user")
-    public ResponseEntity<Contact> getUserData(Principal principal) {
+    @GetMapping(value = "/user", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ContactDto> getUserData(Principal principal) {
         try {
             User user = userService.findByLogin(principal.getName());
             Contact contact = contactService.findByEmail(user.getLogin());
@@ -41,15 +43,14 @@ public class AccountController {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
             }
 
-            return ResponseEntity.ok(contact);
-
+            return ResponseEntity.ok(aggregatorMapper.contactToContactDto(contact));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
-    @GetMapping("/orders")
-    public ResponseEntity<List<Order>> getOrders(Principal principal) {
+    @GetMapping(value = "/orders", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<OrderDto>> getOrders(Principal principal) {
         try {
             User user = userService.findByLogin(principal.getName());
             List<Order> orders = orderService.getOrders(user);
@@ -58,8 +59,7 @@ public class AccountController {
                 return ResponseEntity.noContent().build();
             }
 
-            return ResponseEntity.ok(orders);
-
+            return ResponseEntity.ok(aggregatorMapper.orderListToOrderDtoList(orders));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Collections.emptyList());
         }

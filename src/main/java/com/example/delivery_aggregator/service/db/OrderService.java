@@ -23,6 +23,8 @@ public class OrderService {
 
     private final DeliveryServiceService deliveryServiceService;
 
+    private final PackageService packageService;
+
     private final AggregatorMapper aggregatorMapper;
 
     public <T> Order create(OrderPageDataDto orderPageDataDto, T responseDto) {
@@ -43,7 +45,9 @@ public class OrderService {
         } else {
             throw new IllegalArgumentException("Unsupported response DTO type: " + responseDto.getClass());
         }
-        return orderRepository.save(order);
+        order = orderRepository.save(order);
+        packageService.saveList(order, orderPageDataDto.getPackages());
+        return order;
     }
 
     public List<Order> getOrders(User user){

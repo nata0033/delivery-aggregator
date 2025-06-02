@@ -1,6 +1,8 @@
 package com.example.delivery_aggregator.service.db;
 
-import com.example.delivery_aggregator.entity.Package;
+import com.example.delivery_aggregator.dto.aggregator.PackageDto;
+import com.example.delivery_aggregator.entity.Order;
+import com.example.delivery_aggregator.mappers.AggregatorMapper;
 import com.example.delivery_aggregator.repository.PackageRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -13,7 +15,9 @@ public class PackageService {
 
     private final PackageRepository packageRepository;
 
-    public void createList(List<Package> packages){
-        packageRepository.saveAll(packages);
+    private final AggregatorMapper aggregatorMapper;
+
+    public void saveList(Order order, List<PackageDto> packages){
+        packageRepository.saveAll(aggregatorMapper.packageDtoListToPackageList(packages, order));
     }
 }

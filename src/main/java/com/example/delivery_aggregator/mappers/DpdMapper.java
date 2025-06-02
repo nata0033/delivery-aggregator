@@ -107,7 +107,7 @@ public interface DpdMapper {
     @Mapping(target = "cargoRegistered", constant = "false")
     @Mapping(target = "cargoCategory", constant = "Посылка")
     @Mapping(target = "cargoValue", constant = "100.0")
-    @Mapping(target = "receiverAddress", source = "toLocation")
+    @Mapping(target = "receiverAddress", expression = "java(locationAndContactToAddress(orderPageDataDto.getToLocation(), orderPageDataDto.getRecipient()))")
     Order orderPageDataDtoToOrder(OrderPageDataDto orderPageDataDto);
 
     default List<Order> orderDtoListToOrderList(OrderPageDataDto orderPageDataDto){
@@ -117,6 +117,7 @@ public interface DpdMapper {
         return orders;
     }
 
+    @Mapping(target = "countryName", constant = "Россия")
     @Mapping(target = "city", source = "location.city")
     @Mapping(target = "street", source = "location.street")
     @Mapping(target = "house", source = "location.house")

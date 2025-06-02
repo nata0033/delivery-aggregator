@@ -24,7 +24,7 @@ public class ContactService {
     }
 
     public Contact findUserContact(ContactDto contactDto, User user){
-        return contactRepository.findByEmailAndUser(contactDto.getEmail(), user).orElse(create(contactDto, user));
+        return contactRepository.findByEmailAndUser(contactDto.getEmail(), user).orElseGet(() -> create(contactDto, user));
     }
 
     public Contact create(ContactDto contactDto, User user){

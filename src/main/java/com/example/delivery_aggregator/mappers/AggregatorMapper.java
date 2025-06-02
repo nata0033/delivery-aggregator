@@ -10,6 +10,8 @@ import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
 import ru.dpd.ws.order2._2012_04_04.DpdOrderStatus2;
 
+import java.util.List;
+
 
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public interface AggregatorMapper {
@@ -51,9 +53,25 @@ public interface AggregatorMapper {
                                                   DeliveryService deliveryService, DpdOrderStatus2 dpdOrderResponseDto);
 
     @Mapping(target = "id", ignore = true)
-    Package packageDtoToPackage(PackageDto packageDto);
+    @Mapping(target = "length", source = "packageDto.length")
+    @Mapping(target = "height", source = "packageDto.height")
+    @Mapping(target = "width", source = "packageDto.width")
+    @Mapping(target = "weight", source = "packageDto.weight")
+    @Mapping(target = "order", source = "order")
+    Package packageDtoToPackage(PackageDto packageDto, Order order);
+
+    default List<Package> packageDtoListToPackageList(List<PackageDto> packageDtoList, Order order){
+        return packageDtoList.stream().map(p->packageDtoToPackage(p, order)).toList();
+    }
 
     default String locationDtoToLocationString(LocationDto locationDto) {
         return locationDto.getCity() + " " + locationDto.getStreet() + " " + locationDto.getHouse() + " " + locationDto.getApartment();
     }
+
+    //Аккаунт
+    ContactDto contactToContactDto(Contact contact);
+
+    OrderDto orderToOrderDto(Order order);
+
+    List<OrderDto> orderListToOrderDtoList(List<Order> orders);
 }

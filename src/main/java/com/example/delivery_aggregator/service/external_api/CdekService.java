@@ -87,7 +87,8 @@ public class CdekService {
         CdekOrderRequestDto cdekOrderRequest = cdekMapper.OrderPageDataDtoToCdekOrderRequest(orderPageData);
 
         HttpEntity<CdekOrderRequestDto> requestData = new HttpEntity<>(cdekOrderRequest, headers);
-        return restTemplate.exchange(REQUEST_URL, HttpMethod.POST, requestData, CdekOrderResponseDto.class);
+        ResponseEntity<CdekOrderResponseDto> response = restTemplate.exchange(REQUEST_URL, HttpMethod.POST, requestData, CdekOrderResponseDto.class);
+        return response;
     }
 
 }

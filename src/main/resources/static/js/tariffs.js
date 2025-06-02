@@ -1,444 +1,269 @@
-// ----------------------- Вспомогательные функции -----------------------
-
 /**
- * Получить значение cookie по имени
- * @param {string} name
- * @returns {string|null}
+ * Модуль для управления тарифами доставки
+ * Обрабатывает загрузку, сортировку, фильтрацию и отображение тарифов
  */
-function getCookie(name) {
-    const matches = document.cookie.match(
-        new RegExp(
-            "(?:^|; )" +
-                name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, "\\$1") +
-                "=([^;]*)"
-        )
-    );
-    return matches ? decodeURIComponent(matches[1]) : null;
-}
+import { getTariffs } from './common/api.js';
+import { getCookie } from './common/cookies.js';
+import { loadHeader } from './common/header.js';
+import { showErrorMessage } from './common/error.js';
+import { formatDate } from './common/utils.js';
+import { createSpinner, showSpinner } from './common/spinner.js';
 
-/**
- * Формирует объект запроса для /tariffs/get, учитывая selfPickup/selfDelivery
- * @param {boolean} selfPickup
- * @param {boolean} selfDelivery
- * @returns {Object}
- */
-function buildRequestData(selfPickup, selfDelivery) {
+class TariffsManager {
+  constructor() {
+    this.allTariffs = [];
+    this.currentSelfPickup = false;
+    this.currentSelfDelivery = false;
+    document.addEventListener('DOMContentLoaded', () => this.init());
+  }
+
+  /**
+   * Основная функция инициализации
+   */
+  init() {
+    this.fillDeliveryHeader();
+    this.loadAndDisplayTariffs(this.currentSelfPickup, this.currentSelfDelivery);
+    this.initEventHandlers();
+    loadHeader();
+  }
+
+  /**
+   * Инициализирует обработчики событий
+   */
+  initEventHandlers() {
+    document.getElementById('sort-options').addEventListener('change', () => this.updateTariffsDisplay());
+    document.querySelectorAll('input[type="checkbox"][name="delivery-method"]').forEach(cb => {
+      cb.addEventListener('change', () => this.handleDeliveryMethodChange(cb));
+    });
+    document.querySelectorAll('input[type="radio"][name="delivery-method"]').forEach(radio => {
+      radio.addEventListener('change', () => this.handleDeliveryTypeChange(radio));
+    });
+  }
+
+  /**
+   * Заполняет заголовок доставки из cookie
+   */
+  fillDeliveryHeader() {
+    const deliveryDataRaw = getCookie('delivery_data');
+    if (!deliveryDataRaw) return;
+
+    try {
+      const data = JSON.parse(deliveryDataRaw);
+      document.getElementById('dateCell').textContent = formatDate(data.fromLocation.date);
+      document.getElementById('fromCity').textContent = data.fromLocation.city;
+      document.getElementById('toCity').textContent = data.toLocation.city;
+      const totalWeight = data.packages.reduce((sum, p) => sum + (p.weight || 0), 0);
+      document.getElementById('packageInfo').textContent = `${totalWeight} г, ${data.packages.length} шт.`;
+    } catch (e) {
+      showErrorMessage('Некорректный формат данных в cookie delivery_data');
+    }
+  }
+
+  /**
+   * Формирует объект запроса для /tariffs/get
+   * @param {boolean} selfPickup
+   * @param {boolean} selfDelivery
+   * @returns {Object}
+   */
+  buildRequestData(selfPickup, selfDelivery) {
     const deliveryDataRaw = getCookie('delivery_data');
     if (!deliveryDataRaw) throw new Error('Cookie delivery_data не найдена');
-    let deliveryData;
     try {
-        deliveryData = JSON.parse(deliveryDataRaw);
-    } catch (e) {
-        throw new Error('Некорректный формат данных в cookie delivery_data');
-    }
-    return {
+      const deliveryData = JSON.parse(deliveryDataRaw);
+      return {
         fromLocation: deliveryData.fromLocation,
         toLocation: deliveryData.toLocation,
         packages: deliveryData.packages,
         selfPickup,
         selfDelivery
-    };
-}
-
-/**
- * Загружает тарифы с сервера по текущим параметрам
- * @param {boolean} selfPickup
- * @param {boolean} selfDelivery
- * @returns {Promise<Array>} Массив тарифов
- */
-async function fetchTariffsWithParams(selfPickup, selfDelivery) {
-    const requestData = buildRequestData(selfPickup, selfDelivery);
-    const response = await fetch('tariffs/get', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(requestData)
-    });
-    if (!response.ok) {
-        throw new Error('Ошибка загрузки тарифов: ' + response.status);
+      };
+    } catch (e) {
+      throw new Error('Некорректный формат данных в cookie delivery_data');
     }
-    return await response.json();
-}
+  }
 
-function showSpinner(show) {
-    const tariffsList = document.getElementById('tariffs-list');
-    spinner =  document.getElementById('spinner');
-    if (!spinner) {
-        spinner = createSpinner();
-        tariffsList.appendChild(spinner);
-    }
-   spinner.style.display = show ? 'flex' : 'none';
-}
-
-// Вспомогательные функции для даты доставки
-function getDeliveryDateString(minTime) {
-    const today = new Date();
-    today.setDate(today.getDate() + (minTime || 0));
-    return today.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' });
-}
-function getDeliveryWeekday(minTime) {
-    const today = new Date();
-    today.setDate(today.getDate() + (minTime || 0));
-    let wd = today.toLocaleDateString('ru-RU', { weekday: 'long' });
-    return wd.charAt(0).toUpperCase() + wd.slice(1);
-}
-
-// ----------------------- Сортировка и фильтрация -----------------------
-
-/**
- * Сортирует тарифы по цене или скорости
- * @param {Array} tariffs
- * @param {string} sortBy 'price' | 'speed'
- * @returns {Array}
- */
-function sortTariffs(tariffs, sortBy) {
-    if (sortBy === 'price') {
-        return tariffs.slice().sort((a, b) => a.price - b.price);
-    }
-    if (sortBy === 'speed') {
-        return tariffs.slice().sort((a, b) => {
-            const aAvg = (a.minTime + a.maxTime) / 2;
-            const bAvg = (b.minTime + b.maxTime) / 2;
-            return aAvg - bAvg;
-        });
-    }
-    return tariffs;
-}
-
-/**
- * Фильтрует тарифы по выбранным службам доставки
- * @param {Array} tariffs
- * @param {Array} selectedServices (например ['CDEK','DPD'])
- * @returns {Array}
- */
-function filterTariffsByService(tariffs, selectedServices) {
-    if (!selectedServices || selectedServices.length === 0) return tariffs;
-    return tariffs.filter(tariff => selectedServices.includes(tariff.service.name));
-}
-
-// ----------------------- Отображение тарифов -----------------------
-
-/**
- * Рендерит тарифы в контейнер с id="tariffs-list"
- * @param {Array} tariffs
- */
-function renderTariffs(tariffs) {
-    const container = document.getElementById('tariffs-list');
-    container.innerHTML = '';
-    if (!tariffs.length) {
-        container.innerHTML = '<div class="alert alert-warning">Нет доступных тарифов.</div>';
-        return;
-    }
-    tariffs.forEach((tariff, idx) => {
-        // Сбор сегодня, доставка через minTime дней (можно доработать)
-        const today = new Date();
-        const deliveryDate = new Date(today);
-        deliveryDate.setDate(today.getDate() + (tariff.minTime || 0));
-        const deliveryDateStr = deliveryDate.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' });
-        const weekday = deliveryDate.toLocaleDateString('ru-RU', { weekday: 'long' });
-
-        const card = document.createElement('div');
-        card.className = 'tariff-card';
-
-        card.innerHTML = `
-            <div style="display:flex;align-items:center;min-width:180px;">
-                <img class="tariff-logo" src="${tariff.service.logo}" alt="${tariff.service.name}">
-                <div>
-                    <div class="tariff-service">${tariff.service.name}</div>
-                    <div style="font-size:13px;color:#888;">${tariff.name}</div>
-                </div>
-            </div>
-            <div class="tariff-section">
-                <b>Срок</b>
-                ${tariff.minTime} - ${tariff.maxTime} дня<br>
-            </div>
-            <div class="tariff-section">
-                <b>Доставка</b>
-                ${deliveryDateStr}<br>
-                <span style="color:#888;font-size:13px;">${weekday.charAt(0).toUpperCase() + weekday.slice(1)}</span>
-            </div>
-            <div class="tariff-section" style="text-align:right;min-width:110px;">
-                <span class="tariff-price">${tariff.price}₽</span>
-                <br>
-                <button class="tariff-btn" data-tariff-idx="${idx}">Выбрать тариф</button>
-            </div>
-        `;
-        container.appendChild(card);
-    });
-
-    // Назначаем обработчик на все кнопки "Выбрать тариф"
-    container.querySelectorAll('.tariff-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const idx = this.getAttribute('data-tariff-idx');
-            handleChooseTariff(tariffs[idx]);
-        });
-    });
-}
-
-// ----------------------- Основная логика -----------------------
-
-let allTariffs = []; // Все тарифы, полученные с сервера
-let currentSelfPickup = false;
-let currentSelfDelivery = false;
-
-function fillDeliveryHeader() {
-    const cookie = document.cookie.match('(^|;)\\s*delivery_data\\s*=\\s*([^;]+)')?.pop();
-    if (!cookie) return;
-
-    const data = JSON.parse(decodeURIComponent(cookie));
-    // Форматируем дату в ДД.ММ.ГГГГ
-    function formatDate(dateStr) {
-        if (!dateStr) return "";
-        const d = new Date(dateStr);
-        return d.toLocaleDateString('ru-RU');
-    }
-    document.getElementById('dateCell').textContent = formatDate(data.fromLocation.date);
-    document.getElementById('fromCity').textContent = data.fromLocation.city;
-    document.getElementById('toCity').textContent = data.toLocation.city;
-    const totalWeight = data.packages.reduce((sum, p) => sum + (p.weight || 0), 0);
-    document.getElementById('packageInfo').textContent = `${totalWeight} г, ${data.packages.length} шт.`;
-}
-
-/**
- * Обновляет отображение тарифов с учетом фильтрации и сортировки
- */
-function updateTariffsDisplay() {
-    // Получаем выбранную сортировку
-    const sortBy = document.getElementById('sort-options').value;
-
-    // Получаем выбранные службы доставки
-    const serviceCheckboxes = document.querySelectorAll('input[type="checkbox"][name="delivery-method"]:not(#allServices)');
-    let selectedServices = [];
-    serviceCheckboxes.forEach(cb => {
-        if (cb.checked) selectedServices.push(cb.id.toUpperCase());
-    });
-    // Если "Все компании" отмечено, показываем все
-    if (document.getElementById('allServices').checked) {
-        selectedServices = [];
-    }
-    // Фильтрация и сортировка
-    let filtered = filterTariffsByService(allTariffs, selectedServices);
-    let sorted = sortTariffs(filtered, sortBy);
-
-    renderTariffs(sorted);
-}
-
-/**
- * Загружает тарифы и обновляет отображение
- * @param {boolean} selfPickup
- * @param {boolean} selfDelivery
- */
-async function loadAndDisplayTariffs(selfPickup, selfDelivery) {
-    // Показываем лоадер
+  /**
+   * Загружает тарифы и обновляет отображение
+   * @param {boolean} selfPickup
+   * @param {boolean} selfDelivery
+   */
+  async loadAndDisplayTariffs(selfPickup, selfDelivery) {
     showSpinner(true);
     const container = document.getElementById('tariffs-list');
     try {
-        allTariffs = await fetchTariffsWithParams(selfPickup, selfDelivery);
-        updateTariffsDisplay();
+      this.allTariffs = await getTariffs(this.buildRequestData(selfPickup, selfDelivery));
+      this.updateTariffsDisplay();
     } catch (e) {
-        container.innerHTML = `<div class="alert alert-danger">Ошибка: ${e.message}</div>`;
+      container.innerHTML = `<div class="alert alert-danger">Ошибка: ${e.message}</div>`;
     }
     showSpinner(false);
-}
+  }
 
-/**
- * Выбор тарифа
- */
-function handleChooseTariff(tariff) {
-    // Получаем cookie delivery_data
-    const cookie = document.cookie.match('(^|;)\\s*delivery_data\\s*=\\s*([^;]+)')?.pop();
-    if (!cookie) {
-        alert('Ошибка: не найдены данные доставки');
-        return;
+  /**
+   * Сортирует тарифы
+   * @param {Array} tariffs
+   * @param {string} sortBy - 'price' | 'speed'
+   * @returns {Array}
+   */
+  sortTariffs(tariffs, sortBy) {
+    if (sortBy === 'price') {
+      return tariffs.slice().sort((a, b) => a.price - b.price);
     }
-    let data;
+    if (sortBy === 'speed') {
+      return tariffs.slice().sort((a, b) => {
+        const aAvg = (a.minTime + a.maxTime) / 2;
+        const bAvg = (b.minTime + b.maxTime) / 2;
+        return aAvg - bAvg;
+      });
+    }
+    return tariffs;
+  }
+
+  /**
+   * Фильтрует тарифы по службам доставки
+   * @param {Array} tariffs
+   * @param {Array} selectedServices
+   * @returns {Array}
+   */
+  filterTariffsByService(tariffs, selectedServices) {
+    if (!selectedServices || selectedServices.length === 0) return tariffs;
+    return tariffs.filter(tariff => selectedServices.includes(tariff.service.name));
+  }
+
+  /**
+   * Обновляет отображение тарифов
+   */
+  updateTariffsDisplay() {
+    const sortBy = document.getElementById('sort-options').value;
+    const serviceCheckboxes = document.querySelectorAll('input[type="checkbox"][name="delivery-method"]:not(#allServices)');
+    let selectedServices = Array.from(serviceCheckboxes)
+      .filter(cb => cb.checked)
+      .map(cb => cb.id.toUpperCase());
+    if (document.getElementById('allServices').checked) {
+      selectedServices = [];
+    }
+    const filtered = this.filterTariffsByService(this.allTariffs, selectedServices);
+    const sorted = this.sortTariffs(filtered, sortBy);
+    this.renderTariffs(sorted);
+  }
+
+  /**
+   * Рендерит тарифы в контейнер
+   * @param {Array} tariffs
+   */
+  renderTariffs(tariffs) {
+    const container = document.getElementById('tariffs-list');
+    container.innerHTML = '';
+    if (!tariffs.length) {
+      container.innerHTML = '<div class="alert alert-warning">Нет доступных тарифов.</div>';
+      return;
+    }
+    const template = document.getElementById('tariffs-template');
+    tariffs.forEach((tariff, idx) => {
+      const clone = document.importNode(template.content, true);
+      clone.querySelector('.tariff-card').setAttribute('data-tariff-idx', idx);
+      clone.querySelector('.tariff-logo').src = tariff.service.logo;
+      clone.querySelector('.tariff-logo').alt = tariff.service.name;
+      clone.querySelector('.tariff-service').textContent = tariff.service.name;
+      clone.querySelector('.tariff-name').textContent = tariff.name;
+      clone.querySelector('.tariff-time').textContent = `${tariff.minTime} - ${tariff.maxTime} дня`;
+      clone.querySelector('.tariff-delivery-date').textContent = this.getDeliveryDateString(tariff.minTime);
+      clone.querySelector('.tariff-weekday').textContent = this.getDeliveryWeekday(tariff.minTime);
+      clone.querySelector('.tariff-price').textContent = `${tariff.price}₽`;
+      clone.querySelector('.tariff-btn').addEventListener('click', () => this.handleChooseTariff(tariffs[idx]));
+      container.appendChild(clone);
+    });
+  }
+
+  /**
+   * Форматирует дату доставки
+   * @param {number} minTime
+   * @returns {string}
+   */
+  getDeliveryDateString(minTime) {
+    const today = new Date();
+    today.setDate(today.getDate() + (minTime || 0));
+    return formatDate(today);
+  }
+
+  /**
+   * Получает день недели доставки
+   * @param {number} minTime
+   * @returns {string}
+   */
+  getDeliveryWeekday(minTime) {
+    const today = new Date();
+    today.setDate(today.getDate() + (minTime || 0));
+    const wd = today.toLocaleDateString('ru-RU', { weekday: 'long' });
+    return wd.charAt(0).toUpperCase() + wd.slice(1);
+  }
+
+  /**
+   * Обработчик выбора службы доставки
+   * @param {HTMLElement} checkbox
+   */
+  handleDeliveryMethodChange(checkbox) {
+    if (checkbox.id === 'allServices' && checkbox.checked) {
+      document.querySelectorAll('input[type="checkbox"][name="delivery-method"]:not(#allServices)').forEach(other => {
+        other.checked = false;
+      });
+    } else if (checkbox.id !== 'allServices' && checkbox.checked) {
+      document.getElementById('allServices').checked = false;
+    }
+    this.updateTariffsDisplay();
+  }
+
+  /**
+   * Обработчик смены типа доставки
+   * @param {HTMLElement} radio
+   */
+  handleDeliveryTypeChange(radio) {
+    let selfPickup = false, selfDelivery = false;
+    switch (radio.id) {
+      case 'door-to-door':
+        selfPickup = false; selfDelivery = false; break;
+      case 'door-to-pickup':
+        selfPickup = false; selfDelivery = true; break;
+      case 'pickup-to-door':
+        selfPickup = true; selfDelivery = false; break;
+      case 'pickup-to-pickup':
+        selfPickup = true; selfDelivery = true; break;
+    }
+    this.currentSelfPickup = selfPickup;
+    this.currentSelfDelivery = selfDelivery;
+    this.loadAndDisplayTariffs(selfPickup, selfDelivery);
+  }
+
+  /**
+   * Выбор тарифа и сохранение в cookie
+   * @param {Object} tariff
+   */
+  handleChooseTariff(tariff) {
+    const deliveryDataRaw = getCookie('delivery_data');
+    if (!deliveryDataRaw) {
+      showErrorMessage('Ошибка: не найдены данные доставки');
+      return;
+    }
     try {
-        data = JSON.parse(decodeURIComponent(cookie));
-    } catch (e) {
-        alert('Ошибка чтения данных доставки');
-        return;
-    }
-
-    // Формируем объект тарифа согласно классу TariffDto
-    const selectedTariff = {
+      const data = JSON.parse(deliveryDataRaw);
+      const selectedTariff = {
         service: {
-            name: tariff.service.name,
-            logo: tariff.service.logo
+          name: tariff.service.name,
+          logo: tariff.service.logo
         },
         code: tariff.code,
         name: tariff.name,
         minTime: tariff.minTime,
         maxTime: tariff.maxTime,
         price: tariff.price
-    };
-
-    // Записываем тариф в delivery_data
-    data.tariff = selectedTariff;
-
-    // Сохраняем обратно в cookie (на 1 день)
-    document.cookie = 'delivery_data=' + encodeURIComponent(JSON.stringify(data)) +
-        ';path=/;max-age=86400';
-
-    // Переходим на страницу заказа
-    window.location.href = '/order';
-}
-
-// ----------------------- Header Functions -----------------------
-
-/**
- * Проверка статуса аутентификации
- */
-async function checkAuthStatus() {
-    try {
-        const response = await fetch('/user/isAuth');
-        if (!response.ok) {
-            throw new Error('Ошибка сети');
-        }
-        return await response.json();
-    } catch (error) {
-        console.error('Ошибка при проверке аутентификации:', error);
-        return false;
+      };
+      data.tariff = selectedTariff;
+      document.cookie = `delivery_data=${encodeURIComponent(JSON.stringify(data))};path=/;max-age=86400`;
+      window.location.href = '/order';
+    } catch (e) {
+      showErrorMessage('Ошибка чтения данных доставки');
     }
+  }
 }
 
-/**
- * Генерация HTML для заголовка
- */
-function generateHeaderHtml(isAuthenticated) {
-    return `
-      <header class="header">
-        <div class="container">
-          <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
-            <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
-              <li><a href="/" class="nav-link px-2 text-white">Главная</a></li>
-              ${isAuthenticated ? '<li><a href="/account" class="nav-link px-2 text-white">Личный кабинет</a></li>' : ''}
-            </ul>
-            <div class="text-end">
-              ${isAuthenticated
-                ? '<a href="/logout" class="btn btn-light">Выход</a>'
-                : '<a href="/registration" class="btn btn-outline-light me-2">Регистрация</a>' +
-                  '<a href="/login" class="btn btn-light">Вход</a>'}
-            </div>
-          </div>
-        </div>
-      </header>
-    `;
-}
-
-/**
- * Загрузка и отображение заголовка
- */
-async function loadHeader() {
-    try {
-        // Проверяем аутентификацию
-        const isAuthenticated = await checkAuthStatus();
-
-        // Генерируем HTML заголовка
-        const headerHtml = generateHeaderHtml(isAuthenticated);
-
-        // Вставляем в DOM
-        const headerContainer = document.getElementById("header-container");
-        if (headerContainer) {
-            headerContainer.innerHTML = headerHtml;
-        }
-    } catch (error) {
-        console.error('Ошибка при загрузке заголовка:', error);
-        // В случае ошибки показываем заголовок для неавторизованного пользователя
-        const headerContainer = document.getElementById("header-container");
-        if (headerContainer) {
-            headerContainer.innerHTML = generateHeaderHtml(false);
-        }
-    }
-}
-
-// ----------------------- События управления -----------------------
-
-/**
- * Обработчик смены сортировки
- */
-document.getElementById('sort-options').addEventListener('change', updateTariffsDisplay);
-
-/**
- * Обработчик чекбоксов служб доставки
- */
-document.querySelectorAll('input[type="checkbox"][name="delivery-method"]').forEach(cb => {
-    cb.addEventListener('change', function() {
-        // Если "Все компании" отмечено, снимаем остальные
-        if (cb.id === 'allServices' && cb.checked) {
-            document.querySelectorAll('input[type="checkbox"][name="delivery-method"]:not(#allServices)').forEach(other => other.checked = false);
-        } else if (cb.id !== 'allServices' && cb.checked) {
-            document.getElementById('allServices').checked = false;
-        }
-        updateTariffsDisplay();
-    });
-});
-
-/**
- * Обработчик смены способа доставки (радиокнопки)
- */
-document.querySelectorAll('input[type="radio"][name="delivery-method"]').forEach(radio => {
-    radio.addEventListener('change', function() {
-        let selfPickup = false, selfDelivery = false;
-        switch (radio.id) {
-            case 'door-to-door':
-                selfPickup = false; selfDelivery = false; break;
-            case 'door-to-pickup':
-                selfPickup = false; selfDelivery = true; break;
-            case 'pickup-to-door':
-                selfPickup = true; selfDelivery = false; break;
-            case 'pickup-to-pickup':
-                selfPickup = true; selfDelivery = true; break;
-        }
-        currentSelfPickup = selfPickup;
-        currentSelfDelivery = selfDelivery;
-        loadAndDisplayTariffs(selfPickup, selfDelivery);
-    });
-});
-
-// ----------------------- Инициализация -----------------------
-
-/**
- * Создает элемент спиннера
- */
-function createSpinner() {
-    const spinner = document.createElement('div');
-    spinner.id = 'spinner';
-    spinner.style.display = 'none';
-    spinner.style.justifyContent = 'center';
-    spinner.style.alignItems = 'center';
-    spinner.style.position = 'absolute';
-    spinner.style.top = '0';
-    spinner.style.left = '0';
-    spinner.style.right = '0';
-    spinner.style.bottom = '0';
-    spinner.style.backgroundColor = 'rgba(255, 255, 255, 0.7)';
-    spinner.style.zIndex = '1000';
-    spinner.innerHTML = `
-        <div class="spinner-border text-primary" role="status">
-            <span class="sr-only"></span>
-        </div>
-    `;
-    return spinner;
-}
-
-/**
- * Инициализирует страницу
- */
-function initializePage() {
-    // Создаем и добавляем спиннер
-    const tariffsList = document.getElementById('tariffs-list');
-    if (tariffsList) {
-        tariffsList.style.position = 'relative';
-        const spinner = createSpinner();
-        tariffsList.appendChild(spinner);
-    }
-
-    // Загружаем данные
-    currentSelfPickup = false;
-    currentSelfDelivery = false;
-    fillDeliveryHeader();
-    loadAndDisplayTariffs(currentSelfPickup, currentSelfDelivery);
-    loadHeader();
-}
-
-// Запускаем инициализацию при загрузке страницы
-window.addEventListener('DOMContentLoaded', initializePage);
+new TariffsManager();
