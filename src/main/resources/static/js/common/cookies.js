@@ -14,3 +14,16 @@ export function setCookie(name, value, days) {
     }
     document.cookie = name + "=" + encodeURIComponent(value) + expires + "; path=/";
 }
+
+/**
+ * Удаляет cookie по имени
+ * @param {string} name - Имя cookie для удаления
+ */
+export function deleteCookie(name) {
+    // Устанавливаем дату истечения в прошлое (1 января 1970)
+    document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+
+    // Для дополнительной надежности добавляем domain, если он используется
+    const domain = window.location.hostname;
+    document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=${domain};`;
+}

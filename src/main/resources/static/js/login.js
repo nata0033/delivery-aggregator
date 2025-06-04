@@ -3,7 +3,7 @@
  */
 import { getCookie, setCookie } from './common/cookies.js';
 import { loadHeader } from './common/header.js';
-import { showErrorMessage } from './common/error.js';
+import { showErrorMessage } from './common/messages.js';
 import { FormValidator } from './common/validation.js';
 import { showSpinner } from './common/spinner.js';
 import { submitLogin } from './common/api.js';

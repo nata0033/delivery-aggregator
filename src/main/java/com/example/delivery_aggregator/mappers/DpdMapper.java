@@ -6,12 +6,12 @@ import com.example.delivery_aggregator.entity.DpdCity;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
-import ru.dpd.ws.calculator._2012_03_20.Auth;
 import ru.dpd.ws.calculator._2012_03_20.ServiceCost;
 import ru.dpd.ws.calculator._2012_03_20.ServiceCostRequest;
 import ru.dpd.ws.geography._2015_05_20.City;
 import ru.dpd.ws.geography._2015_05_20.DpdCitiesCashPayRequest;
 import ru.dpd.ws.order2._2012_04_04.*;
+import ru.dpd.ws.tracing._2011_11_18.RequestClientOrder;
 
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
@@ -89,14 +89,14 @@ public interface DpdMapper {
     @Mapping(target = "auth.clientKey", source = "clientKey")
     @Mapping(target = "header", source = "orderPageDataDto")
     @Mapping(target = "order", source = "orderPageDataDto")
-    DpdOrdersData OrderPageDataDtoAndAuthParamsToDpdOrdersData(
+    DpdOrdersData orderPageDataDtoAndAuthParamsToDpdOrdersData(
             OrderPageDataDto orderPageDataDto, Long clientNumber, String clientKey
     );
 
     @Mapping(target = "datePickup", source = "fromLocation.date")
     @Mapping(target = "pickupTimePeriod", constant = "9-18")
     @Mapping(target = "senderAddress", expression = "java(locationAndContactToAddress(orderPageDataDto.getFromLocation(), orderPageDataDto.getSender()))")
-    Header OrderPageDataDtoToHeader(OrderPageDataDto orderPageDataDto);
+    Header orderPageDataDtoToHeader(OrderPageDataDto orderPageDataDto);
 
     @Mapping(target = "orderNumberInternal", constant = "123456")
     @Mapping(target = "serviceCode", source = "tariff.code")
@@ -144,5 +144,29 @@ public interface DpdMapper {
         return dto.getPackages().stream()
                 .mapToDouble(p -> p.getLength() * p.getWidth() * p.getHeight() / 1_000_000.0)
                 .sum();
+    }
+
+    //Статус заказа
+    @Mapping(target = "auth.clientNumber", source = "dpdClientNumber")
+    @Mapping(target = "auth.clientKey", source = "dpdClientKey")
+    @Mapping(target = "clientOrderNr", source = "clientOrderNr")
+    RequestClientOrder clientOrderNrStringToRequestClientOrder(String clientOrderNr,
+                                                               Long dpdClientNumber, String dpdClientKey);
+
+    //Удаление заказа
+    @Mapping(target = "auth.clientNumber", source = "dpdClientNumber")
+    @Mapping(target = "auth.clientKey", source = "dpdClientKey")
+    @Mapping(target = "cancel", source = "orderNumberInternal")
+    DpdOrderCancellation clientOrderNrStringToDpdOrderCancellation(String orderNumberInternal,
+                                                                Long dpdClientNumber, String dpdClientKey);
+
+    default List<OrderCancel> orderNumberInternalStringToOrderCancelList(String orderNumberInternal){
+        List<OrderCancel> orderCancels = new ArrayList<>();
+        OrderCancel orderCancel = new OrderCancel();
+
+        orderCancel.setOrderNumberInternal(orderNumberInternal);
+        orderCancels.add(orderCancel);
+
+        return orderCancels;
     }
 }

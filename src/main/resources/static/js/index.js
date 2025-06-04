@@ -5,7 +5,7 @@ import { getCities } from './common/api.js';
 import { FormValidator } from './common/validation.js';
 import { setCookie } from './common/cookies.js';
 import { loadHeader } from './common/header.js';
-import { showErrorMessage } from './common/error.js';
+import { showErrorMessage } from './common/messages.js';
 
 class DeliveryForm {
     constructor() {

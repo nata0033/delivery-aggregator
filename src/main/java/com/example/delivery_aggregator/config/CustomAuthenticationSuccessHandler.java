@@ -1,11 +1,14 @@
 package com.example.delivery_aggregator.config;
 
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Optional;
 
 public class CustomAuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
@@ -14,19 +17,16 @@ public class CustomAuthenticationSuccessHandler extends SimpleUrlAuthenticationS
                                         HttpServletResponse response,
                                         Authentication authentication) throws IOException {
 
-        String targetUrl = determineTargetUrl(request);
-        if (response.isCommitted()) {
-            return;
-        }
-        getRedirectStrategy().sendRedirect(request, response, targetUrl);
-    }
+        String deliveryData = Optional.ofNullable(request.getCookies())
+                .map(Arrays::stream)
+                .flatMap(stream -> stream.filter(c -> "delivery_data".equals(c.getName())).findFirst())
+                .map(Cookie::getValue)
+                .orElse(null);
 
-    protected String determineTargetUrl(HttpServletRequest request) {
-        String redirectUrl = (String) request.getSession().getAttribute("REDIRECT_URL");
-        if (redirectUrl != null && !redirectUrl.isEmpty()) {
-            request.getSession().removeAttribute("REDIRECT_URL");
-            return redirectUrl;
+        if (deliveryData == null || deliveryData.isEmpty()) {
+            getRedirectStrategy().sendRedirect(request, response, "/account");
         }
-        return "/account";
+
+        response.sendRedirect("/order?retryOrder=true");
     }
 }

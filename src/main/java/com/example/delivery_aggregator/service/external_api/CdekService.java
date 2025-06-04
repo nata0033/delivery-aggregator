@@ -8,7 +8,12 @@ import com.example.delivery_aggregator.dto.aggregator.IndexPageDataDto;
 import com.example.delivery_aggregator.dto.aggregator.OrderPageDataDto;
 import com.example.delivery_aggregator.dto.cdek.calculator.CdekCalculatorRequestDto;
 import com.example.delivery_aggregator.dto.cdek.calculator.CdekCalculatorResponseDto;
+import com.example.delivery_aggregator.dto.info.CdekInfoRequestDto;
+import com.example.delivery_aggregator.dto.info.CdekInfoResponseDto;
 import com.example.delivery_aggregator.mappers.CdekMapper;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
@@ -84,11 +89,49 @@ public class CdekService {
 
         HttpHeaders headers = getHttpHeaders();
 
-        CdekOrderRequestDto cdekOrderRequest = cdekMapper.OrderPageDataDtoToCdekOrderRequest(orderPageData);
+        CdekOrderRequestDto cdekOrderRequest = cdekMapper.orderPageDataDtoToCdekOrderRequest(orderPageData);
 
         HttpEntity<CdekOrderRequestDto> requestData = new HttpEntity<>(cdekOrderRequest, headers);
-        ResponseEntity<CdekOrderResponseDto> response = restTemplate.exchange(REQUEST_URL, HttpMethod.POST, requestData, CdekOrderResponseDto.class);
-        return response;
+        return restTemplate.exchange(REQUEST_URL, HttpMethod.POST, requestData, CdekOrderResponseDto.class);
     }
 
+    //Костыль
+    private Optional<String> extractStateFromJson(String json) {
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode rootNode = objectMapper.readTree(json);
+
+            return Optional.ofNullable(rootNode.path("requests"))
+                    .filter(JsonNode::isArray)
+                    .filter(requests -> requests.size() > 0)
+                    .map(requests -> requests.get(0).path("state").asText());
+
+        } catch (JsonProcessingException e) {
+            return Optional.empty();
+        }
+    }
+
+    public ResponseEntity<CdekInfoResponseDto> getOrderInfoByUUID(String uuid) {
+        final String REQUEST_URL = URL + "/v2/orders/" + uuid;
+
+        HttpHeaders headers = getHttpHeaders();
+
+        String responseString = restTemplate.exchange(REQUEST_URL, HttpMethod.GET, new HttpEntity<>(headers), String.class).getBody();
+
+        CdekInfoResponseDto cdekInfoResponseDto = new CdekInfoResponseDto();
+        cdekInfoResponseDto.setRequests(new ArrayList<>());
+        cdekInfoResponseDto.getRequests().add(new CdekInfoRequestDto());
+        cdekInfoResponseDto.getRequests().getFirst().setState(extractStateFromJson(responseString).orElse("UPDATE STATUS ERROR"));
+
+        //return restTemplate.exchange(REQUEST_URL, HttpMethod.GET, new HttpEntity<>(headers), CdekInfoResponseDto.class);
+        return ResponseEntity.ok(cdekInfoResponseDto);
+    }
+
+    public ResponseEntity<String> deleteOrderByUUID(String uuid){
+        final String REQUEST_URL = URL + "/v2/orders/" + uuid;
+
+        HttpHeaders headers = getHttpHeaders();
+
+        return restTemplate.exchange(REQUEST_URL, HttpMethod.GET, new HttpEntity<>(headers), String.class);
+    }
 }

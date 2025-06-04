@@ -44,7 +44,7 @@ public class AggregatorController {
     @GetMapping("/cities/dpd/load")
     public ResponseEntity<List<City>> loadDpdCities() {
         List<City> dpdCityList = dpdService.getCitiesWithCashPay("RU");
-        dpdCityService.create(dpdCityList);
+        dpdCityService.saveAll(dpdCityList);
 
         return ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_JSON)

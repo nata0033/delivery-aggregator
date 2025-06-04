@@ -1,4 +1,4 @@
-import { showValidateFormError, showValidateFormSuccess } from './error.js';
+import { showValidateFormError, showValidateFormSuccess } from './messages.js';
 
 export class FormValidator {
     /**

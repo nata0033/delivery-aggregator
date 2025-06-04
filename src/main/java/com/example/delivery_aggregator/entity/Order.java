@@ -3,6 +3,7 @@ package com.example.delivery_aggregator.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -19,8 +20,8 @@ public class Order {
     @Column(nullable = false)
     private String serviceOrderNumber;
 
-    @Column(nullable = false, columnDefinition = "VARCHAR(100) DEFAULT 'ACCEPTED'")
-    private String status = "ACCEPTED";
+    @Column(nullable = false)
+    private String status;
 
     @Column(nullable = false)
     private Float price;
@@ -31,8 +32,12 @@ public class Order {
     @Column(nullable = false)
     private String toLocation;
 
-    @CreationTimestamp
+    @Column(name = "last_update", nullable = false)
+    @UpdateTimestamp  // Автоматическое обновление при изменении сущности
+    private LocalDateTime lastUpdate;
+
     @Column(nullable = false, updatable = false)
+    @CreationTimestamp
     private LocalDateTime createdAt;
 
     @ManyToOne
@@ -52,11 +57,4 @@ public class Order {
 
     @OneToMany(mappedBy = "order")
     private List<Package> packages;
-
-    @PrePersist
-    public void prePersist() {
-        if (status == null) {
-            status = "ACCEPTED";
-        }
-    }
 }

@@ -53,17 +53,15 @@ public class AccountController {
 
     @GetMapping(value = "/orders", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<OrderDto>> getOrders(Principal principal) {
+        User user = userService.findByLogin(principal.getName());
+        List<Order> orders;
+
         try {
-            User user = userService.findByLogin(principal.getName());
-            List<Order> orders = orderService.getOrders(user);
-
-            if (orders == null || orders.isEmpty()) {
-                return ResponseEntity.noContent().build();
-            }
-
-            return ResponseEntity.ok(aggregatorMapper.orderListToOrderDtoList(orders));
+            orders = orderService.getOrdersWithUpdate(user);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Collections.emptyList());
+            orders = orderService.getOrders(user);
         }
+
+        return ResponseEntity.ok(aggregatorMapper.orderListToOrderDtoList(orders));
     }
 }

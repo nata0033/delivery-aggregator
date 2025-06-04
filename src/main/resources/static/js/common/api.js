@@ -1,4 +1,4 @@
-import { showErrorMessage } from './error.js';
+import { showErrorMessage } from './messages.js';
 import { getCookie, setCookie } from './cookies.js';
 
 /**
@@ -272,11 +272,30 @@ export async function fetchUserOrders() {
             throw new Error(`Ошибка получения данных заказов: ${response.statusText}`);
         }
 
-        const orders = await response.json();
-        return orders;
+        // Обрабатываем случай 204 No Content
+        if (response.status === 204) {
+            return [];
+        }
+
+        // Проверяем наличие контента перед парсингом
+        const contentLength = response.headers.get('Content-Length');
+        if (contentLength === '0') {
+            return [];
+        }
+
+        return await response.json();
     } catch (error) {
         console.error('Ошибка при получении данных заказов:', error);
         showErrorMessage(error.message);
         throw error;
     }
+}
+
+export async function deleteOrder(uuid) {
+    return await fetch(`/order/${uuid}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+    });
 }

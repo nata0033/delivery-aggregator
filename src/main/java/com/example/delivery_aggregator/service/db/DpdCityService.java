@@ -17,12 +17,15 @@ public class DpdCityService {
 
     private final DpdMapper dpdMapper;
 
-    public void create(List<City> cities){
-       dpdCityRepository.saveAll(dpdMapper.cityListToDpdCityList(cities));
+    public void saveAll(List<City> cities){
+        dpdCityRepository.deleteAll();
+        dpdCityRepository.saveAll(dpdMapper.cityListToDpdCityList(cities));
     }
 
     public Long getCityIdByCityName(String cityName) {
         List<DpdCity> cities = dpdCityRepository.findAllByCityName(cityName);
+        if(cities.isEmpty())
+            return null;
         return cities.getFirst().getCityId();
     }
 }

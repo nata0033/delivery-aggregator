@@ -8,6 +8,7 @@ import com.example.delivery_aggregator.entity.Package;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
+import org.mapstruct.Named;
 import ru.dpd.ws.order2._2012_04_04.DpdOrderStatus2;
 
 import java.util.List;
@@ -20,18 +21,12 @@ public interface AggregatorMapper {
     @Mapping(target = "login", source = "email")
     User registrationPageToUser(RegistrationPageDataDto registrationPageDto);
 
-    @Mapping(target = "userData", source = "contact")
-    @Mapping(target = "addresses", source = "contact.addresses")
-    @Mapping(target = "sendOrders", source = "user.sentOrders")
-    @Mapping(target = "receivedOrders", source = "contact.receivedOrders")
-    @Mapping(target = "contacts", source = "user.contacts")
-    AccountPageDataDto contactToAccountPageDataDto(User user, Contact contact);
-
     Contact contactDtoToContact(ContactDto contactDto);
 
     //Заказ
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "serviceOrderNumber", source = "cdekOrderResponseDto.entity.uuid")
+    @Mapping(target = "status", expression = "java(getOrderStatus(cdekOrderResponseDto.getRequests().getFirst().getState()))")
     @Mapping(target = "price", source = "orderPageDataDto.tariff.price")
     @Mapping(target = "fromLocation", source = "orderPageDataDto.fromLocation")
     @Mapping(target = "toLocation", source = "orderPageDataDto.toLocation")
@@ -43,6 +38,7 @@ public interface AggregatorMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "serviceOrderNumber", source = "dpdOrderResponseDto.orderNumberInternal")
+    @Mapping(target = "status", expression = "java(getOrderStatus(dpdOrderResponseDto.getStatus()))")
     @Mapping(target = "price", source = "orderPageDataDto.tariff.price")
     @Mapping(target = "fromLocation", source = "orderPageDataDto.fromLocation")
     @Mapping(target = "toLocation", source = "orderPageDataDto.toLocation")
@@ -51,6 +47,20 @@ public interface AggregatorMapper {
     @Mapping(target = "packages", source = "orderPageDataDto.packages")
     Order orderPageDataDtoAndCdekOrderResponseDto(OrderPageDataDto orderPageDataDto, User user, Contact contact,
                                                   DeliveryService deliveryService, DpdOrderStatus2 dpdOrderResponseDto);
+
+    @Named("getOrderStatus")
+    default String getOrderStatus(String serviceStatus){
+        return switch (serviceStatus.toUpperCase()) {
+            // Сопоставление статусов заказов
+            case "OK", "ACCEPTED", "WAITING", "NEWORDERBYCLIENT", "NEWORDERBYDPD" -> "ACCEPTED";
+            case "SUCCESSFUL", "ONROAD", "ONTERMINAL", "DELIVERING" -> "IN_PROGRESS";
+            case "DELAYED", "PROBLEM", "ORDERPENDING" -> "DELAYED";
+            case "CANCELED", "NOTDONE", "ORDERDUPLICATE", "ORDERERROR", "ORDERCANCELLED", "INVALID", "LOST",
+                 "RETURNEDFROMDELIVERY" -> "CANCELED";
+            case "DELIVERED", "ONTERMINALPICKUP", "ONTERMINALDELIVERY" -> "DELIVERED";
+            default -> serviceStatus;
+        };
+    }
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "length", source = "packageDto.length")
@@ -78,4 +88,5 @@ public interface AggregatorMapper {
     OrderDto orderToOrderDto(Order order);
 
     List<OrderDto> orderListToOrderDtoList(List<Order> orders);
+
 }

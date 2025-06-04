@@ -5,7 +5,7 @@
 import { getTariffs } from './common/api.js';
 import { getCookie } from './common/cookies.js';
 import { loadHeader } from './common/header.js';
-import { showErrorMessage } from './common/error.js';
+import { showErrorMessage } from './common/messages.js';
 import { formatDate } from './common/utils.js';
 import { createSpinner, showSpinner } from './common/spinner.js';
 

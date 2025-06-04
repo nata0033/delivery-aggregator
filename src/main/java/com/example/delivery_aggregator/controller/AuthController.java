@@ -16,8 +16,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import java.security.Principal;
 
@@ -40,7 +40,7 @@ public class AuthController {
     }
 
     @PostMapping("/registration")
-    public ResponseEntity<User> createUser(@ModelAttribute RegistrationPageDataDto registrationPageDto, HttpServletRequest request){
+    public ResponseEntity<User> createUser(@RequestBody RegistrationPageDataDto registrationPageDto, HttpServletRequest request){
         try {
         Contact contact = contactService.create(registrationPageDto);
 
@@ -61,8 +61,7 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.CREATED).body(contact.getUser());
 
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new User());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 

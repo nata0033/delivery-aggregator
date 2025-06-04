@@ -13,6 +13,7 @@ import ru.dpd.ws.geography._2015_05_20.*;
 import ru.dpd.ws.geography._2015_05_20.City;
 import ru.dpd.ws.geography._2015_05_20.WSFault_Exception;
 import ru.dpd.ws.order2._2012_04_04.*;
+import ru.dpd.ws.tracing._2011_11_18.*;
 
 import java.util.*;
 
@@ -50,8 +51,18 @@ public class DpdService {
 
             DPDCalculator port = service.getDPDCalculatorPort();
 
-            Long pickupCityId = dpdCityService.getCityIdByCityName(indexPageDataDto.getToLocation().getCity());
+            Long pickupCityId = dpdCityService.getCityIdByCityName(indexPageDataDto.getFromLocation().getCity());
             Long deliveryCityId = dpdCityService.getCityIdByCityName(indexPageDataDto.getToLocation().getCity());
+            if(pickupCityId == null ||deliveryCityId == null){
+                List<City> cities = getCitiesWithCashPay("RU");
+
+                pickupCityId = cities.stream().filter(city -> city.getCityName().equals(indexPageDataDto.getFromLocation()
+                        .getCity())).toList().getFirst().getCityId();
+                deliveryCityId = cities.stream().filter(city -> city.getCityName().equals(indexPageDataDto.getToLocation()
+                        .getCity())).toList().getFirst().getCityId();
+
+                dpdCityService.saveAll(cities);
+            }
 
             ServiceCostRequest request = dpdMapper.indexPageDataDtoAnddpdAuthDataToServiceCostRequest(indexPageDataDto,
                     dpdClientNumber, dpdClientKey, pickupCityId, deliveryCityId);
@@ -60,15 +71,14 @@ public class DpdService {
 
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return ResponseEntity.internalServerError().body(new ArrayList<>());
+            return ResponseEntity.internalServerError().build();
         }
-
     }
 
     public ResponseEntity<List<DpdOrderStatus2>> createOrder(OrderPageDataDto orderPageDataDto) {
         try {
 
-            DpdOrdersData request = dpdMapper.OrderPageDataDtoAndAuthParamsToDpdOrdersData(orderPageDataDto, dpdClientNumber, dpdClientKey);
+            DpdOrdersData request = dpdMapper.orderPageDataDtoAndAuthParamsToDpdOrdersData(orderPageDataDto, dpdClientNumber, dpdClientKey);
 
             DPDOrderService service = new DPDOrderService();
             DPDOrder port = service.getDPDOrderPort();
@@ -77,8 +87,39 @@ public class DpdService {
 
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return ResponseEntity.internalServerError().body(new ArrayList<>());
+            return ResponseEntity.internalServerError().build();
         }
     }
 
+    public ResponseEntity<StateParcels> getOrderInfoByClientOrderNr(String clientOrderNr){
+        try {
+
+        RequestClientOrder request = dpdMapper.clientOrderNrStringToRequestClientOrder(clientOrderNr, dpdClientNumber, dpdClientKey);
+
+        ParcelTracingService service = new ParcelTracingService();
+        ParcelTracing port = service.getParcelTracingPort();
+
+        StateParcels response = port.getStatesByClientOrder(request);
+
+        return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    public ResponseEntity<List<DpdOrderStatus>> deleteOrderByOrderNumberInternal(String orderNumberInternal){
+        try{
+            DpdOrderCancellation requeest = dpdMapper.clientOrderNrStringToDpdOrderCancellation(orderNumberInternal, dpdClientNumber, dpdClientKey);
+
+            DPDOrderService service = new DPDOrderService();
+            DPDOrder port = service.getDPDOrderPort();
+
+            List<DpdOrderStatus> response = port.cancelOrder(requeest);
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e){
+            return ResponseEntity.internalServerError().build();
+
+        }
+    }
 }

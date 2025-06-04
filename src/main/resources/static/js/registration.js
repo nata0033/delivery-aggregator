@@ -2,7 +2,7 @@
  * Модуль для управления страницей регистрации
  */
 import { loadHeader } from './common/header.js';
-import { showErrorMessage } from './common/error.js';
+import { showErrorMessage } from './common/messages.js';
 import { checkAuthStatus, checkEmailUnique, sendVerificationCode, confirmVerificationCode, registerUser } from './common/api.js';
 import { showSpinner } from './common/spinner.js';
 import { FormValidator } from './common/validation.js';

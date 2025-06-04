@@ -3,8 +3,8 @@
  * Загружает header, данные пользователя и заказы
  */
 import { loadHeader } from './common/header.js';
-import { showErrorMessage } from './common/error.js';
-import { fetchUserContact, fetchUserOrders } from './common/api.js';
+import { showErrorMessage, showSuccessMessage } from './common/messages.js';
+import { fetchUserContact, fetchUserOrders, deleteOrder } from './common/api.js';
 import { formatDate } from './common/utils.js';
 
 class AccountManager {
@@ -124,14 +124,14 @@ class AccountManager {
    */
 getStatusClass(status) {
     const statusClasses = {
-        'OrderDuplicate': 'badge-warning',
-        'ACCEPTED': 'badge-success',
-        'CANCELED': 'badge-danger',
-        'IN_PROGRESS': 'badge-primary',
-        'DELAYED': 'badge-warning',
-        'DELIVERED': 'badge-success',
+        'ACCEPTED': 'badge rounded-pill bg-primary',
+        'IN_PROGRESS': 'badge rounded-pill bg-primary',
+        'DELAYED': 'badge rounded-pill bg-warning text-dark',
+        'CANCELED': 'badge rounded-pill bg-danger',
+        'DELIVERED': 'badge rounded-pill bg-success'
     };
-    return statusClasses[status] || 'badge-secondary'; // По умолчанию серый цвет
+
+    return statusClasses[status] || 'badge rounded-pill bg-secondary'; // По умолчанию серый цвет
 }
 
   /**
@@ -141,12 +141,11 @@ getStatusClass(status) {
    */
   translateStatus(status) {
     const statusMap = {
-      'OrderDuplicate': 'Дубликат заказа',
-      'ACCEPTED': 'Принят',
-      'CANCELED': 'Отменен',
-      'IN_PROGRESS': 'В обработке',
-      'DELAYED': 'Задержан',
-      'DELIVERED': 'Доставлен'
+        'ACCEPTED': 'Принят',
+        'IN_PROGRESS': 'Доставляется',
+        'DELAYED': 'Задержвается',
+        'CANCELED': 'Отменен',
+        'DELIVERED': 'Доставлен'
     };
     return statusMap[status] || status || 'Неизвестно';
   }
@@ -215,7 +214,13 @@ getStatusClass(status) {
    * @param {Object} order - Данные заказа
    */
   toggleOrderDetails(order) {
+      if (!this.modal) {
+          console.error('Модальное окно не инициализировано');
+          return;
+      }
+
     const modalElement = document.getElementById('orderDetailsModal');
+
     if (!modalElement) {
       console.error('Модальное окно orderDetailsModal не найдено');
       return;
@@ -247,10 +252,62 @@ getStatusClass(status) {
     `;
     modalBody.dataset.orderId = order.id;
 
+    // Проверяем, можно ли отменить заказ (только для определенных статусов)
+    const canCancel = ['ACCEPTED', 'DELAYED', 'IN_PROGRESS'].includes(order.status);
+
+    // Добавляем обработчик кнопки отмены, если она есть
+    if (canCancel) {
+        const modalFooter = modalElement.querySelector('.modal-footer')
+        const cancelButton = modalFooter.querySelector('#cancelOrderButton');
+
+        cancelButton.disabled = false;
+        if (cancelButton) {
+            cancelButton.addEventListener('click', async (e) => {
+                e.stopPropagation();
+                await this.cancelOrder(order.id);
+            });
+        }
+    }
+
     // Показываем модальное окно
     if (this.modal) {
       this.modal.show();
     }
+  }
+
+  /**
+   * Отменяет заказ по UUID
+   * @param {string} uuid - UUID заказа
+   */
+  async cancelOrder(uuid) {
+      if (!uuid) {
+          showErrorMessage('Не указан идентификатор заказа');
+          return false;
+      }
+
+      try {
+          // Подтверждение отмены
+          const isConfirmed = confirm('Вы уверены, что хотите отменить заказ?');
+          if (!isConfirmed) return false;
+
+        const response = await deleteOrder(uuid);
+
+          if (response.ok) {
+              showSuccessMessage('Заказ успешно отменен');
+              await this.loadOrders();
+              if (this.modal) {
+                  this.modal.hide();
+              }
+              return true;
+          } else {
+              const error = await response.json();
+              throw new Error(error.message || 'Не удалось отменить заказ');
+          }
+      } catch (error) {
+          console.error('Ошибка отмены заказа:', error);
+          showErrorMessage('Ошибка при отмене заказа: ' + error.message);
+          return false;
+      }
   }
 }
 

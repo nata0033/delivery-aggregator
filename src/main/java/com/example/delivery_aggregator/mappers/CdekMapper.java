@@ -8,7 +8,6 @@ import com.example.delivery_aggregator.dto.aggregator.*;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
-import org.mapstruct.Named;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -61,11 +60,9 @@ public interface CdekMapper {
     @Mapping(target = "fromLocation", source = "fromLocation")
     @Mapping(target = "toLocation", source = "toLocation")
     @Mapping(target = "packages", source = "packages")
-    CdekOrderRequestDto OrderPageDataDtoToCdekOrderRequest(OrderPageDataDto orderPageData);
+    CdekOrderRequestDto orderPageDataDtoToCdekOrderRequest(OrderPageDataDto orderPageData);
 
     default List<CdekOrderPackageDto> packageDtoListToCdekOrderPackageDtoList (List<PackageDto> packages){
-        List<CdekOrderPackageDto> cdekPackages = new ArrayList<>();
-        
         return cdekPackages(
                 IntStream.range(0, packages.size())
                         .mapToObj(i -> {

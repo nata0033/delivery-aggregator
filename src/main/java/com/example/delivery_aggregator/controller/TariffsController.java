@@ -18,10 +18,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import ru.dpd.ws.calculator._2012_03_20.ServiceCost;
 
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Data
@@ -61,7 +59,7 @@ public class TariffsController {
         // Фильтруем тарифы
         List<CdekCalculatorTariffCodeDto> filteredTariffs = tariffCodes.getTariffCodes().stream()
                 .filter(t -> t.getTariffName() != null && t.getTariffName().contains(searchPattern))
-                .collect(Collectors.toList());
+                .toList();
 
         // Создаем и возвращаем новый DTO
         CdekCalculatorResponseDto filteredTariffCodes = new CdekCalculatorResponseDto();
@@ -89,12 +87,11 @@ public class TariffsController {
 
             List<TariffDto> allTariffs = Stream.concat(cdekTariffs.stream(), dpdTariffs.stream())
                     .sorted(Comparator.comparing(TariffDto::getPrice))
-                    .collect(Collectors.toList());
+                    .toList();
 
             return ResponseEntity.ok(allTariffs);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Collections.emptyList());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 }

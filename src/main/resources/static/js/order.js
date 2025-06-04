@@ -2,9 +2,9 @@
  * Модуль для управления страницей заказа
  */
 import { checkAuthStatus, createOrder, fetchUserContact } from './common/api.js';
-import { getCookie, setCookie } from './common/cookies.js';
+import { getCookie, setCookie, deleteCookie } from './common/cookies.js';
 import { loadHeader } from './common/header.js';
-import { showErrorMessage, showSuccessMessage } from './common/error.js';
+import { showErrorMessage, showSuccessMessage } from './common/messages.js';
 import { declOfNum, formatDate } from './common/utils.js';
 import { FormValidator } from './common/validation.js';
 import { showSpinner } from './common/spinner.js';
@@ -19,6 +19,12 @@ class OrderManager {
         this.loadFormData();
         this.initEventHandlers();
         this.initValidation();
+        if( new URLSearchParams(window.location.search).has('retryOrder')){
+            const fakeEvent = {
+                preventDefault: () => {}
+            };
+            await this.sendOrder(fakeEvent);
+        }
     }
 
     initEventHandlers() {
@@ -82,6 +88,9 @@ class OrderManager {
 
                 document.getElementById('tariff-price').textContent = deliveryData.tariff.price ? `${deliveryData.tariff.price} ₽` : '';
                 document.getElementById('total-price').textContent = deliveryData.tariff.price ? `${deliveryData.tariff.price} ₽` : '';
+            }
+            else{
+                window.location.href = '/';
             }
         } catch (e) {
             showErrorMessage('Некорректный формат данных в cookie доставки');
@@ -231,14 +240,16 @@ class OrderManager {
             }
 
             const response = await createOrder(orderData);
+
+            showSuccessMessage('Заказ успешно создан'); // Показываем уведомление
+            deleteCookie('delivery_data') //Удаляем куки
+            setTimeout(() => {
+            window.location.href = '/account'; // Переход на страницу аккаунта
+            }, 2000);
         } catch (error) {
             console.error('Ошибка отправки заказа:', error);
         } finally {
             showSpinner(false);
-            showSuccessMessage('Заказ успешно создан'); // Показываем уведомление
-            setTimeout(() => {
-            window.location.href = '/account'; // Переход на страницу аккаунта
-            }, 2000);
         }
     }
 }

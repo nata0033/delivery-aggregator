@@ -14,6 +14,27 @@ export function showValidateFormSuccess(input) {
 }
 
 /**
+ * Показывает ошибку валидации для поля ввода
+ * @param {HTMLElement} input - Поле ввода
+ * @param {string} message - Текст сообщения об ошибке
+ */
+
+export function showValidateFormError(input, message) {
+    input.classList.remove('is-valid');
+    input.classList.add('is-invalid');
+
+    let errorMessage = input.nextElementSibling;
+    if (errorMessage && errorMessage.classList.contains('invalid-feedback')) {
+        errorMessage.textContent = message; // Обновляем текст существующего сообщения
+    } else {
+        errorMessage = document.createElement('div');
+        errorMessage.className = 'invalid-feedback';
+        errorMessage.textContent = message;
+        input.parentNode.appendChild(errorMessage); // Добавляем новое сообщение, если его нет
+    }
+}
+
+/**
  * Отображает общее сообщение об ошибке
  * @param {string} message - Текст сообщения
  */
@@ -39,26 +60,9 @@ export function showErrorMessage(message) {
 }
 
 /**
- * Показывает ошибку валидации для поля ввода
- * @param {HTMLElement} input - Поле ввода
- * @param {string} message - Текст сообщения об ошибке
+ * Отображает общее сообщение о успешной работе
+ * @param {string} message - Текст сообщения
  */
-
-export function showValidateFormError(input, message) {
-    input.classList.remove('is-valid');
-    input.classList.add('is-invalid');
-
-    let errorMessage = input.nextElementSibling;
-    if (errorMessage && errorMessage.classList.contains('invalid-feedback')) {
-        errorMessage.textContent = message; // Обновляем текст существующего сообщения
-    } else {
-        errorMessage = document.createElement('div');
-        errorMessage.className = 'invalid-feedback';
-        errorMessage.textContent = message;
-        input.parentNode.appendChild(errorMessage); // Добавляем новое сообщение, если его нет
-    }
-}
-
 export function showSuccessMessage(message) {
     let successContainer = document.getElementById('success-message-container');
     if (!successContainer) {
