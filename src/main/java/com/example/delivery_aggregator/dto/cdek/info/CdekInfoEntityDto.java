@@ -1,4 +1,4 @@
-package com.example.delivery_aggregator.dto.info;
+package com.example.delivery_aggregator.dto.cdek.info;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;

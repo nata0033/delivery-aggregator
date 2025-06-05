@@ -2,7 +2,7 @@ package com.example.delivery_aggregator.service.db;
 
 import com.example.delivery_aggregator.dto.aggregator.OrderPageDataDto;
 import com.example.delivery_aggregator.dto.cdek.order.CdekOrderResponseDto;
-import com.example.delivery_aggregator.dto.info.CdekInfoResponseDto;
+import com.example.delivery_aggregator.dto.cdek.info.CdekInfoResponseDto;
 import com.example.delivery_aggregator.entity.*;
 import com.example.delivery_aggregator.mappers.AggregatorMapper;
 import com.example.delivery_aggregator.repository.OrderRepository;

@@ -1,10 +1,10 @@
-package com.example.delivery_aggregator.dto.info;
+package com.example.delivery_aggregator.dto.cdek.info;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 @Data
-public class CdekInfoPaymentDto {
+public class CdekInfoDeliveryRecipientCostDto {
     private Double value;
     @JsonProperty("vat_sum")
     private Double vatSum;
